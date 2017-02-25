@@ -1,0 +1,8 @@
+---
+
+- name: save iptables
+  command: /etc/init.d/iptables save
+  notify: restart iptables
+
+- name: restart iptables
+  service: name=iptables state=restarted
