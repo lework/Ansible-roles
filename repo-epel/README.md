@@ -28,7 +28,7 @@ os `Centos 6.7 X64`
 没有
 
 ## github地址
-https://github.com/kuailemy123/Ansible-playbook.git
+https://github.com/kuailemy123/Ansible-roles/tree/master/repo-epel
 
 ## Example Playbook
 
