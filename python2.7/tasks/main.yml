@@ -1,0 +1,57 @@
+---
+- name: Copy python file to agent.
+  stat: path={{ python_file_path }}
+  connection: local
+  register: python_file_result
+ 
+- name: Create software files .
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not python_file_result.stat.exists
+  
+- name: Download python file.
+  get_url: url={{ python_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not python_file_result.stat.exists
+
+- name: Check if python remote soft link is already configured.
+  stat: path="/usr/local/bin/python2.7"
+  register: python_link_result
+
+- name: Check if python remote soft old link is already configured.
+  stat: path="/usr/bin/python2.6.6"
+  register: python_old_link_result
+
+- name: Copy python file to agent.
+  unarchive:
+    src: "{{ python_file_path }}"
+    dest: "{{ software_files_path }}"
+    creates: "{{ software_files_path }}/Python-{{ python_version }}"
+  when: not python_link_result.stat.exists
+
+- name: Build python.
+  shell: "./configure --prefix={{ software_install_path }} && make altinstall chdir=/{{ software_files_path }}/Python-{{ python_version }} creates=/usr/local/bin/python2.7"
+  when: not python_link_result.stat.exists
+
+- name: Move python old version and Create python dir soft link.
+  shell: mv -f /usr/bin/python /usr/bin/python2.6.6 && ln -s /usr/local/bin/python2.7 /usr/bin/python
+  when: not python_old_link_result.stat.exists and not python_link_result.stat.exists
+
+- name: Replace file python env path.
+  replace: dest={{ item }}  regexp=/usr/bin/python replace=/usr/bin/python2.6.6
+  when: not python_old_link_result.stat.exists
+  with_items:
+    - /usr/sbin/iotop
+    - /usr/bin/yum
+
+- name: Install python2.7 pip.
+  shell: curl -sS https://bootstrap.pypa.io/get-pip.py | python
+  when: not python_old_link_result.stat.exists and not python_link_result.stat.exists
+
+- name: Create pip config dir.
+  file: dest=~/.pip state=directory
+  when: change_pip_source
+
+- name: Change pip source.
+  template: src=pip.conf.j2 dest=~/.pip/pip.conf
+  when: change_pip_source

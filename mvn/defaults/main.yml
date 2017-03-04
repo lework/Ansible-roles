@@ -1,0 +1,11 @@
+---
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+mvn_version: "3.3.9"
+mvn_file: "apache-maven-{{ mvn_version }}-bin.tar.gz"
+mvn_file_path: "{{ software_files_path }}/{{ mvn_file }}"
+mvn_install_path: "{{ software_install_path }}/apache-maven-{{ mvn_version }}"
+mvn_file_url: "http://mirror.olnevhost.net/pub/apache/maven/maven-3/{{ mvn_version }}/binaries/apache-maven-{{ mvn_version }}-bin.tar.gz"
+
+link_force: false

@@ -1,0 +1,73 @@
+---
+- name: Install packages required to build ruby (RedHat).
+  yum: "name={{ item }} state=present"
+  with_items:
+    - '@development'
+    - zlib-devel
+    - openssl-static
+  when: ansible_os_family == 'RedHat'
+
+- name: Update apt cache (Debian).
+  apt: update_cache=yes cache_valid_time=86400
+  when: ansible_os_family == 'Debian'
+
+- name: Install packages required to build ruby (Debian).
+  apt: "name={{ item }} state=present"
+  with_items:
+    - build-essential
+    - zlib1g-dev
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libgdbm3
+    - libgdbm-dev
+  when: ansible_os_family == 'Debian'
+
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+
+- name: Check if ruby local file is already configured.
+  stat: path={{ ruby_file_path }}
+  connection: local
+  register: ruby_file_result
+  
+- name: Download ruby.
+  get_url:
+    url: "{{ ruby_download_url }}"
+    dest: "{{ software_files_path }}/ruby-{{ ruby_version }}.tar.gz"
+  connection: local
+  when: not ruby_file_result.stat.exists
+  
+- name: Extract ruby.
+  unarchive:
+    src: "{{ software_files_path }}/ruby-{{ ruby_version }}.tar.gz"
+    dest: "{{ software_files_path }}/"
+    creates: "{{ software_files_path }}/ruby-{{ ruby_version }}"
+
+- name: Build ruby.
+  command: >
+    {{ item }}
+    chdir={{ software_files_path }}/ruby-{{ ruby_version }}
+    creates=/usr/local/bin/ruby
+  with_items:
+    - ./configure --prefix={{ software_install_path }} --enable-shared
+    - make
+    - make install
+
+- name: Add ruby symlinks.
+  file:
+    src: "/usr/local/bin/{{ item }}"
+    dest: "/usr/bin/{{ item }}"
+    state: link
+    force: yes
+  with_items:
+    - erb
+    - gem
+    - irb
+    - rake
+    - rdoc
+    - ruby

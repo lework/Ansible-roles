@@ -1,0 +1,50 @@
+---
+- name: Check if java local file is already configured.
+  stat: path={{ java_file_path }}
+  connection: local
+  register: java_file_result
+
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not java_file_result.stat.exists
+  
+- name: Download java file
+  get_url: url={{ java_file_url }} dest={{ software_files_path }} headers="Cookie:gpw_e24=http%3A%2F%2Fwww.oracle.com%2F;oraclelicense=accept-securebackup-cookie"
+  connection: local
+  when: not java_file_result.stat.exists
+
+- name: Copy java file to agent
+  unarchive:
+    src: "{{ java_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ java_install_path }}"
+    owner: "{{ ansible_user_gecos }}"
+ 
+- name: Check if java remote soft link  is already configured.
+  stat: path={{ java_home }}
+  register: java_soft_link_result
+
+- name: Create java home dir.
+  file: dest=/usr/java state=directory
+  when: not java_soft_link_result.stat.exists
+
+- name: Create java dir soft link
+  file: "src={{ java_install_path }} dest={{ java_home }} state=link"
+  when: not java_soft_link_result.stat.exists
+
+# Environment setup.
+- name: Set JAVA_HOME if configured.
+  template:
+    src: java_home.sh.j2
+    dest: /etc/profile.d/java_home.sh
+    force: no
+    mode: 0644
+  when: java_home !=''
+
+- name: java version
+  command: java -version
+  register: result
+  ignore_errors: True
+
+- debug: var=result.stderr

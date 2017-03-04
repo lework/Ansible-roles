@@ -1,0 +1,31 @@
+---
+- name: Check if mvn local file is already configured.
+  stat: path={{ mvn_file_path }}
+  connection: local
+  register: mvn_file_result
+
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not mvn_file_result.stat.exists
+  
+- name: Download mvn file
+  get_url: url={{ mvn_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not mvn_file_result.stat.exists
+ 
+- name: Copy mvn file to agent
+  unarchive:
+    src: "{{ mvn_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ mvn_install_path }}"
+
+- name: Create mvn dir soft link
+  file: "src={{ mvn_install_path }}/bin/mvn dest=/usr/bin/mvn state=link force={{ link_force }}"
+
+- name: mvn version
+  command: mvn -v
+  register: result
+  ignore_errors: True
+
+- debug: var=result.stdout

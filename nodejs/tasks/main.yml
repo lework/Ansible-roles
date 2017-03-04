@@ -1,0 +1,56 @@
+---
+- name: Check if nodejs local file is already configured.
+  stat: path={{ nodejs_file_path }}
+  connection: local
+  register: nodejs_file_result
+  
+- name: Create software files .
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not nodejs_file_result.stat.exists
+  
+- name: Download nodejs file
+  get_url: url={{ nodejs_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not nodejs_file_result.stat.exists
+
+- name: Copy nodejs file to agent
+  unarchive:
+    src: "{{ nodejs_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/node-v{{ nodejs_version }}-linux-x64"
+ 
+- name: Check if nodejs remote soft link  is already configured.
+  stat: path="{{ software_install_path }}/nodejs"
+  register: nodejs_soft_link_result
+
+- name: Create nodejs dir soft link
+  file: "src={{ software_install_path }}/node-v{{ nodejs_version }}-linux-x64 dest={{ software_install_path }}/nodejs state=link"
+  when: not nodejs_soft_link_result.stat.exists
+
+- name: Config environment variable
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/nodejs/bin/:$PATH'
+  run_once: yes
+
+- name: Check if npm  is already configured.
+  stat: path="{{ software_install_path }}/nodejs/bin/npm"
+  register: npm_result
+
+- name: Install npm
+  script: install_npm.sh creates=/sbin/npm
+  environment:
+    PATH: "{{ software_install_path }}/nodejs/bin/:$PATH"
+    NPM_CONFIG_PREFIX: "{{ npm_config_prefix }}"
+    NODE_PATH: "{{ npm_config_prefix }}/lib/node_modules"
+  ignore_errors: true
+  when: not npm_result.stat.exists
+
+- name: Ensure npm global packages are installed.
+  npm:
+    name: "{{ item.name }}"
+    version: "{{ item.version | default('latest') }}"
+    global: yes
+    executable: "{{ software_install_path }}/nodejs/bin/npm"
+    registry: "{{ npm_registry }}"
+    state: present
+  with_items: "{{ nodejs_npm_global_packages }}"

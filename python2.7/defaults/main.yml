@@ -1,0 +1,12 @@
+---
+software_files_path: "/opt/software/"
+software_install_path: "/usr/local"
+
+python_version: "2.7.13"
+
+python_file: "Python-{{ python_version }}.tgz"
+python_file_path: "{{ software_files_path }}/{{ python_file }}"
+python_file_url: "http://www.python.org/ftp/python/{{ python_version }}/Python-{{ python_version }}.tgz"
+
+pip_source_url: "https://pypi.tuna.tsinghua.edu.cn/simple"
+change_pip_source: true
