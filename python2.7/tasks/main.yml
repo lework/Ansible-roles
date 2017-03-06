@@ -43,6 +43,7 @@
   with_items:
     - /usr/sbin/iotop
     - /usr/bin/yum
+  ignore_errors: true
 
 - name: Install python2.7 pip.
   shell: curl -sS https://bootstrap.pypa.io/get-pip.py | python
