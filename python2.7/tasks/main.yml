@@ -22,6 +22,18 @@
   stat: path="/usr/bin/python2.6.6"
   register: python_old_link_result
 
+- name: Ensure packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - zlib
+    - zlib-devel
+    - openssl
+    - openssl-devel
+    - python-devel
+    - "gcc"
+
 - name: Copy python file to agent.
   unarchive:
     src: "{{ python_file_path }}"
@@ -45,9 +57,13 @@
     - /usr/bin/yum
   ignore_errors: true
 
+- name: Check if pip is already configured.
+  stat: path="/usr/local/bin/pip2.7"
+  register: pip_software_result
+
 - name: Install python2.7 pip.
   shell: curl -sS https://bootstrap.pypa.io/get-pip.py | python
-  when: not python_old_link_result.stat.exists and not python_link_result.stat.exists
+  when: not pip_software_result.stat.exists
 
 - name: Create pip config dir.
   file: dest=~/.pip state=directory

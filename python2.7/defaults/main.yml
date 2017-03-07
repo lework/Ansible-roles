@@ -1,5 +1,5 @@
 ---
-software_files_path: "/opt/software/"
+software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
 python_version: "2.7.13"
@@ -10,3 +10,5 @@ python_file_url: "http://www.python.org/ftp/python/{{ python_version }}/Python-{
 
 pip_source_url: "https://pypi.tuna.tsinghua.edu.cn/simple"
 change_pip_source: true
+
+ansible_python_interpreter: /usr/bin/python2.6
