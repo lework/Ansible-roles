@@ -1,4 +1,6 @@
 ---
+# author: lework
+
 - name: Copy python file to agent.
   stat: path={{ python_file_path }}
   connection: local

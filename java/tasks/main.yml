@@ -1,4 +1,6 @@
 ---
+# author: lework
+
 - name: Check if java local file is already configured.
   stat: path={{ java_file_path }}
   connection: local

@@ -1,6 +1,7 @@
 ---
 # Set java_packages if you would like to use a different version than the
 # default (OpenJDK 1.7).
+# author: lework
 
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"

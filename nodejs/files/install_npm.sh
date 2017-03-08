@@ -11,6 +11,7 @@
 # http://www.gnu.org/s/hello/manual/autoconf/Portable-Shell.html
 #
 # The only shell it won't ever work on is cmd.exe.
+# author: lework
 
 if [ "x$0" = "xsh" ]; then
   # run as curl | sh

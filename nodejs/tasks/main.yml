@@ -1,4 +1,6 @@
 ---
+# author: lework
+
 - name: Check if nodejs local file is already configured.
   stat: path={{ nodejs_file_path }}
   connection: local

@@ -1,4 +1,6 @@
 ---
+# author: lework
+
 epel_source_url: "http://mirrors.ustc.edu.cn"
 epel_repo_url: "{{ epel_source_url }}/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
 epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"

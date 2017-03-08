@@ -1,4 +1,6 @@
 ---
+# author: lework
+
 # Include OS-specific installation tasks.
 - include: setup-RedHat.yml
   when: (ruby_install_from_source == false) and (ansible_os_family == 'RedHat')
