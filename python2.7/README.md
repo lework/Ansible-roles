@@ -40,4 +40,4 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/python2.7
 		
 	- hosts: server
       roles:
-        - { role: python2.7, python_version: "2.7.14"}
+        - { role: python2.7, python_version: "2.7.13"}
