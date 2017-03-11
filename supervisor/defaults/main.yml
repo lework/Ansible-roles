@@ -1,0 +1,12 @@
+---
+# author: lework
+
+supervisor_conf: "/etc/supervisor/conf"
+supervisor_run: "/var/run/supervisor"
+supervisor_log: "/var/log/supervisor"
+supervisor_env: ""
+supervisor_program: []
+supervisor_name: ""
+supervisor_bin: "/usr/local/bin/supervisorctl"
+
+ansible_python_interpreter: /usr/bin/python2.6

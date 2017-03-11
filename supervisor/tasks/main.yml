@@ -1,0 +1,37 @@
+---
+# author: lework
+
+- name: Check if supervisor local file is already configured.
+  stat: path={{ supervisor_bin }}
+  register: supervisor_bin_result
+
+- name: Install supervisor for pip.
+  pip: name=supervisor
+  when: not supervisor_bin_result.stat.exists
+
+- name: Create supervisor dir.
+  file: dest={{ item }} state=directory mode=755
+  with_items:
+    - "{{ supervisor_conf }}"
+    - "{{ supervisor_run }}"
+    - "{{ supervisor_log }}/{{ supervisor_name }}"
+    
+- name: "Set supervisor {{ supervisor_name }} config if configured."
+  template:
+    src: supervisor.conf.j2
+    dest: "{{ supervisor_conf }}/{{ supervisor_name }}.conf"
+
+- name: "Set supervisor {{ supervisor_name }} start shell if configured."
+  template:
+    src: supervisor.sh.j2
+    dest: /etc/rc.d/init.d/{{ supervisor_name }}
+    mode: 755
+    
+- name: "Add {{ supervisor_name }} services."
+  shell: "chkconfig --add {{ supervisor_name }}"
+ 
+- name: "Add supervisord {{ supervisor_name }} in rc.local."
+  lineinfile: "dest=/etc/rc.local line='/usr/local/bin/supervisord -c {{ supervisor_conf }}/{{ supervisor_name }}.conf'"
+
+- name: "Ensure {{ supervisor_name }} is running."
+  shell: "/usr/local/bin/supervisord -d /tmp/ -c {{ supervisor_conf }}/{{ supervisor_name }}.conf"

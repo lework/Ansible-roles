@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# supervisord - {{ supervisor_name }}
+# author: lework
+# chkconfig:   - 85 15
+
+supervisor_conf={{ supervisor_conf }}/{{ supervisor_name }}.conf
+
+case ${1} in
+start)
+/usr/local/bin/supervisorctl -c $supervisor_conf start all
+;;
+stop)
+/usr/local/bin/supervisorctl -c $supervisor_conf stop all
+;;
+reload)
+/usr/local/bin/supervisorctl -c $supervisor_conf reload
+;;
+restart)
+/usr/local/bin/supervisorctl -c $supervisor_conf restart all
+;;
+status)
+/usr/local/bin/supervisorctl -c $supervisor_conf status
+;;
+shutdown)
+/usr/local/bin/supervisorctl -c $supervisor_conf shutdown
+;;
+*)
+printf "Usage: $0 {start|stop|restart|status|reload|shutdown}\n"
+esac
