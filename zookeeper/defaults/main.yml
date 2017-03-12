@@ -1,0 +1,19 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+zookeeper_version: "3.4.9"
+
+zookeeper_file: "zookeeper-{{ zookeeper_version }}.tar.gz"
+zookeeper_file_path: "{{ software_files_path }}/{{ zookeeper_file }}"
+zookeeper_file_url: "http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-{{ zookeeper_version }}/zookeeper-{{ zookeeper_version }}.tar.gz"
+
+zookeeper_port: 2181
+zookeeper_home: "/zookeeper_data"
+zookeeper_dir: "{{ zookeeper_home }}/{{ zookeeper_port }}"
+zookeeper_datadir: "{{ zookeeper_home }}/{{ zookeeper_port }}/data"
+zookeeper_datalogdir: "{{ zookeeper_home }}/{{ zookeeper_port }}/logs"
+zookeeper_hosts:
+  - {'host': 127.0.0.1, 'port': 2181 ,'id': 1, 'leader_port': '2888:3888'}

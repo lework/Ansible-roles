@@ -1,0 +1,9 @@
+{% for i in zookeeper_hosts %}
+{%- if i.port is not defined and (i.host == ansible_default_ipv4.address or i.host == ansible_nodename) -%}
+{{ i.id }}
+{%- elif (i.host == ansible_default_ipv4.address or i.host == ansible_nodename) and i.port == zookeeper_port -%} 
+{{ i.id }}
+{%- elif i.host == '127.0.0.1' and i.port == zookeeper_port -%}
+1
+{%- endif -%}
+{% endfor %}

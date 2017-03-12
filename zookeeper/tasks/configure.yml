@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: Create zookeeper Directory.
+  file: path={{ zookeeper_datadir }} state=directory
+
+- name: Setup myid.
+  template:
+    dest: "{{ zookeeper_datadir }}/myid"
+    src: myid.j2
+
+- name: Setup zoo.cfg file.
+  template:
+    dest: "{{ zookeeper_dir }}/zoo.cfg"
+    mode: 0644
+    src: zoo.cfg.j2
+
+- name: Ensure zookeeper is running.
+  shell: "{{software_install_path}}/zookeeper/bin/zkServer.sh start {{ zookeeper_dir }}/zoo.cfg"
+
+- name: Wait for Zookeeper port.
+  wait_for: "port={{ zookeeper_port }} state=started timeout=60"
+
+- name: Add self-starting to rc.local.
+  lineinfile: "dest=/etc/rc.d/rc.local line='{{software_install_path}}/zookeeper/bin/zkServer.sh start {{ zookeeper_dir }}/zoo.cfg'"
