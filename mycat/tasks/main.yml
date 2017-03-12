@@ -1,0 +1,56 @@
+---
+# author: lework
+
+- name: Check if mycat local file is already configured.
+  stat: path={{ mycat_file_path }}
+  connection: local
+  register: mycat_file_result
+  
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not mycat_file_result.stat.exists
+
+- name: Download mycat file
+  get_url: url={{ mycat_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not mycat_file_result.stat.exists
+
+- name: Copy mycat file to agent
+  unarchive:
+    src: "{{ mycat_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/mycat"
+
+- name: Config environment variable
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/mycat/bin/:$PATH'
+  run_once: yes
+
+- name: Ensure server.xml is configured.
+  template:
+    src: server.xml.j2
+    dest: "{{ mycat_conf_path }}/server.xml"
+    force: true
+
+- name: Ensure schema.xml is configured.
+  template:
+    src: schema.xml.j2
+    dest: "{{ mycat_conf_path }}/schema.xml"
+    force: true
+    
+- name: Ensure mycat shell is configured.
+  template:
+    src: mycat.sh.j2
+    dest: "/etc/rc.d/init.d/mycat"
+    force: true
+    mode: 755
+    
+- name: Add mycat services.
+  shell: "chkconfig --add mycat && chkconfig mycat on"
+
+- name: Ensure mycat is running.
+  service:
+    name: mycat
+    state: started
+    enabled: yes
+
