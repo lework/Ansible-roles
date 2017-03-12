@@ -1,0 +1,25 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+memcached_version: "1.4.33"
+
+memcached_file: "memcached-{{ memcached_version }}.tar.gz"
+memcached_file_path: "{{ software_files_path }}/{{ memcached_file }}"
+memcached_file_url: "http://memcached.org/files/memcached-{{ memcached_version }}.tar.gz"
+
+# memcached_port: 11211
+memcached_listen_ip: 0.0.0.0
+memcached_daemon: "memcached{{ memcached_port | default('') }}"
+memcached_user: memcached
+
+memcached_cachesize: 64
+memcached_maxconn: 1024
+
+memcached_log_file: /var/log/memcached{{ memcached_port | default('') }}.log
+memcached_log_verbosity: "-vv"
+memcached_options: "-l {{ memcached_listen_ip }} {{ memcached_log_verbosity }} 2>> {{ memcached_log_file }}"
+
+ansible_python_interpreter: /usr/bin/python2.6

@@ -1,0 +1,50 @@
+---
+# author: lework
+
+- name: Check if memcached local file is already configured.
+  stat: path={{ memcached_file_path }}
+  connection: local
+  register: memcached_file_result
+  
+- name: Create software files .
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not memcached_file_result.stat.exists
+  
+- name: Download memcached file.
+  get_url: url={{ memcached_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not memcached_file_result.stat.exists
+
+- name: Copy memcached file to agent.
+  unarchive:
+    src: "{{ memcached_file_path }}"
+    dest: "/tmp/"
+    creates: "{{ software_install_path}}/memcached-{{ memcached_version }}"
+
+- name: Ensure gcc packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    - libevent
+    - libevent-devel
+
+- name: Build memcached.
+  shell: >
+    ./configure && make && make install
+    chdir=/tmp/memcached-{{ memcached_version }}
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/memcached/bin/:$PATH'
+  run_once: yes
+
+- name: Create memcached group.
+  group: name=memcached
+
+- name: Create memcached user.
+  user: name=memcached group=memcached shell=/sbin/nologin

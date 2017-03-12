@@ -1,0 +1,14 @@
+---
+# author: lework
+
+- name: Ensure memcached daemon shell is configured.
+  template:
+    src: memcached.sh.j2
+    dest: "/etc/rc.d/init.d/{{ memcached_daemon }}"
+    mode: 0755
+
+- name: Add memcached services.
+  shell: "chkconfig --add {{ memcached_daemon }} && chkconfig {{ memcached_daemon }} on"
+
+- name: Ensure memcached is running and enabled on boot.
+  service: "name={{ memcached_daemon }} state=started enabled=yes"
