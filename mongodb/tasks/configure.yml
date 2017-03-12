@@ -1,0 +1,35 @@
+---
+- name: Create mongodb Directory.
+  file: path={{ item }} state=directory owner={{ mongodb_user }} group={{ mongodb_user }}
+  with_items:
+   - "{{ mongodb_dbpath }}"
+   - "{{ mongodb_dir_path }}/logs"
+
+- name: Ensure mongodb is configured.
+  template:
+    src: mongod.conf.j2
+    dest: "{{ mongodb_dir_path }}/mongod.conf"
+    mode: 0644
+    owner: "{{ mongodb_user }}"
+    group: "{{ mongodb_user }}"
+
+- name: Ensure mongodb daemon shell is configured.
+  template:
+    src: mongod.sh.j2
+    dest: "/etc/rc.d/init.d/{{ mongodb_daemon }}"
+    mode: 0755
+
+- name: Add mongodb services.
+  shell: "chkconfig --add {{ mongodb_daemon }}  && chkconfig {{ mongodb_daemon }} on"
+
+- name: Ensure mongodb is running and enabled on boot.
+  service: "name={{ mongodb_daemon }} state=started enabled=yes"
+
+- block:
+  - name: copy repset js to agent.
+    template: src=repset.js.j2 dest=/tmp/ansible_mongodb_repset.js
+
+  - name: Config repset.
+    shell: "/usr/local/mongodb/bin/mongo --port {{ mongodb_port }} admin < /tmp/ansible_mongodb_repset.js"
+  when: mongodb_replSet and mongodb_replSet_exec
+  run_once: true

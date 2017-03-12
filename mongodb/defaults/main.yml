@@ -1,0 +1,38 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+mongodb_version: "3.2.4"
+
+mongodb_file: "mongodb-linux-x86_64-rhel62-{{ mongodb_version }}.tgz"
+mongodb_file_path: "{{ software_files_path }}/{{ mongodb_file }}"
+mongodb_file_url: "http://downloads.mongodb.org/linux/mongodb-linux-x86_64-rhel62-{{ mongodb_version }}.tgz"
+
+mongodb_data_path: "/mongodb_data"
+#mongodb_port: 27017
+mongodb_daemon: "mongodb{{ mongodb_port | default('') }}"
+mongodb_dir_path: "{{ mongodb_data_path }}/{{mongodb_port | default('27017') }}"
+mongodb_conf: "{{ mongodb_dir_path }}/mongod.conf"
+mongodb_user: "mongodb"
+
+mongodb_dbpath: "{{ mongodb_dir_path }}/data"
+mongodb_logpath: "{{ mongodb_dir_path }}/logs/mongod.log"
+mongodb_pidfilepath: "{{ mongodb_dir_path }}/mongod.pid"
+mongodb_fork: true
+mongodb_logappend: true
+mongodb_directoryperdb: true
+mongodb_auth: false
+mongodb_rest: false
+
+# 主从架构配置
+mongodb_master: false
+
+mongodb_slave: false
+mongodb_master_source: ''
+
+# 副本集配置
+mongodb_replSet: false
+mongodb_replSet_exec: false
+mongodb_members: {}

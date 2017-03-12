@@ -1,0 +1,24 @@
+port={{ mongodb_port | default('27017') }}
+dbpath={{ mongodb_dbpath }}
+logpath={{ mongodb_logpath }}
+pidfilepath={{ mongodb_pidfilepath }}
+fork={{ mongodb_fork }}
+logappend={{ mongodb_logappend }}
+directoryperdb={{ mongodb_directoryperdb }}
+{% if mongodb_auth %}
+auth=true
+{% endif %}
+{% if mongodb_rest %}
+rest=true
+{% endif %}
+{% if mongodb_slave and mongodb_master_source %}
+slave=true
+source={{ mongodb_master_source }}
+autoresync=true
+{% endif %}
+{% if mongodb_master %}
+master=true
+{% endif %}
+{% if mongodb_replSet %}
+replSet={{ mongodb_replSet }}
+{% endif %}

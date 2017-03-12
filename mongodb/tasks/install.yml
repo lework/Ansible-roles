@@ -1,0 +1,53 @@
+---
+# author: lework
+
+- name: Check if mongodb local file is already configured.
+  stat: path={{ mongodb_file_path }}
+  connection: local
+  register: mongodb_file_result
+
+- name: Create software files .
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not mongodb_file_result.stat.exists
+  
+- name: Download mongodb file.
+  get_url: url={{ mongodb_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not mongodb_file_result.stat.exists
+
+- name: Copy mongodb file to agent.
+  unarchive:
+    src: "{{ mongodb_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path}}/mongodb-linux-x86_64-rhel62-{{ mongodb_version }}"
+
+- name: Check if mongodb remote soft link is already configured.
+  stat: path="{{ software_install_path }}/mongodb"
+  register: mongodb_soft_link_result
+
+- name: Create mongodb dir soft link.
+  file: "src={{ software_install_path }}/mongodb-linux-x86_64-rhel62-{{ mongodb_version }} dest={{ software_install_path }}/mongodb state=link"
+  when: not mongodb_soft_link_result.stat.exists
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/mongodb/bin/:$PATH'
+  run_once: yes
+
+- name: Create mongodb group.
+  group: name={{ mongodb_user }}
+
+- name: Create mongodb user.
+  user: name={{ mongodb_user }} group={{ mongodb_user }} shell=/sbin/nologin
+
+- name: Set transparent_hugepage to never.
+  command: "echo never > {{ item }}"
+  with_items:
+   - /sys/kernel/mm/redhat_transparent_hugepage/enabled
+   - /sys/kernel/mm/redhat_transparent_hugepage/defrag 
+  run_once: yes
+
+- lineinfile: dest=/etc/rc.local line={{ item }}
+  with_items:
+   - echo never >> /sys/kernel/mm/transparent_hugepage/enabled
+   - echo never >> /sys/kernel/mm/transparent_hugepage/defrag
