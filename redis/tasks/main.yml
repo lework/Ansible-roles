@@ -1,0 +1,9 @@
+---
+# author: lework
+
+- include: install.yml
+- include: configure.yml 
+- include: sentinel.yml
+  when: redis_sentinel_port !='' and redis_master_host !='' and redis_master_port !=''
+- include: cluster.yml
+  when: redis_cluster and redis_cluster_replicas != ''

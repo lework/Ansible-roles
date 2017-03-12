@@ -1,0 +1,31 @@
+---
+# author: lework
+
+- name: Create redis group.
+  group: name={{ redis_user }}
+
+- name: Create redis user.
+  user: name={{ redis_user }} group={{ redis_user }} shell=/sbin/nologin
+
+- name: Create redis db Directory
+  file: path={{ redis_dbdir }} state=directory owner={{ redis_user }} group={{ redis_user }}
+
+- name: Ensure Redis is configured.
+  template:
+    src: redis.conf.j2
+    dest: "{{ redis_dir_path }}/redis.conf"
+    mode: 0644
+    owner: "{{ redis_user }}"
+    group: "{{ redis_user }}"
+
+- name: Ensure Redis daemon shell  is configured.
+  template:
+    src: redis.sh.j2
+    dest: "/etc/rc.d/init.d/{{ redis_daemon }}"
+    mode: 0755
+
+- name: Add redis services.
+  shell: "chkconfig --add {{ redis_daemon }}  && chkconfig {{ redis_daemon }} on"
+
+- name: Ensure Redis is running and enabled on boot.
+  service: "name={{ redis_daemon }} state=started enabled=yes"

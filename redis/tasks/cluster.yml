@@ -1,0 +1,12 @@
+---
+# author: lework
+
+- name: Install redis gems.
+  gem: name=redis state=present
+
+- name: Del yes or no the option. 
+  shell: "/bin/sed -i '1006s/^/# /' {{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb"
+
+- name: Create cluster.
+  shell: "{{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb create --replicas {{ redis_cluster_replicas }}"
+  when: redis_cluster_replicas !=''
