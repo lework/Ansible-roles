@@ -1,0 +1,21 @@
+---
+# author: lework
+
+superset_bin: "/usr/local/bin/superset"
+superset_user: "superset"
+superset_db: "superset"
+superset_app: "superset"
+superset_username: "admin"
+superset_firstname: "admin"
+superset_lastname: "admin"
+superset_email: "admin@example.com"
+superset_password: "123456"
+mysql_host: ""
+mysql_port: ""
+mysql_user: ""
+mysql_password: ""
+create_db: true
+superset_port: 8080
+
+env: "HOME=/home/{{ superset_user }}"
+ansible_python_interpreter: /usr/bin/python2.6

@@ -1,0 +1,59 @@
+---
+# author: lework
+
+- name: Updage python-setuptools.
+  yum: name=python-setuptools state=latest
+  
+- name: Ensure packages are installed.
+  yum: name={{ item }} state=installed
+  with_items:
+    - gcc
+    - libffi-devel
+    - python-devel
+    - python-pip
+    - openssl-devel
+    - openldap-devel
+    - mysql-devel
+    - MySQL-python
+
+- name: Check if superset file is already configured.
+  stat: path={{ superset_bin }}
+  register: superset_bin_result
+
+- name: Install superset for pip.
+  pip: name={{ item }} state=latest
+  when: not superset_bin_result.stat.exists
+  with_items:
+    - setuptools 
+    - pip
+    - MySQL-python
+    - superset
+
+- name: Create superset group.
+  group: name={{ superset_user }}
+
+- name: Create superset user.
+  user: name={{ superset_user }} group={{ superset_user }} shell=/sbin/nologin
+  
+#- name: Create superset home directory.
+#  file: dest={{ superset_home }} state=directory mode=755 owner={{ superset_user }} group={{ superset_user }}
+
+- name: Create superset database.
+  mysql_db:
+    name: "{{ superset_db }}"
+    state: present
+    login_host: "{{ mysql_host }}"
+    login_port: "{{ mysql_port }}"
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+    encoding: 'utf8'
+  when: create_db
+ 
+- name: "Set superset config if configured."
+  template: src=config.py.j2 dest=/usr/local/lib/python2.7/site-packages/superset/config.py backup=yes
+  
+- name: Create an admin user.
+  shell: fabmanager create-admin --app {{ superset_app }} --username {{ superset_username }} --firstname {{ superset_firstname }}  --lastname {{ superset_lastname }}  --email {{ superset_email }} --password {{ superset_password }}
+  
+- name: Superset init.
+  shell: superset db upgrade && superset load_examples && superset init
