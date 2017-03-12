@@ -1,0 +1,107 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+nginx_version: "1.10.2"
+
+nginx_file: "nginx-{{ nginx_version }}.tar.gz"
+nginx_file_path: "{{ software_files_path }}/{{ nginx_file }}"
+nginx_file_url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+
+nginx_temp_path: "/var/tmp/nginx"
+nginx_conf_path: "{{ software_install_path }}/nginx/conf/"
+nginx_conf_file_path: "{{ software_install_path }}/nginx/conf/nginx.conf"
+
+nginx_user: 'nginx'
+nginx_build_options: ''
+nginx_configure_command: >
+  ./configure 
+  --prefix={{ software_install_path }}/nginx
+  --user={{ nginx_user }}
+  --group={{ nginx_user }}
+  --with-stream
+  --with-http_ssl_module
+  --with-http_flv_module
+  --with-http_stub_status_module
+  --with-http_gzip_static_module
+  --with-http_realip_module
+  --http-client-body-temp-path={{ nginx_temp_path }}/client/
+  --http-proxy-temp-path={{ nginx_temp_path }}/proxy/
+  --http-fastcgi-temp-path={{ nginx_temp_path }}/fcgi/
+  --http-uwsgi-temp-path={{ nginx_temp_path }}/uwsgi
+  --http-scgi-temp-path={{ nginx_temp_path }}/scgi 
+  --with-pcre 
+  {{ nginx_build_options }}
+
+nginx_pidfile: '/var/run/nginx.pid'
+nginx_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
+nginx_worker_connections: "1024"
+nginx_multi_accept: "off"
+nginx_pid_file: "/var/run/nginx.pid"
+
+nginx_error_log: "/var/log/nginx/error.log warn"
+nginx_access_log: "/var/log/nginx/access.log main buffer=64k"
+nginx_mime_file_path: "mime.types"
+
+nginx_sendfile: "on"
+nginx_tcp_nopush: "on"
+nginx_tcp_nodelay: "on"
+
+nginx_keepalive_timeout: "65"
+nginx_keepalive_requests: "100"
+
+nginx_client_max_body_size: "64m"
+
+nginx_server_names_hash_bucket_size: "64"
+
+nginx_proxy_cache_path: ""
+
+nginx_extra_conf_options: ""
+# Example extra main options, used within the main nginx's context:
+#   nginx_extra_conf_options: |
+#     env VARIABLE;
+#     include /etc/nginx/main.d/*.conf;
+
+nginx_extra_http_options: ""
+# Example extra http options, printed inside the main server http config:
+#    nginx_extra_http_options: |
+#      proxy_buffering    off;
+#      proxy_set_header   X-Real-IP $remote_addr;
+#      proxy_set_header   X-Scheme $scheme;
+#      proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+#      proxy_set_header   Host $http_host;
+
+nginx_remove_default_vhost: false
+nginx_vhosts_filename: "vhosts.conf"
+nginx_vhosts: []
+# Example vhost below, showing all available options:
+# - listen: "80 default_server" # default: "80 default_server"
+#   server_name: "example.com" # default: N/A
+#   root: "/var/www/example.com" # default: N/A
+#   index: "index.html index.htm" # default: "index.html index.htm"
+#
+#   # Properties that are only added if defined:
+#   error_page: ""
+#   access_log: ""
+#   error_log: ""
+#   extra_parameters: "" # Can be used to add extra config blocks (multiline).
+
+nginx_upstreams: ''
+# - name: myapp1
+#   strategy: "ip_hash" # "least_conn", etc.
+#   keepalive: 16 # optional
+#   servers: {
+#     "srv1.example.com",
+#     "srv2.example.com weight=3",
+#     "srv3.example.com"
+#   }
+nginx_proxys: false
+nginx_gzip: false
+nginx_stub_status: false
+# - nginx_stub_status: true
+nginx_stream: false
+# - nginx_stream: true
+
+ansible_python_interpreter: /usr/bin/python2.6

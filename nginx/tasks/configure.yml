@@ -1,0 +1,24 @@
+---
+# author: lework
+
+- name: Setup nginx.conf.
+  template:
+    dest: "{{ nginx_conf_file_path }}"
+    src: nginx.conf.j2
+    mode: 0644
+    owner: nginx
+    group: nginx
+    force: yes
+    backup: yes
+
+- name: Setup nginx.sh file.
+  template:
+    dest: "/etc/rc.d/init.d/nginx"
+    mode: 0755
+    src: nginx.sh.j2
+
+- name: Add nginx services.
+  shell: "chkconfig --add nginx  && chkconfig nginx on"
+  
+- name: Ensure nginx is running.
+  service: "name=nginx state=started enabled=yes"
