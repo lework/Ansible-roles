@@ -1,0 +1,33 @@
+
+##################################################
+#                                                #
+#                  Codis-Dashboard               #
+#                                                #
+##################################################
+
+# Set Coordinator, only accept "zookeeper" & "etcd".
+coordinator_name = "{{ codis_coordinator_name }}"
+coordinator_addr = "
+{%- if zookeeper_hosts is defined -%}
+{%- for host in zookeeper_hosts-%}
+{{ host.host }}:{{ host.port| default('2181')}}
+{%- if not loop.last -%}
+,
+{%- endif -%}
+{%- endfor -%}
+{%- endif -%}"
+
+# Set Codis Product Name/Auth.
+product_name = "{{ codis_product_name }}"
+product_auth = "{{ codis_server_requirepass }}"
+
+# Set bind address for admin(rpc), tcp only.
+admin_addr = "{{ codis_dashboard_addr }}"
+
+# Set configs for redis sentinel.
+sentinel_quorum = 2
+sentinel_parallel_syncs = 1
+sentinel_down_after = "30s"
+sentinel_failover_timeout = "5m"
+sentinel_notification_script = ""
+sentinel_client_reconfig_script = ""

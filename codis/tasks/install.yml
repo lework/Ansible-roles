@@ -1,0 +1,91 @@
+---
+# author: lework
+
+- name: Check if codis local file is already configured.
+  stat: path={{ codis_file_path }}
+  connection: local
+  register: codis_file_result
+
+- name: Create software files .
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not codis_file_result.stat.exists
+  
+- name: Download codis file.
+  get_url: url={{ codis_file_url }} dest={{ software_files_path }}/codis-{{ codis_version }}.tar.gz
+  connection: local
+  when: not codis_file_result.stat.exists
+
+- name: Ensure gcc packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    - automake
+    - go
+
+- name: Create codis group.
+  group: name=codis
+
+- name: Create codis user.
+  user: name=codis group=codis shell=/sbin/nologin
+
+- name: Create codis path.
+  file: path={{ item }} state=directory owner=codis group=codis
+  with_items:
+    - "{{ codis_labs_path }}"
+    - "{{ codis_conf_path }}"
+    - "{{ codis_bin_path }}"
+    - "{{ codis_pid_path }}"
+
+- name: Copy codis file to agent.
+  unarchive:
+    src: "{{ codis_file_path }}"
+    dest: "{{ codis_labs_path }}"
+    creates: "{{ codis_labs_path }}/codis"
+
+- name: Check codis directory.
+  stat: path={{ codis_labs_path }}/codis
+  register: codis_dir_result
+
+- name: Rename codis directory.
+  shell: "mv {{ codis_labs_path }}/codis-{{ codis_version }} {{ codis_labs_path }}/codis"
+  when: not codis_dir_result.stat.exists
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line={{ item }}
+  with_items:
+    - 'export PATH={{ codis_basedir }}/bin/:$PATH'
+    - 'export GOPATH={{ codis_gopath }}'
+
+- name: Check install godep.
+  stat: path={{ codis_gopath }}/src/github.com/tools/godep/
+  register: codis_godep_result
+
+- name: Download godep.
+  shell: go get -u github.com/tools/godep chdir={{ codis_gopath }}
+  environment:
+   - GOPATH: "{{ codis_gopath }}"
+  when: not codis_godep_result.stat.exists
+
+- name: Check codis exec file.
+  stat: path={{ codis_labs_path }}/codis/bin/codis-admin
+  register: codis_exec_result
+
+- name: Build codis.
+  shell: make chdir={{ codis_labs_path }}/codis
+  environment:
+   - GOPATH: "{{ codis_gopath }}"
+  when: not codis_godep_result.stat.exists
+
+- name: Check codis bin file.
+  stat: path={{ codis_bin_path }}/codis-admin
+  register: codis_bin_result
+
+- name: "Copy codis exec file to {{ codis_bin_path }}"
+  shell: "cp -rf {{ codis_labs_path }}/codis/bin/* {{ codis_bin_path }}"
+  when: not codis_bin_result.stat.exists

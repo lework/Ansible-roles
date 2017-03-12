@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- include: install.yml
+  when: install
+
+- include: configure_codis-server.yml
+  when: codis_server
+
+- include: configure_codis-server-sentinel.yml
+  when: codis_server_sentinel_port != ''
+
+- include: configure_codis-proxy.yml
+  when: codis_proxy
+
+- include: configure_codis-dashboard.yml
+  when: codis_dashboard
+
+- include: configure_codis-fe.yml
+  when: codis_fe
+
+- include: configure_codis-admin.yml
+  when: codis_admin
+
+- include: configure_codis-ha.yml
+  when: codis_ha

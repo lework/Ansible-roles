@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: Create codis-fe path.
+  file: path={{ codis_fe_logs_path }} state=directory owner=codis group=codis
+
+- name: Ensure codis-fe is configured.
+  template:
+    src: codis.json.j2
+    dest: "{{ codis_conf_path }}/codis.json"
+    mode: 0644
+    owner: codis
+    group: codis
+
+- name: Ensure codis-fe daemon shell is configured.
+  template:
+    src: codis-fe.sh.j2
+    dest: "/etc/rc.d/init.d/codis-fe"
+    mode: 0755
+
+- name: Add codis-fe services.
+  shell: "chkconfig --add codis-fe && chkconfig codis-fe  on"
+
+- name: Ensure codis-fe is running and enabled on boot.
+  service: "name=codis-fe state=started enabled=yes"

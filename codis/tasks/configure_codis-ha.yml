@@ -1,0 +1,17 @@
+---
+# author: lework
+
+- name: Create codis-ha path.
+  file: path={{ codis_ha_logs_path }} state=directory owner=codis group=codis
+
+- name: Ensure codis-ha daemon shell is configured.
+  template:
+    src: codis-ha.sh.j2
+    dest: "/etc/rc.d/init.d/codis-ha"
+    mode: 0755
+
+- name: Add codis-ha services.
+  shell: "chkconfig --add codis-ha && chkconfig codis-ha on"
+
+- name: Ensure codis-ha is running and enabled on boot.
+  service: "name=codis-ha state=started enabled=yes"

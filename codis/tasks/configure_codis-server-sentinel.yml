@@ -1,0 +1,22 @@
+---
+# author: lework
+
+- name: Ensure codis-server-sentinel is configured.
+  template:
+    src: codis-server-sentinel.conf.j2
+    dest: "{{ codis_conf_path }}/codis-server-sentinel_{{ codis_server_sentinel_port }}.conf"
+    mode: 0644
+    owner: codis
+    group: codis
+
+- name: Ensure codis-server-sentinel daemon shell is configured.
+  template:
+    src: codis-server-sentinel.sh.j2
+    dest: "/etc/rc.d/init.d/{{ codis_server_sentinel_daemon }}"
+    mode: 0755
+
+- name: Add codis-server-sentinel services.
+  shell: "chkconfig --add {{ codis_server_sentinel_daemon }}  && chkconfig {{ codis_server_sentinel_daemon }} on"
+
+- name: Ensure codis-server-sentinel is running and enabled on boot.
+  service: "name={{ codis_server_sentinel_daemon }} state=started enabled=yes"

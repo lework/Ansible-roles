@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# codis-proxy        init file for starting up the codis-proxy daemon
+#
+# chkconfig:   - 20 80
+# description: Starts and stops the codis-proxy daemon.
+# author: lework
+# Source function library.
+
+. /etc/rc.d/init.d/functions
+
+name="codis-proxy"
+exec="{{ codis_bin_path }}/codis-proxy"
+pidfile="{{ codis_pid_path }}/codis-proxy.pid"
+logpath="{{ codis_proxy_logs_path }}/proxy.log"
+loglevel="{{ codis_loglevel }}"
+codis_conf="{{ codis_conf_path }}/proxy.toml"
+ncpu={{ codis_ncpu }}
+user="root"
+
+lockfile=/var/lock/subsys/codis-proxy
+
+start() {
+    [ -x $exec ] || exit 5
+    echo -n $"Starting $name: "
+    /sbin/runuser -s /bin/bash $user -c "$exec --ncpu=$ncpu --config=$codis_conf --log=$logpath --log-level=$loglevel & echo '$!' > $pidfile"
+    retval=$?
+    [ $retval -eq 0 ] && touch $lockfile && success $"$base startup" || failure $"$base startup"
+    echo
+    return $retval
+}
+
+stop() {
+    echo -n $"Stopping $name: "
+    killproc -p $pidfile $name
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+rh_status() {
+    status -p $pidfile $name
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && rh_status && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || rh_status || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    status)
+        rh_status
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart}"
+        exit 2
+esac
+exit $?

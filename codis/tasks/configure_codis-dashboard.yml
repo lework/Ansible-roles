@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- name: Create codis-dashboard Directory.
+  file: path={{ codis_dashboard_logs_path }} state=directory owner=codis group=codis
+
+- name: Ensure codis-dashboard is configured.
+  template:
+    src: codis-dashboard.toml.j2
+    dest: "{{ codis_conf_path }}/dashboard.toml"
+    mode: 0644
+    owner: codis
+    group: codis
+
+- name: Ensure codis-dashboard daemon shell  is configured.
+  template:
+    src: codis-dashboard.sh.j2
+    dest: "/etc/rc.d/init.d/codis-dashboard"
+    mode: 0755
+
+- name: Add codis-dashboard services.
+  shell: "chkconfig --add codis-dashboard  && chkconfig codis-dashboard on"
+
+- name: Ensure codis-dashboard is running and enabled on boot.
+  service: "name=codis-dashboard state=started enabled=yes"
+

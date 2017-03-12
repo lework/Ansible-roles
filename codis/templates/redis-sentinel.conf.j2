@@ -1,0 +1,12 @@
+daemonize yes
+port {{ redis_sentinel_port }}
+loglevel notice
+logfile "{{ redis_dir_path }}/redis-sentinel.logs"
+pidfile "{{ redis_dir_path }}/redis-sentinel.pid"
+sentinel monitor mymaster {{ redis_master_host }} {{ redis_master_port }} {{ redis_sentinel_quorum }}
+{% if redis_masterauth %}
+sentinel auth-pass mymaster {{ redis_masterauth }}
+{% endif %}
+sentinel down-after-milliseconds mymaster 30000
+sentinel parallel-syncs mymaster 1 
+sentinel failover-timeout mymaster 90000

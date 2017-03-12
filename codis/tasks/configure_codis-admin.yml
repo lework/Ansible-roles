@@ -1,0 +1,43 @@
+---
+# author: lework
+
+- name: Wait for 30 seconds.
+  pause: seconds=30
+  
+- name: Add proxy services to dashboard.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --create-proxy -x {{ item }}"
+  with_items: "{{ codis_proxy_addrs }}"
+  when: codis_proxy_addrs
+
+- name: Create codis server group.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --create-group --gid={{ item }}"
+  with_items: "{{ codis_groups }}"
+  when: codis_groups
+
+- name: Add master codis-server to group.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --group-add --gid={{ item.gid }} --addr={{ item.addr }}"
+  with_items: "{{ codis_group_master_server }}"
+  when: codis_group_master_server
+
+- name: Add slave codis-server to group.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --group-add --gid={{ item.gid }} --addr={{ item.addr }}"
+  with_items: "{{ codis_group_slave_server }}"
+  when: codis_group_slave_server
+
+- name: Slave codis-server sync to master codis-server.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --sync-action --create --addr={{ item.addr }}"
+  with_items: "{{ codis_group_slave_server }}"
+  when: codis_group_slave_server
+
+- name: Rebalance slots for groups.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --rebalance --confirm"
+  when: codis_group_slave_server
+  
+- name: Add Sentinels.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --sentinel-add --addr={{ item }}"
+  with_items: "{{ codis_server_sentinel_addr }}"
+  when: codis_server_sentinel_addr
+  
+- name: Sync Sentinels.
+  shell: "{{ codis_bin_path }}/codis-admin --dashboard={{ codis_dashboard_addr }} --sentinel-resync"
+  when: codis_server_sentinel_addr

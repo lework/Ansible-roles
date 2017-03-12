@@ -1,0 +1,14 @@
+daemonize yes
+port {{ codis_server_sentinel_port }}
+loglevel notice
+dir "{{ codis_data_path }}"
+logfile "{{ codis_server_logs_path }}/codis-server-sentinel_{{ codis_server_sentinel_port }}.logs"
+pidfile "{{ codis_pid_path }}/codis-server-sentinel_{{ codis_server_sentinel_port }}.pid"
+sentinel monitor {{ codis_server_sentinel_monitor_name }} {{ codis_server_master_host }} {{ codis_server_master_port }} {{ codis_server_sentinel_quorum }}
+{% if codis_server_requirepass %}
+sentinel auth-pass {{ codis_server_sentinel_monitor_name }} {{ codis_server_requirepass }}
+{% endif %}
+sentinel down-after-milliseconds {{ codis_server_sentinel_monitor_name }} 30000
+sentinel parallel-syncs {{ codis_server_sentinel_monitor_name }} 1 
+sentinel failover-timeout {{ codis_server_sentinel_monitor_name }} 90000
+protected-mode no

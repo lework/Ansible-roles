@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: Create codis-proxy path.
+  file: path={{ codis_proxy_logs_path }} state=directory owner=codis group=codis
+
+- name: Ensure codis-proxy is configured.
+  template:
+    src: codis-proxy.toml.j2
+    dest: "{{ codis_conf_path }}/proxy.toml"
+    mode: 0644
+    owner: codis
+    group: codis
+
+- name: Ensure codis-proxy daemon shell is configured.
+  template:
+    src: codis-proxy.sh.j2
+    dest: "/etc/rc.d/init.d/codis-proxy"
+    mode: 0755
+
+- name: Add codis-proxy services.
+  shell: "chkconfig --add codis-proxy && chkconfig codis-proxy on"
+
+- name: Ensure codis-proxy is running and enabled on boot.
+  service: "name=codis-proxy state=started enabled=yes"

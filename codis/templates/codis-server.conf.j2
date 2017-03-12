@@ -1,0 +1,44 @@
+daemonize yes
+pidfile {{ codis_pid_path }}/codis-server_{{ codis_server_port }}.pid
+port {{ codis_server_port }}
+timeout 86400
+tcp-keepalive 60
+loglevel notice
+logfile {{ codis_server_logs_path }}/codis-server_{{ codis_server_port }}.log
+databases 16
+save ""
+#save 900 1
+#save 300 10
+#save 60 10000
+stop-writes-on-bgsave-error no
+rdbcompression yes
+dbfilename dump.rdb
+dir {{ codis_server_data_path }}
+masterauth "rtest"
+slave-serve-stale-data yes
+repl-disable-tcp-nodelay no
+slave-priority 100
+requirepass "{{ codis_server_requirepass }}"
+maxmemory 10gb
+maxmemory-policy allkeys-lru
+appendonly no
+appendfsync everysec
+no-appendfsync-on-rewrite yes
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+lua-time-limit 5000
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+set-max-intset-entries 512
+zset-max-ziplist-entries 128
+zset-max-ziplist-value 64
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave 0 0 0
+client-output-buffer-limit pubsub 0 0 0
+hz 10
+aof-rewrite-incremental-fsync yes
+repl-backlog-size 33554432

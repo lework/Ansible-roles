@@ -1,0 +1,72 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+codis_version: "3.1.3"
+
+codis_file: "codis-{{ codis_version }}.tar.gz"
+codis_file_path: "{{ software_files_path }}/{{ codis_file }}"
+codis_file_url: "https://github.com/CodisLabs/codis/archive/{{ codis_version }}.tar.gz"
+
+codis_basedir: "{{ software_install_path }}/codis"
+codis_conf_path: "{{ codis_basedir }}/conf"
+codis_bin_path: "{{ codis_basedir }}/bin"
+
+codis_server: false
+codis_server_port: 6379
+codis_server_daemon: "codis-server{{ codis_server_port }}"
+codis_server_requirepass: 'rtest'
+codis_server_masterauth: 'rtest'
+
+codis_server_sentinel_port: ''
+codis_server_sentinel_quorum: 2
+codis_server_sentinel_daemon: "codis-server-sentinel{{ codis_server_sentinel_port }}"
+codis_server_sentinel_monitor_name: 'master1'
+codis_server_sentinel_addr: ''
+codis_server_master_host:  "{{ ansible_default_ipv4.address }}"
+codis_server_master_port: "6379"
+
+codis_data_path: "/codis_data"
+codis_gopath: "{{ codis_data_path }}/gopath" 
+codis_labs_path: "{{ codis_gopath }}/src/github.com/CodisLabs"
+codis_server_data_path: "{{ codis_data_path}}/codis-server_{{ codis_server_port }}"
+codis_server_logs_path: "{{ codis_data_path}}/logs/codis-server"
+codis_pid_path: "{{ codis_data_path }}/pid"
+
+codis_loglevel: "WARN"
+codis_bind_address: "0.0.0.0"
+codis_ncpu: 1
+
+codis_product_name: "codis-demo"
+codis_coordinator_name: "zookeeper"
+
+codis_admin_prot: 11080
+codis_admin_addr: "0.0.0.0:{{ codis_admin_prot }}"
+
+codis_fe: false
+codis_fe_port: 8080
+codis_fe_listen: "0.0.0.0:{{ codis_fe_port }}"
+codis_fe_logs_path: "{{ codis_data_path}}/logs/fe"
+
+codis_ha: false
+codis_ha_logs_path: "{{ codis_data_path}}/logs/ha"
+codis_admin: false
+
+codis_dashboard: false
+codis_dashboard_port: 18080
+codis_dashboard_addr: "0.0.0.0:{{ codis_codis_dashboard_port_prot }}"
+codis_dashboard_logs_path: "{{ codis_data_path}}/logs/dashboard"
+
+codis_proxy: false
+codis_proxy_port: 19000
+codis_proxy_addr: "0.0.0.0:{{ codis_proxy_port }}"
+codis_proxy_logs_path: "{{ codis_data_path}}/logs/proxy"
+
+install: true
+zookeeper_hosts: []
+codis_groups: []
+codis_group_master_server: []
+codis_group_slave_server: []
+codis_proxy_addrs: []
