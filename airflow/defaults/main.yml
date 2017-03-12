@@ -1,0 +1,19 @@
+---
+# author: lework
+
+airflow_home: "/airflow"
+airflow_tmpdir: "/tmp/airflow"
+airflow_bin: "/usr/local/bin/airflow"
+airflow_user: "airflow"
+airflow_extra: [hive,hdfs,jdbc,mysql,async,postgres,rabbitmq,qds,password,ldap]
+airflow_db: "airflow"
+mysql_host: ""
+mysql_port: ""
+mysql_user: ""
+mysql_password: ""
+create_db: true
+change_utctime: true
+airflow_port: 8080
+
+env: "HOME=/home/{{ airflow_user }},AIRFLOW_HOME={{ airflow_home }},TMPDIR={{ airflow_tmpdir }}"
+ansible_python_interpreter: /usr/bin/python2.6
