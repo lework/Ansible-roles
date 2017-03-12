@@ -1,0 +1,86 @@
+---
+# author: lework
+
+- name: Check if tomcat7 local file is already configured.
+  stat: path={{ tomcat7_file_path }}
+  connection: local
+  register: tomcat7_file_result
+
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not tomcat7_file_result.stat.exists
+  
+- name: Download tomcat7 file.
+  get_url: url={{ tomcat7_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not tomcat7_file_result.stat.exists
+
+- name: Create tomcat group.
+  group: name=tomcat
+
+- name: Create tomcat user.
+  user: name=tomcat group=tomcat shell=/sbin/nologin
+
+- name: Ensure gcc packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    
+- name: Copy tomcat7 file to agent.
+  unarchive:
+    src: "{{ tomcat7_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ tomcat7_work_path}}/bin/startup.sh"
+
+- name: Move tomcat7 dir.
+  shell: "mv {{ tomcat7_path }} {{ tomcat7_work_path }} removes={{ tomcat7_path }} creates={{ tomcat7_work_path }}"
+
+- name: Check if jsvc is already configured.
+  stat: path="{{ tomcat7_work_path }}/bin/jsvc"
+  register: tomcat7_jsvc_result
+
+- block:
+  - name: Unarchive commons daemon.
+    unarchive:
+      src: "{{ tomcat7_work_path }}/bin/commons-daemon-native.tar.gz"
+      dest: "{{ tomcat7_work_path }}/bin/"
+      creates: "{{ tomcat7_work_path }}/bin/commons-daemon-1.0.15-native-src"
+      copy: no
+
+  - name: Build commons daemon.
+    shell: "./configure && make chdir={{ tomcat7_work_path }}/bin/commons-daemon-1.0.15-native-src/unix"
+
+  - name: Copy jsvc To bin directory.
+    copy: "src={{ tomcat7_work_path }}/bin/commons-daemon-1.0.15-native-src/unix/jsvc dest={{ tomcat7_work_path }}/bin/ mode=0755 remote_src=True"
+  when: not tomcat7_jsvc_result.stat.exists
+
+- name: Copy tomcat7 server.xml.
+  template:
+    src: server.xml.j2
+    dest: "{{ tomcat7_work_path }}/conf/server.xml"
+    mode: 0644
+
+- name: Copy tomcat7 daemon.sh.
+  template:
+    src: "daemon.sh.j2"
+    dest: "/etc/rc.d/init.d/{{ tomcat7_services_name }}"
+    mode: 0755
+
+- name: The directory belongs to tomcat.
+  file: "path={{ tomcat7_work_path }} owner=tomcat group=tomcat recurse=yes  state=directory"
+
+- name: Add tomcat services.
+  shell: "chkconfig --add {{ tomcat7_services_name  }} && chkconfig {{ tomcat7_services_name }} on"
+
+- name: Ensure tomcat is running.
+  service:
+    name: "{{ tomcat7_services_name }}"
+    state: started
+    enabled: yes
+  when: tomcat7_enabled
