@@ -23,7 +23,7 @@
   tags: limits
 
 - name: Shutdwon selinux.
-  replace: dest=/etc/selinux/config regexp=^SELINUX=disabled replace=SELINUX=enforcing
+  replace: dest=/etc/selinux/config regexp=^SELINUX=enforcing replace=SELINUX=disabled
   tags: selinux
   
 - block:
