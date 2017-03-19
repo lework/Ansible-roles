@@ -1,0 +1,47 @@
+---
+# author: lework
+
+- name: install | Check if etcd local file is already configured.
+  stat: path={{ etcd_file_path }}
+  connection: local
+  register: etcd_file_result
+
+- name: install | Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not etcd_file_result.stat.exists
+
+- name: install | Download etcd file.
+  get_url: url={{ etcd_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not etcd_file_result.stat.exists
+
+- name: install | Copy etcd file to agent.
+  unarchive:
+    src: "{{ etcd_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path}}/etcd-v{{ etcd_version }}-linux-amd64"
+
+- name: install | Check if etcd remote soft link is already configured.
+  stat: path="{{ software_install_path }}/etcd"
+  register: etcd_soft_link_result
+
+- name: install | Create etcd dir soft link.
+  file: "src={{ software_install_path }}/etcd-v{{ etcd_version }}-linux-amd64 dest={{ software_install_path }}/etcd state=link"
+  when: not etcd_soft_link_result.stat.exists
+
+- name: install | Check if /usr/local/bin/etcd is already configured.
+  stat: path=/usr/local/bin/etcd
+  register: etcd_etcd_link_result
+
+- name: install | Create etcd link.
+  file: "src={{ software_install_path }}/etcd/etcd dest=/usr/local/bin/etcd state=link"
+  when: not etcd_etcd_link_result.stat.exists
+
+- name: install | Check if /usr/local/bin/etcdctl is already configured.
+  stat: path="/usr/local/bin/etcdctl"
+  register: etcd_etcdctl_link_result
+
+- name: install | Create etcd link.
+  file: "src={{ software_install_path }}/etcd/etcdctl dest=/usr/local/bin/etcdctl state=link"
+  when: not etcd_etcdctl_link_result.stat.exists

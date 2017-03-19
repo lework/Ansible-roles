@@ -1,0 +1,41 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+etcd_version: "3.1.3"
+
+etcd_file: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+etcd_file_path: "{{ software_files_path }}/{{ etcd_file }}"
+etcd_file_url: "https://github.com/coreos/etcd/releases/download/etcd-v{{ etcd_version }}/{{ etcd_file }}"
+
+etcd_port: 2379
+etcd_peer_port: 2380
+etcd_home: "/etcd_data"
+etcd_datadir: "{{ etcd_home }}/{% if etcd_port != 2379 %}{{ etcd_port }}/{% endif %}data"
+etcd_wardir: "{{ etcd_home }}/{% if etcd_port != 2379 %}{{ etcd_port }}/{% endif %}war"
+
+etcd_name: "infra0"
+etcd_initial_advertise_peer_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_peer_port }}"
+etcd_listen_peer_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_peer_port }}"
+etcd_listen_client_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_port }},http://127.0.0.1:{{ etcd_port }}"
+etcd_advertise_client_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_port }}"
+
+etcd_trusted_ca_file: false
+etcd_cert_file: false
+etcd_key_file: false
+etcd_peer_trusted_ca_file: false
+etcd_peer_cert_file: false
+etcd_peer_key_file: false
+
+etcd_auto_tls: false
+
+etcd_discovery: false
+etcd_initial_cluster: false
+etcd_initial_cluster_token: "etcd_cluster_1"
+
+etcd_proxy: false
+
+etcd_force_new_cluster: false
+etcd_debug: false
