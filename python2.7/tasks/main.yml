@@ -1,7 +1,7 @@
 ---
 # author: lework
 
-- name: Copy python file to agent.
+- name: Check if Python local file is already configured.
   stat: path={{ python_file_path }}
   connection: local
   register: python_file_result

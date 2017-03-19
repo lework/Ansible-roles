@@ -15,7 +15,7 @@ os `Centos 6.7 X64`
 	software_files_path: "/opt/software"
 	software_install_path: "/usr/local"
 
-	java_home: "/usr/java/jdk"
+	java_home: "/usr/java/jdk1.7.0_75"
 
 	java_file: "jdk-7u75-linux-x64.gz"
 	java_file_path: "{{ software_files_path }}/{{ java_file }}"

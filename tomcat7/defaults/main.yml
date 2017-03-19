@@ -4,7 +4,7 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk') }}"
+java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.7.0_75') }}"
 
 tomcat7_version: "7.0.75"
 tomcat7_file: "apache-tomcat-{{ tomcat7_version }}.tar.gz"
