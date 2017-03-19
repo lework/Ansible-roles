@@ -32,7 +32,8 @@ os `Centos 6.7 X64`
 	supervisor_program: []
 	supervisor_name: ""
 	supervisor_bin: "/usr/local/bin/supervisorctl"
-
+    
+	supervisor_stopsignal: "TERM"
 	ansible_python_interpreter: /usr/bin/python2.6
 	
 

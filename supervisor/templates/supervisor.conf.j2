@@ -16,7 +16,7 @@ serverurl=unix://{{ supervisor_run }}/supervisor-{{ supervisor_name }}.sock
 {% for p in supervisor_program %}
 [program:{{ p.name }}]
 command={{ p.command }}
-stopsignal=QUIT
+stopsignal={{ supervisor_stopsignal }}
 stopasgroup=true
 killasgroup=true
 {% if p.user is defined %}
@@ -30,6 +30,7 @@ environment={{ p.env }}
 environment={{ env }}
 {% endif %}
 startretries=3
+startsecs=10
 autostart=true
 autorestart=true
 

@@ -22,9 +22,14 @@ restart)
 status)
 /usr/local/bin/supervisorctl -c $supervisor_conf status
 ;;
+startup)
+/usr/local/bin/supervisord -c $supervisor_conf
+;;
 shutdown)
+/usr/local/bin/supervisorctl -c $supervisor_conf stop all
+sleep 1
 /usr/local/bin/supervisorctl -c $supervisor_conf shutdown
 ;;
 *)
-printf "Usage: $0 {start|stop|restart|status|reload|shutdown}\n"
+printf "Usage: $0 {start|stop|restart|status|reload|startup|shutdown}\n"
 esac
