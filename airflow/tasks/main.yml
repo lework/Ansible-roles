@@ -68,17 +68,17 @@
   
 - block:
   - name: Change Web utc time.
-    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/templates/admin/master.html   regexp='(x.getTime() + x.getTimezoneOffset()*60*1000)' replace=x.getTime()
+    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/templates/admin/master.html regexp='\s\+\sx\.getTimezoneOffset\(\)\*60\*1000'
     
   - name: Change Web js utc time.
-    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/static/jqClock.min.js   regexp='UTC' replace=''
+    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/static/jqClock.min.js regexp=' UTC'
     
   - name: Change tree view utc time.
-    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/templates/airflow/tree.html  regexp='(dttm.getHours()+7)' replace='(dttm.getHours())'
+    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/templates/airflow/tree.html regexp='\+7'
     
   - name: Change tree view js utc time.
-    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/static/d3.v3.min.js   regexp='Qa.scale.utc' replace='Qa.scale'
+    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/static/d3.v3.min.js regexp='Qa.scale.utc' replace='Qa.scale'
     
   - name: Change gantt view js utc time.
-    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/static/highcharts.js   regexp='useUTC:!0' replace='useUTC:false'
+    replace: dest=/usr/local/lib/python2.7/site-packages/airflow/www/static/highcharts.js regexp='useUTC:\!0' replace='useUTC:false'
   when: change_utctime
