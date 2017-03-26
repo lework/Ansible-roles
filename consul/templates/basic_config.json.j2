@@ -1,0 +1,35 @@
+{
+  "datacenter": "{{ consul_dc }}",
+  "data_dir": "{{ consul_datadir }}",
+  "log_level": "{{ consul_loglevel }}",
+  "node_name": "{{ consul_nodename }}",
+{% if consul_encrypt %}
+  "encrypt": "{{ consul_nodename | to_uuid | regex_replace('-', '') | b64encode }}",
+{% endif %}
+{% if consul_dev %}
+  "dev": true,
+{% endif %}
+{% if consul_server %}
+  "server": true, 
+{% endif %}
+{% if consul_ui %}
+  "ui": true,
+{% endif %}
+{% if consul_bootstrap %}
+  "bootstrap" : true,
+{% endif %}
+{% if consul_bootstrap_expect and not consul_bootstrap and consul_server%}
+  "bootstrap_expect": {{ consul_bootstrap_expect }},
+{% endif %}
+{% if consul_start_join %}
+  "start_join": {{ consul_start_join | to_json}},
+{% endif %}
+  "bind_addr": "{{ consul_ip_bind }}",
+  "client_addr": "{{ consul_client_bind }}",
+  "ports": {
+    "http": {{ consul_http_port }},
+    "rpc": {{ consul_rpc_port }},
+    "server": {{ consul_server_port }},
+    "dns": {{ consul_dns_port }}
+  }
+}

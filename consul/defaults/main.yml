@@ -1,0 +1,34 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+consul_version: "0.7.5"
+
+consul_file: "consul_{{ consul_version }}_linux_amd64.zip"
+consul_file_path: "{{ software_files_path }}/{{ consul_file }}"
+consul_file_url: "https://releases.hashicorp.com/consul/{{ consul_version }}/{{ consul_file }}"
+
+consul_user: "consul"
+consul_server_port: 8300
+consul_rpc_port: 8400
+consul_http_port: 8500
+consul_dns_port: 8600
+consul_ip_bind: "{{ ansible_default_ipv4.address }}"
+consul_client_bind: "0.0.0.0"
+
+consul_home: "/consul_data"
+consul_datadir: "{{ consul_home }}/data"
+consul_confdir: "{{ consul_home }}/conf"
+consul_dc: "dc1"
+consul_loglevel: "INFO"
+consul_server: true
+consul_ui: true
+consul_nodename: "{{ ansible_hostname }}"
+
+consul_bootstrap_expect: 1
+consul_bootstrap: false
+consul_dev: false
+consul_encrypt: false
+consul_start_join: []

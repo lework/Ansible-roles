@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: configure | Create consul Directory.
+  file: path={{ item }} state=directory  owner={{ consul_user }}  group={{ consul_user }}
+  with_items:
+   - "{{ consul_datadir }}"
+   - "{{ consul_confdir }}"
+
+- name: configure | Setup consul.conf file.
+  template:
+    dest: "{{ consul_confdir }}/basic_config.json"
+    mode: 0644
+    src: basic_config.json.j2
+    owner: "{{ consul_user }}"
+    group: "{{ consul_user }}"

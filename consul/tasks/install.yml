@@ -1,0 +1,29 @@
+---
+# author: lework
+
+- name: install | Check if consul local file is already configured.
+  stat: path={{ consul_file_path }}
+  connection: local
+  register: consul_file_result
+
+- name: install | Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not consul_file_result.stat.exists
+
+- name: install | Download consul file.
+  get_url: url={{ consul_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not consul_file_result.stat.exists
+
+- name: install | Copy consul file to agent.
+  unarchive:
+    src: "{{ consul_file_path }}"
+    dest: "/usr/bin/"
+    creates: "/usr/bin/consul"
+
+- name: "install | Create {{ consul_user }} group."
+  group: name={{ consul_user }}
+
+- name: "install | Create {{ consul_user }} user."
+  user: name={{ consul_user }} group={{ consul_user }} shell=/sbin/nologin
