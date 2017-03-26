@@ -52,5 +52,6 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/supervisor
 		supervisor_program: 
 		  - { name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }
 	  roles:
+	   - { role: python2.7 }
 	   - { role: supervisor }
 	
