@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- include: install.yml
+- include: configure.yml
+- include: service.yml
+- include: replication.yml
+  when: mysql_replication_role !=''

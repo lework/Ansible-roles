@@ -1,0 +1,48 @@
+#!/bin/sh
+
+#init
+port="{{ mysql_port }}"
+mysql_user="{{ mysql_user }}"
+mysql_pwd="{{ mysql_password }}"
+CmdPath="{{ mysql_basedir }}/bin"
+
+#startup function
+function_start_mysql()
+{
+    printf "Starting MySQL...\\n"
+    /bin/sh ${CmdPath}/mysqld_safe --defaults-file="{{ mysql_portdir }}/my.cnf" 2>&1 > /dev/null &
+
+}
+
+#stop function
+function_stop_mysql()
+{
+    printf "Stoping MySQL...\\n"
+    ${CmdPath}/mysqladmin -u ${mysql_user} -p${mysql_pwd} -S "{{ mysql_portdir }}/mysql.sock" shutdown
+}
+
+#restart function
+function_restart_mysql()
+{
+    printf "Restarting MySQL...\\n"
+    function_stop_mysql
+    sleep 2
+    function_start_mysql
+}
+
+case ${1} in
+start)
+    function_start_mysql
+    sleep 2
+    echo -e "\nnatstat -nat | grep ${port}"
+    netstat -nat | grep ${port}
+;;
+stop)
+    function_stop_mysql
+;;
+restart)
+    function_restart_mysql
+;;
+*)
+    printf "Usage: $0 {start|stop|restart}\n"
+esac

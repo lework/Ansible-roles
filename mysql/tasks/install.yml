@@ -1,0 +1,65 @@
+---
+# author: lework
+
+- name: Copy mysql file to agent.
+  stat: path={{ mysql_file_path }}
+  connection: local
+  register: mysql_file_result
+
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not mysql_file_result.stat.exists
+
+- name: Download mysql file.
+  get_url: url={{ mysql_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not mysql_file_result.stat.exists and mysql_install_from_source
+
+- name: Ensure mysql libs and devel packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+   - mysql-libs
+   - mysql-devel
+   - gcc
+   - bison
+   - openssl
+   - openssl-devel
+   - ncurses
+   - ncurses-devel
+   - make
+   - cmake
+
+- name: Create mysql group.
+  group: name=mysql state=present
+
+- name: Create mysql user.
+  user: name=mysql shell=/sbin/nologin group=mysql
+
+- block: 
+  - name: Copy mysql source files to agent.
+    unarchive: src={{ mysql_file_path }} dest=/tmp/ creates=/tmp/{{ mysql_dirname }}
+  
+  - name: Build configure script.
+    shell: >
+      {{ mysql_source_configure_command }}
+      chdir=/tmp/{{ mysql_dirname }}
+     
+  - name: Make and install mysql.
+    shell: make && make install chdir=/tmp/{{ mysql_dirname }}
+  when: mysql_install_from_source
+  
+- set_fact: mysql_file_path={{ software_files_path }}/mysql-{{ mysql_version }}-bin.tar.gz
+  when: not mysql_install_from_source
+  
+- name: Copy mysql bin files to agent.
+  unarchive: src={{ mysql_file_path }}  dest={{ software_install_path }} creates={{ mysql_basedir }}/bin/mysql
+  when: not mysql_install_from_source
+  
+- name: Create mysql dir soft link.
+  file: src={{ software_install_path }}/{{ mysql_dirname }} dest={{ mysql_basedir }} state=link
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ mysql_basedir }}:$PATH'

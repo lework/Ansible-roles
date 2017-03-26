@@ -1,0 +1,119 @@
+[client]
+user		= {{ mysql_user }}
+{% if mysql_replication_role %}
+password	= {{ mysql_password }}
+{% endif %}
+port            = {{ mysql_port }}
+socket          = {{ mysql_portdir }}/mysql.sock
+default-character-set = utf8mb4
+
+[mysqld]
+user            = mysql
+port            = {{ mysql_port }}
+socket          = {{ mysql_portdir }}/mysql.sock
+basedir         = {{ mysql_basedir }}
+datadir         = {{ mysql_datadir }}
+###############################
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+init_connect='SET NAMES utf8mb4'
+######################################################
+back_log = 600
+max_connections = 2000
+max_connect_errors = 3000
+table_open_cache = 2048
+external-locking = FALSE
+max_allowed_packet = 16M
+#binlog_cache_size = 1M
+max_heap_table_size = 64M
+read_buffer_size = 2M
+read_rnd_buffer_size = 16M
+sort_buffer_size = 8M
+join_buffer_size = 8M
+thread_cache_size = 100
+thread_concurrency = 2
+#############################
+query_cache_type = 1
+query_cache_size = 1024M
+query_cache_limit = 2M
+############################
+ft_min_word_len = 4
+default-storage-engine = InnoDB
+thread_stack = 192K
+transaction_isolation = REPEATABLE-READ
+tmp_table_size = 64M
+binlog_format={{ mysql_binlog_format }}
+key_buffer_size = 32M
+bulk_insert_buffer_size = 64M
+myisam_sort_buffer_size = 128M
+myisam_max_sort_file_size = 10G
+myisam_repair_threads = 1
+myisam_recover
+innodb_additional_mem_pool_size = 20M
+innodb_buffer_pool_size = 100M
+#innodb_data_file_path = ibdata1:10M:autoextend
+innodb_write_io_threads = 8
+innodb_read_io_threads = 8
+#innodb_thread_concurrency = 16
+#innodb_flush_log_at_trx_commit = 1
+#innodb_log_buffer_size = 8M
+#innodb_log_file_size = 256M
+#innodb_log_files_in_group = 3
+#innodb_max_dirty_pages_pct = 90
+#innodb_lock_wait_timeout = 120
+#log-error = {{ mysql_portdir }}/error.log
+#log-slow-queries = {{ mysql_portdir }}/slow.log
+slow-query-log = on
+slow_query_log_file = {{ mysql_portdir }}/sql-slow.log
+long_query_time=2
+pid-file = {{ mysql_portdir }}/mysql.pid
+log-bin = {{ mysql_portdir }}/mysql-bin
+#relay-log = {{ mysql_portdir }}/relay-bin
+#relay-log-info-file = {{ mysql_portdir }}/relay-log.info
+#log-slave-updates
+binlog_cache_size = 10M
+max_binlog_cache_size = 50M
+max_binlog_size = 900M
+expire_logs_days = 10
+{% if auto_increment_offset == 1 %}
+auto_increment_increment = 2
+auto_increment_offset = 1
+{% elif auto_increment_offset == 2 %}
+auto_increment_increment = 2
+auto_increment_offset = 2
+{% endif %}
+
+##########################################
+binlog-ignore-db=mysql
+binlog-ignore-db=test
+#lower_case_table_names = 1
+skip-name-resolve
+slave-skip-errors = 1032,1062
+#replicate-ignore-db=mysql
+
+server-id = {{ ansible_date_time.epoch| int |random }}
+
+############################################
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+
+[mysqldump]
+quick
+max_allowed_packet = 16M
+
+[mysql]
+no-auto-rehash
+
+[myisamchk]
+key_buffer_size = 512M
+sort_buffer_size = 512M
+read_buffer = 8M
+write_buffer = 8M
+
+[mysqlhotcopy]
+interactive-timeout
+
+[mysqld_safe]
+open-files-limit = 8192
+log-error={{ mysql_portdir }}/mysql_{{ mysql_port }}_error.log
+pid-file={{ mysql_portdir }}/mysqld.pid
