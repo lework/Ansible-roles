@@ -1,0 +1,38 @@
+---
+# author: lework
+
+- name: Generate SSH keys.
+  shell: ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
+  args:
+    creates: ~/.ssh/id_rsa
+
+- name: fetch all public ssh keys.
+  shell: cat ~/.ssh/id_rsa.pub
+  register: ssh_keys
+  when: ((ssh_keys_host is defined and ansible_default_ipv4.address == ssh_keys_host) or (ssh_keys_host is undefined))
+
+- name: Ensure run host  is in the known_hosts file.
+  shell: "ssh-keyscan -t rsa {{ ansible_hostname }},{{ansible_default_ipv4.address}} >> ~/.ssh/known_hosts" 
+  delegate_to: "{{ item }}"
+  with_items:
+   - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
+
+- name: Deploy keys on all servers.
+  authorized_key: 
+    user: "root" 
+    key: "{{ ssh_keys.stdout }}" 
+    state: present
+  delegate_to: "{{ item }}"
+  with_items:
+   - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
+  when: ssh_keys_host is undefined
+
+- name: Deploy keys on all servers.
+  authorized_key: 
+    user: "root" 
+    key: "{{ ssh_keys.stdout }}" 
+    state: present
+  delegate_to: "{{ item }}"
+  with_items:
+   - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
+  when: ssh_keys_host is defined and ansible_default_ipv4.address == ssh_keys_host
