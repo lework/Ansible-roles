@@ -31,7 +31,13 @@ os `Centos 6.7 X64`
 https://github.com/kuailemy123/Ansible-roles/tree/master/java
 
 ## Example Playbook
-
+	
+	jdk 1.7版本
     - hosts: servers
       roles:
         - java
+		
+	jdk 1.8版本
+	- hosts: servers
+	  roles:
+	   - { role: java ,java_version: "1.8" }

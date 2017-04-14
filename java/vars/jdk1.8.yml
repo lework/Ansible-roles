@@ -1,0 +1,8 @@
+---
+
+java_home: "/usr/java/jdk1.8.0_121"
+
+java_file: "jdk-8u121-linux-x64.tar.gz"
+java_file_path: "{{ software_files_path }}/{{ java_file }}"
+java_install_path: "{{ software_install_path }}/jdk1.8.0_121"
+java_file_url: "https://edelivery.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.tar.gz"
