@@ -75,3 +75,6 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/sersync
 		  "params": -artuz
 	  roles:
 	  - role: sersync
+
+## 使用
+/usr/local/sersync/bin/sersync -r -d -o /usr/local/sersync/conf/confxml.xml
