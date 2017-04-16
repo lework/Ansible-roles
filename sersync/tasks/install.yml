@@ -1,0 +1,41 @@
+---
+# author: lework
+
+- name: install | Check if sersync local file is already configured.
+  stat: path={{ sersync_file_path }}
+  connection: local
+  register: sersync_file_result
+
+- name: install | Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not sersync_file_result.stat.exists
+
+- name: install | Download sersync file.
+  get_url: url={{ sersync_file_url }} validate_certs=no dest={{ software_files_path }}
+  connection: local
+  when: not sersync_file_result.stat.exists
+
+- name: install | Install rsync.
+  yum: name=rsync state=present
+
+- name: install | Copy sersync file to agent.
+  unarchive:
+    src: "{{ sersync_file_path }}"
+    dest: "/tmp/"
+    creates: "/tmp/GNU-Linux-x86/sersync2"
+    
+- name: install | Create sersync directory.
+  file: "path={{ item }} state=directory"
+  with_items:
+    - "/usr/local/sersync/bin"
+    - "{{ sersync_conf }}"
+    - "{{ sersync_logpath }}"
+    - "{{ sersync_watch }}"
+
+- name: install | Copy sersync bin file to /user/local/sersync/bin.
+  copy: remote_src=True src=/tmp/GNU-Linux-x86/sersync2 dest=/usr/local/sersync/bin/sersync mode=755
+  
+- name: install | Set environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/sersync/bin/:$PATH'
+

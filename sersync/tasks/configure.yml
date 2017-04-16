@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: configure | Setup conf file.
+  template:
+    dest: "{{ sersync_conf }}/confxml.xml"
+    mode: 0644
+    src: confxml.xml.j2
+
+- name: configure | Set rsync password file.
+  lineinfile: dest={{ sersync_rsync_passwordfile }} line={{ sersync_rsync.pass }} create=yes mode=600
+  when: sersync_rsync.user is defined and sersync_rsync.pass is defined
+  
+- name: configure | Start sersync.
+  command: "/usr/local/sersync/bin/sersync -r -d -o {{ sersync_conf }}/confxml.xml"
+
+- name: install | Set start script in rc.local.
+  lineinfile: dest=/etc/rc.local line='/usr/local/sersync/bin/sersync -d -o /usr/local/sersync/conf/confxml.xml'

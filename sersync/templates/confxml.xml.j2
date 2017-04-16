@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<head version="2.5">
+    <host hostip="localhost" port="8008"></host>
+    <debug start="false"/>
+    <fileSystem xfs="{{ sersync_xfs }}"/>
+{% if sersync_exclude %}	
+    <filter start="true">
+{% for i in sersync_exclude %}
+	<exclude expression="{{ i }}"></exclude>
+{% endfor %}
+    </filter>
+{% else %}
+    <filter start="false">
+	<exclude expression="(.*)\.svn"></exclude>
+	<exclude expression="(.*)\.gz"></exclude>
+	<exclude expression="^info/*"></exclude>
+	<exclude expression="^static/*"></exclude>
+    </filter>
+{% endif %}
+    <inotify>
+	<delete start="{{ sersync_inotify_delete }}"/>
+	<createFolder start="{{ sersync_inotify_createFolder }}"/>
+	<createFile start="{{ sersync_inotify_createFile }}"/>
+	<closeWrite start="{{ sersync_inotify_closeWrite }}"/>
+	<moveFrom start="{{ sersync_inotify_moveFrom }}"/>
+	<moveTo start="{{ sersync_inotify_moveTo}}"/>
+	<attrib start="{{ sersync_inotify_attrib }}"/>
+	<modify start="{{ sersync_inotify_modify }}"/>
+    </inotify>
+
+    <sersync>
+	<localpath watch="{{ sersync_watch }}">
+	    <remote ip="{{ sersync_rsync.ip }}" name="{{ sersync_rsync.name }}"/>
+	    <!--<remote ip="192.168.8.39" name="tongbu"/>-->
+	    <!--<remote ip="192.168.8.40" name="tongbu"/>-->
+	</localpath>
+	<rsync>
+	    <commonParams params="{{ sersync_rsync.params }}{% if sersync_rsync_logfile %} --log-file={{ sersync_rsync_logfile }}{% endif %}"/>
+{% if sersync_rsync.user is defined and sersync_rsync.pass is defined %}
+	    <auth start="true" users="{{ sersync_rsync.user }}" passwordfile="{{ sersync_rsync_passwordfile }}"/>
+{% else %}
+	    <auth start="false" users="root" passwordfile="/etc/rsync.pas"/>
+{% endif %}
+{% if sersync_rsync.port is defined %}
+	    <userDefinedPort start="true" port="{{ sersync_rsync.port }}"/>
+{% else %}
+	    <userDefinedPort start="false" port="874"/><!-- port=874 -->
+{% endif %}
+	    <timeout start="true" time="{{ sersync_rsync_timeout }}"/><!-- timeout=100 -->
+	    <ssh start="{{ sersync_rsync_ssh }}"/>
+	</rsync>
+	<failLog path="{{ sersync_failLog }}" timeToExecute="60"/><!--default every 60mins execute once-->
+	<crontab start="{{ sersync_crontab }}" schedule="{{ sersync_schedule }}"><!--600mins-->
+	    <crontabfilter start="false">
+		<exclude expression="*.php"></exclude>
+		<exclude expression="info/*"></exclude>
+	    </crontabfilter>
+	</crontab>
+	<plugin start="false" name="command"/>
+    </sersync>
+
+    <plugin name="command">
+	<param prefix="/bin/sh" suffix="" ignoreError="true"/>	<!--prefix /opt/tongbu/mmm.sh suffix-->
+	<filter start="false">
+	    <include expression="(.*)\.php"/>
+	    <include expression="(.*)\.sh"/>
+	</filter>
+    </plugin>
+
+    <plugin name="socket">
+	<localpath watch="/opt/tongbu">
+	    <deshost ip="192.168.138.20" port="8009"/>
+	</localpath>
+    </plugin>
+    <plugin name="refreshCDN">
+	<localpath watch="/data0/htdocs/cms.xoyo.com/site/">
+	    <cdninfo domainname="ccms.chinacache.com" port="80" username="xxxx" passwd="xxxx"/>
+	    <sendurl base="http://pic.xoyo.com/cms"/>
+	    <regexurl regex="false" match="cms.xoyo.com/site([/a-zA-Z0-9]*).xoyo.com/images"/>
+	</localpath>
+    </plugin>
+</head>
