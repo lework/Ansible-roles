@@ -1,0 +1,11 @@
+---
+# author: lework
+
+- name: "install | Create {{ rsync_user }} group."
+  group: name={{ rsync_user }}
+
+- name: "install | Create {{ rsync_user }} user."
+  user: name={{ rsync_user }} group={{ rsync_user }} shell=/sbin/nologin
+    
+- name: install | Install rsync.
+  yum: name=rsync state=present

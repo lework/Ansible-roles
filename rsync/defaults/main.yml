@@ -1,0 +1,17 @@
+---
+# author: lework
+
+rsync_user: "rsync"
+rsync_logdir: "/var/log/rsyncd"
+rsync_conf: "/etc/rsyncd.conf"
+
+rsync_authusers: [] # ["test:123456"]
+rsync_passfile: "/etc/rsyncd.password"
+
+rsync_port: 873
+rsync_maxconn: 200
+rsync_timeout: 300
+rsync_chroot: no
+rsync_shares: {}
+
+ansible_python_interpreter: /usr/bin/python2.6

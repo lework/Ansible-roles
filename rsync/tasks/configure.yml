@@ -1,0 +1,32 @@
+---
+# author: lework
+
+- name: configure | Create rsync log Directory.
+  file: path={{ rsync_logdir }} state=directory  owner={{ rsync_user }}  group={{ rsync_user }}
+
+- name: configure | Create rsync data Directory.
+  file: path={{ item.path }} state=directory owner={{ rsync_user }} group={{ rsync_user }}
+  with_items:
+   - "{{ rsync_shares }}"
+  when: rsync_shares
+
+- name: configure | Setup rsyncd.conf file.
+  template:
+    dest: "{{ rsync_conf }}"
+    mode: 0644
+    src: rsyncd.conf.j2
+    owner: "{{ rsync_user }}"
+    group: "{{ rsync_user }}"
+
+- name: configure | Setup rsyncd.password file.
+  template:
+    dest: "{{ rsync_passfile }}"
+    mode: 0600
+    src: rsyncd.password.j2
+  when: rsync_authusers
+
+- name: configure | start rsyncd.
+  shell: "rsync --daemon --config={{ rsync_conf }}"
+
+- name: configure | add rc.local.
+  lineinfile: "dest=/etc/rc.local  line='rsync --daemon --config={{ rsync_conf }}'"
