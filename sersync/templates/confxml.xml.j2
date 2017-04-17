@@ -18,14 +18,14 @@
     </filter>
 {% endif %}
     <inotify>
-	<delete start="{{ sersync_inotify_delete }}"/>
-	<createFolder start="{{ sersync_inotify_createFolder }}"/>
-	<createFile start="{{ sersync_inotify_createFile }}"/>
-	<closeWrite start="{{ sersync_inotify_closeWrite }}"/>
-	<moveFrom start="{{ sersync_inotify_moveFrom }}"/>
-	<moveTo start="{{ sersync_inotify_moveTo}}"/>
-	<attrib start="{{ sersync_inotify_attrib }}"/>
-	<modify start="{{ sersync_inotify_modify }}"/>
+	<delete start="{{ sersync_inotify_delete | ternary('true', 'false' )}}"/>
+	<createFolder start="{{ sersync_inotify_createFolder | ternary('true', 'false' ) }}"/>
+	<createFile start="{{ sersync_inotify_createFile | ternary('true', 'false' ) }}"/>
+	<closeWrite start="{{ sersync_inotify_closeWrite | ternary('true', 'false' ) }}"/>
+	<moveFrom start="{{ sersync_inotify_moveFrom | ternary('true', 'false' ) }}"/>
+	<moveTo start="{{ sersync_inotify_moveTo | ternary('true', 'false' ) }}"/>
+	<attrib start="{{ sersync_inotify_attrib | ternary('true', 'false' ) }}"/>
+	<modify start="{{ sersync_inotify_modify | ternary('true', 'false' ) }}"/>
     </inotify>
 
     <sersync>
