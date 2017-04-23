@@ -28,14 +28,16 @@ os `Centos 6.7 X64`
 	zookeeper_file_path: "{{ software_files_path }}/{{ zookeeper_file }}"
 	zookeeper_file_url: "http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-{{ zookeeper_version }}/zookeeper-{{ zookeeper_version }}.tar.gz"
 
+	zookeeper_user: "zookeeper"
 	zookeeper_port: 2181
+	zookeeper_name: "zookeeper{{ zookeeper_port if zookeeper_port != 2181 else '' }}" 
 	zookeeper_home: "/zookeeper_data"
 	zookeeper_dir: "{{ zookeeper_home }}/{{ zookeeper_port }}"
 	zookeeper_datadir: "{{ zookeeper_home }}/{{ zookeeper_port }}/data"
 	zookeeper_datalogdir: "{{ zookeeper_home }}/{{ zookeeper_port }}/logs"
 	zookeeper_hosts:
 	  - {'host': 127.0.0.1, 'port': 2181 ,'id': 1, 'leader_port': '2888:3888'}
-	
+		
 
 ## 依赖
 
@@ -66,7 +68,13 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zookeeper
 	   - { role: zookeeper, zookeeper_port: 2183 }
 
 	分布式安装：
-	端口默认
+	全部默认
+	- hosts: 192.168.77.129 192.168.77.130 192.168.77.131
+	  vars:
+		- zookeeper_hosts: "{{ play_hosts }}"
+	  roles:
+		 - { role: zookeeper }
+	指定id
 	- hosts: 192.168.77.129 192.168.77.130 192.168.77.131
 	  vars:
 	   - zookeeper_hosts:
@@ -88,7 +96,10 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zookeeper
 	   - { role: zookeeper, zookeeper_port: 2182}
 
 ## 使用
+/etc/init.d/zookeeper
+Usage: /etc/init.d/zookeeper {start|stop|status|sstatus|restart|condrestart}
 
-启动命令：/usr/local/zookeeper/bin/zkServer.sh start /zookeeper_data/2181/zoo.cfg
-关闭命令：/usr/local/zookeeper/bin/zkServer.sh stop /zookeeper_data/2181/zoo.cfg
-查看状态命令：/usr/local/zookeeper/bin/zkServer.sh status /zookeeper_data/2181/zoo.cfg
+启动命令：/etc/init.d/zookeeper start
+关闭命令：/etc/init.d/zookeeper stop
+查看状态命令：/etc/init.d/zookeeper sstatus
+客户端命令：zkCli.sh -server localhost:2181

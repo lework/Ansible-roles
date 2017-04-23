@@ -21,7 +21,7 @@ maxClientCnxns=60
 # administrator guide before turning on autopurge.
 
 {% for i in zookeeper_hosts %}
-server.{{ i.id }}={{i.host}}:{{i.leader_port|default('2888:3888')}}
+server.{{ i.id|d(loop.index) }}={{i.host|d(i)}}:{{i.leader_port|default('2888:3888')}}
 {% endfor %}
 
 # http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance

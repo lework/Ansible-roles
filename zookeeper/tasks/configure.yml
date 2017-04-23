@@ -1,25 +1,31 @@
 ---
 # author: lework
 
-- name: Create zookeeper Directory.
-  file: path={{ zookeeper_datadir }} state=directory
+- name: configure | Create zookeeper Directory.
+  file: path={{ zookeeper_datadir }} state=directory owner={{ zookeeper_user }} group={{ zookeeper_user }}
 
-- name: Setup myid.
-  template:
-    dest: "{{ zookeeper_datadir }}/myid"
-    src: myid.j2
+- name: configure | Set myid.
+  template: dest={{ zookeeper_datadir }}/myid src=myid.j2 owner={{ zookeeper_user }} group={{ zookeeper_user }}
 
-- name: Setup zoo.cfg file.
+- name: configure | Set zoo.cfg file.
   template:
     dest: "{{ zookeeper_dir }}/zoo.cfg"
     mode: 0644
     src: zoo.cfg.j2
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_user }}"
 
-- name: Ensure zookeeper is running.
-  shell: "{{software_install_path}}/zookeeper/bin/zkServer.sh start {{ zookeeper_dir }}/zoo.cfg"
+- name: configure | Set zookeeper init script.
+  template:
+    dest: "/etc/init.d/{{ zookeeper_name }}"
+    mode: 0755
+    src: zookeeper.init.j2
 
-- name: Wait for Zookeeper port.
+- name: configure | Add zookeeper services.
+  shell: "chkconfig --add {{ zookeeper_name }} && chkconfig {{ zookeeper_name }} on"
+
+- name: configure | Ensure zookeeper is started and enabled on boot.
+  service: "name={{ zookeeper_name }} state=started enabled=yes"
+
+- name: configure | Wait for Zookeeper port is OPEN.
   wait_for: "port={{ zookeeper_port }} state=started timeout=60"
-
-- name: Add self-starting to rc.local.
-  lineinfile: "dest=/etc/rc.d/rc.local line='{{software_install_path}}/zookeeper/bin/zkServer.sh start {{ zookeeper_dir }}/zoo.cfg'"

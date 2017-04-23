@@ -10,7 +10,9 @@ zookeeper_file: "zookeeper-{{ zookeeper_version }}.tar.gz"
 zookeeper_file_path: "{{ software_files_path }}/{{ zookeeper_file }}"
 zookeeper_file_url: "http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-{{ zookeeper_version }}/zookeeper-{{ zookeeper_version }}.tar.gz"
 
+zookeeper_user: "zookeeper"
 zookeeper_port: 2181
+zookeeper_name: "zookeeper{{ zookeeper_port if zookeeper_port != 2181 else '' }}" 
 zookeeper_home: "/zookeeper_data"
 zookeeper_dir: "{{ zookeeper_home }}/{{ zookeeper_port }}"
 zookeeper_datadir: "{{ zookeeper_home }}/{{ zookeeper_port }}/data"
