@@ -54,7 +54,6 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zookeeper
 	   - { role: zookeeper }
 
 	单机伪集群安装：
-
 	- hosts: 192.168.77.129
 	  vars:
 	   - zookeeper_hosts:
@@ -99,7 +98,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zookeeper
 /etc/init.d/zookeeper
 Usage: /etc/init.d/zookeeper {start|stop|status|sstatus|restart|condrestart}
 
-启动命令：/etc/init.d/zookeeper start
-关闭命令：/etc/init.d/zookeeper stop
-查看状态命令：/etc/init.d/zookeeper sstatus
-客户端命令：zkCli.sh -server localhost:2181
+启动命令：/etc/init.d/zookeeper start 
+关闭命令：/etc/init.d/zookeeper stop 
+查看状态命令：/etc/init.d/zookeeper sstatus 
+客户端命令：zkCli.sh -server localhost:2181 
