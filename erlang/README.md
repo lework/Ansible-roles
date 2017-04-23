@@ -27,6 +27,7 @@ os `Centos 6.7 X64`
 	erlang_file_path: "{{ software_files_path }}/{{ erlang_file }}"
 	erlang_file_url: "http://erlang.org/download/{{ erlang_file }}"
 
+	ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 
