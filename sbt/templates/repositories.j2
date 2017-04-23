@@ -1,0 +1,8 @@
+[repositories]
+#local
+public:{{ sbt_maven }}
+typesafe:{{ sbt_typesafe }}, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext], bootOnly
+ivy-sbt-plugin:{{ sbt_ivy_plugin }}, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+sonatype-oss-releases
+
+sonatype-oss-snapshots

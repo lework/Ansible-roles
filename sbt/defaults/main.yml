@@ -1,0 +1,15 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+sbt_version: "0.13.15"
+sbt_file: "sbt-{{ sbt_version }}.tgz"
+sbt_file_path: "{{ software_files_path }}/{{ sbt_file }}"
+sbt_install_path: "{{ software_install_path }}/apache-maven-{{ mvn_version }}"
+sbt_file_url: "https://github.com/sbt/sbt/releases/download/v{{ sbt_version }}/{{ sbt_file }}"
+
+sbt_maven: "http://maven.aliyun.com/nexus/content/groups/public/"
+sbt_typesafe: "http://dl.bintray.com/typesafe/ivy-releases/"
+sbt_ivy_plugin: "http://dl.bintray.com/sbt/sbt-plugin-releases/"

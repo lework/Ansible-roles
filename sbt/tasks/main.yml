@@ -1,0 +1,40 @@
+---
+# author: lework
+
+- name: Check if sbt local file is already configured.
+  stat: path={{ sbt_file_path }}
+  connection: local
+  register: sbt_file_result
+
+- name: Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not sbt_file_result.stat.exists
+  
+- name: Download sbt file.
+  get_url: url={{ sbt_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not sbt_file_result.stat.exists
+ 
+- name: Copy sbt file to agent.
+  unarchive:
+    src: "{{ sbt_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/sbt"
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/sbt/bin/:$PATH'
+
+- name: Create sbt home.
+  file: path=~/.sbt state=directory
+  
+- name: Setup server.properties file.
+  template: dest=~/.sbt/repositories src=repositories.j2
+    
+- name: sbt version.
+  command: "{{ software_install_path }}/sbt/bin/sbt sbt-version"
+  register: result
+  ignore_errors: True
+  changed_when: false
+
+- debug: var=result.stdout_lines[-1:]
