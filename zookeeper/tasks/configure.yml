@@ -28,4 +28,4 @@
   service: "name={{ zookeeper_name }} state=started enabled=yes"
 
 - name: configure | Wait for Zookeeper port is OPEN.
-  wait_for: "port={{ zookeeper_port }} state=started timeout=60"
+  wait_for: "port={{ zookeeper_port }} state=started"
