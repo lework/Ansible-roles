@@ -1,0 +1,79 @@
+#!/bin/bash
+#
+# Init file for Apache Kafka
+#
+# chkconfig: 35 85 15
+# description: Apache Kafka is a distributed publish-subscribe messaging system
+# processname: kafka
+# config: {{ kafka_conf }}
+# pidfile: /var/run/kafka.pid
+
+. /etc/rc.d/init.d/functions
+
+export LOG_DIR="{{ kafka_server_logsdir }}"
+export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:{{ kafka_home }}/config/log4j.properties"
+export KAFKA_HEAP_OPTS="{{ kafka_heap_opts }}"
+{% if kafka_jmx_port != '' %} export JMX_PORT={{ kafka_jmx_port }}{% endif %}
+KAFKA_USER="{{ kafka_user }}"
+SYSCONFIG="/etc/sysconfig/{{ kafka_name }}"
+KAFKA_BASEDIR="{{ kafka_home }}"
+KAFKA_CONF="{{ kafka_conf }}"
+PIDFILE="/var/run/{{ kafka_name}}.pid"
+LOCKFILE="/var/lock/subsys/{{ kafka_name }}"
+
+[ -f "$SYSCONFIG" ] && . "$SYSCONFIG"
+
+CMD="$KAFKA_BASEDIR/bin/kafka-run-class.sh -daemon -name kafkaServer -loggc kafka.Kafka $KAFKA_CONF & echo \$! > $PIDFILE"
+
+start()
+{
+  echo -n $"Starting kafka: "
+  touch $PIDFILE && chown $KAFKA_USER $PIDFILE
+  export KAFKA_OPTS
+  daemon --user $KAFKA_USER --pidfile $PIDFILE "$CMD"
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && touch $LOCKFILE && success || failure
+  echo
+  return $RETVAL
+}
+
+stop()
+{
+  echo -n $"Stopping kafka: "
+  killproc -p $PIDFILE $KAFKA_USER
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+  return $RETVAL
+}
+
+restart () {
+  stop
+  start
+}
+
+RETVAL=0
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f $LOCKFILE ] && restart || :
+    ;;
+  status)
+    status -p $PIDFILE $KAFKA_USER
+    RETVAL=$?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    RETVAL=1
+esac
+
+exit $RETVAL

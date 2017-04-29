@@ -1,0 +1,32 @@
+---
+# author: lework
+
+- name: configure | Create kafka work Directory.
+  file: path={{ item  }} state=directory  owner={{ kafka_user }}  group={{ kafka_user }}
+  with_items:
+   - "{{ kafka_server_logsdir }}"
+   - "{{ kafka_logdirs }}"
+  
+- name: configure | Setup server.properties file.
+  template:
+    dest: "{{ kafka_conf }}"
+    mode: 0644
+    src: server.properties.j2
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_user }}"
+
+- name: configure | Setup kafka.env file.
+  template:
+    dest: /etc/profile.d/kafka_env.sh
+    mode: 0644
+    src: kafka.env.j2
+
+- name: configure | Setup kafka init script.
+  template:
+    dest: /etc/init.d/{{ kafka_name }}
+    mode: 0755
+    src: kafka.init.j2
+
+- name: configure | Ensure kafka is started and enabled on boot.
+  service: "name={{ kafka_name }} state=started enabled=yes"
+  when: not kafka_standalone

@@ -1,0 +1,30 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+kafka_version: "0.10.2.0"
+scala_version: "2.11"
+
+
+kafka_file: "kafka_{{ scala_version }}-{{ kafka_version }}.tgz"
+kafka_file_path: "{{ software_files_path }}/{{ kafka_file }}"
+kafka_file_url: "http://mirrors.tuna.tsinghua.edu.cn/apache/kafka/{{ kafka_version }}/{{ kafka_file }}"
+
+kafka_user: "kafka"
+kafka_home: "{{ software_install_path }}/kafka"
+
+kafka_brokerid: "{{ 300 | random(start=200) }}"
+kafka_port: 9092
+kafka_jmx_port: ''
+kafka_ssl_port: ''
+
+kafka_name: "kafka{{ kafka_port if kafka_port != 9092 else '' }}"
+kafka_logdirs: "/kafka_data/logs{% if kafka_port != 9092  %}-{{ kafka_port }}{% endif %}"
+kafka_conf: "{{ kafka_home }}/config/server{% if kafka_port != 9092  %}-{{ kafka_port }}{% endif %}.properties"
+kafka_zk_quorum: "localhost:2181/kafka"
+
+kafka_server_logsdir: "/var/log/{{ kafka_name }}"
+kafka_heap_opts: "-Xmx1G -Xms1G"
+kafka_standalone: false

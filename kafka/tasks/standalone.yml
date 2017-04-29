@@ -1,0 +1,9 @@
+---
+
+- name: standalone | Start zookeeper service.
+  shell: "nohup {{ kafka_home }}/bin/zookeeper-server-start.sh {{ kafka_home }}/config/zookeeper.properties > /tmp/zk.log 2>&1 &"
+  run_once: yes
+
+- name: standalone | Ensure kafka is started and enabled on boot.
+  service: "name={{ kafka_name }} state=started enabled=yes"
+  when: kafka_standalone

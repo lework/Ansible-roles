@@ -1,0 +1,50 @@
+############################# Server Basics #############################
+
+broker.id={{ kafka_brokerid }}
+
+#delete.topic.enable=true
+
+############################# Socket Server Settings #############################
+
+listeners=PLAINTEXT://:{{ kafka_port }}{%- if kafka_ssl_port -%},SSL://:{{ kafka_ssl_port }}{% endif  %}
+
+#advertised.listeners=PLAINTEXT://your.host.name:9092
+
+#listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+
+num.network.threads=3
+
+num.io.threads=8
+
+socket.send.buffer.bytes=102400
+
+socket.receive.buffer.bytes=102400
+
+socket.request.max.bytes=104857600
+
+
+############################# Log Basics #############################
+
+log.dirs={{ kafka_logdirs }}
+
+num.partitions=1
+
+num.recovery.threads.per.data.dir=1
+
+############################# Log Flush Policy #############################
+
+#log.flush.interval.messages=10000
+
+#log.flush.interval.ms=1000
+
+############################# Log Retention Policy #############################
+
+log.retention.hours=168
+#log.retention.bytes=1073741824
+log.segment.bytes=1073741824
+log.retention.check.interval.ms=300000
+
+############################# Zookeeper #############################
+
+zookeeper.connect={{ kafka_zk_quorum }}
+zookeeper.connection.timeout.ms=6000
