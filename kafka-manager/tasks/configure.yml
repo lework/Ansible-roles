@@ -1,0 +1,23 @@
+---
+# author: lework
+
+- name: configure | Set kafka-manager init script.
+  template:
+    dest: "{{ software_install_path }}/kafka-manager/conf/application.conf"
+    src: application.conf.j2
+    owner: "{{ kafka_manager_user }}"
+    group: "{{ kafka_manager_user }}"
+
+- name: configure | Set kafka-manager init script.
+  template:
+    dest: /etc/init.d/kafka-manager
+    mode: 0755
+    src: kafka-manager.init.j2
+
+- name: configure | Add kafka-manager env to /etc/profile.
+  lineinfile: "dest=/etc/profile  line='export PATH={{ software_install_path }}/kafka-manager/bin:$PATH'"
+ 
+- name: configure | Ensure kafka-manager is started and enabled on boot.
+  service: "name=kafka-manager state=started enabled=yes"
+  environment:
+   JAVA_HOME: /usr/java/jdk1.8.0_121/

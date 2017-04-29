@@ -1,0 +1,24 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+kafka_manager_version: "1.3.3.6"
+
+kafka_manager_file: "kafka-manager-{{ kafka_manager_version }}.tar.gz"
+kafka_manager_file_path: "{{ software_files_path }}/{{ kafka_manager_file }}"
+kafka_manager_file_url: "https://github.com/yahoo/kafka-manager/archive/{{ kafka_manager_version }}.tar.gz"
+
+kafka_manager_build_file: "kafka-manager-{{ kafka_manager_version }}.zip"
+kafka_manager_build_file_path: "{{ software_files_path }}/{{ kafka_manager_build_file }}"
+
+kafka_manager_user: "kafka-manager"
+kafka_manager_port: 9000
+
+kafka_manager_zk: 'localhost:2181'
+kafka_manager_auth: false
+kafka_manager_auth_user: "admin"
+kafka_manager_auth_pass: "password"
+
+kafka_manager_javahome: ""

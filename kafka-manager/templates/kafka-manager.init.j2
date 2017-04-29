@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# Init file for Kafka MANAGER
+#
+# chkconfig: 35 85 15
+# description: A tool for managing Apache Kafka.
+# processname: kafka-manager
+# config: {{ software_install_path }}/kafka-manager/conf/application.conf
+# pidfile: /var/run/kafka-manager.pid
+
+. /etc/rc.d/init.d/functions
+
+KAFKA_MANAGER_USER="{{ kafka_manager_user }}"
+KAFKA_MANAGER_PORT="{{ kafka_manager_port }}"
+KAFKA_MANAGER_BASEDIR="{{ software_install_path }}/kafka-manager"
+KAFKA_MANAGER_CONF="$KAFKA_MANAGER_BASEDIR/conf/application.conf"
+KAFKA_MANAGER_log="/var/log/kafka-manager.log"
+PIDFILE="/var/run/kafka-manager.pid"
+LOCKFILE="/var/lock/subsys/kafka-manager"
+
+JAVA_HOME="{{ ansible_env.JAVA_HOME |d(KAFKA_MANAGER_javahome)}}"
+
+CMD="$KAFKA_MANAGER_BASEDIR/bin/kafka-manager -Dconfig.file=$KAFKA_MANAGER_CONF -Dhttp.port=$KAFKA_MANAGER_PORT -java-home $JAVA_HOME >> $KAFKA_MANAGER_log 2>&1 & echo \$! > $PIDFILE"
+
+start()
+{
+  echo -n $"Starting kafka: "
+  [ ! -f "$KAFKA_MANAGER_log" ] && touch $KAFKA_MANAGER_log && chown $KAFKA_MANAGER_USER $KAFKA_MANAGER_log
+  touch $PIDFILE && chown $KAFKA_MANAGER_USER $PIDFILE
+  daemon --user $KAFKA_MANAGER_USER --pidfile $PIDFILE "$CMD"
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && touch $LOCKFILE && success || failure
+  echo
+  return $RETVAL
+}
+
+stop()
+{
+  echo -n $"Stopping kafka: "
+  killproc -p $PIDFILE $KAFKA_MANAGER_USER
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+  return $RETVAL
+}
+
+restart () {
+  stop
+  start
+}
+
+RETVAL=0
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f $LOCKFILE ] && restart || :
+    ;;
+  status)
+    status -p $PIDFILE $KAFKA_MANAGER_USER
+    RETVAL=$?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    RETVAL=1
+esac
+
+exit $RETVAL

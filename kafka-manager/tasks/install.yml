@@ -1,0 +1,69 @@
+---
+# author: lework
+
+- name: install | Check if kafka_manager build local file is already configured.
+  stat: path={{ kafka_manager_build_file_path }}
+  connection: local
+  register: kafka_manager_build_file_result
+
+- name: "install | Create {{ kafka_manager_user }} group."
+  group: name={{ kafka_manager_user }}
+
+- name: "install | Create {{ kafka_manager_user }} user."
+  user: name={{ kafka_manager_user }} group={{ kafka_manager_user }} shell=/sbin/nologin
+
+- block:
+  - name: install | Check if kafka_manager src local file is already configured.
+    stat: path={{ kafka_manager_file_path }}
+    connection: local
+    register: kafka_manager_file_result
+  
+  - name: install | Create software files path.
+    file: path={{ software_files_path }} state=directory
+    connection: local
+    when: not kafka_manager_file_result.stat.exists
+
+  - name: install | Download kafka_manager file.
+    get_url: url={{ kafka_manager_file_url }} dest={{ software_files_path }}
+    connection: local
+    when: not kafka_manager_file_result.stat.exists
+
+  - name: install | Copy kafka_manager file to agent.
+    unarchive:
+      src: "{{ kafka_manager_file_path }}"
+      dest: /tmp
+      creates: "/tmp/kafka-manager-{{ kafka_manager_version }}"
+      
+  - name: install | Build kafka_manager.
+    command: /usr/local/sbt/bin/sbt clean dist
+    args:
+     chdir: /tmp/kafka-manager-{{ kafka_manager_version }}
+     creates: /tmp/kafka-manager-{{ kafka_manager_version }}/target/universal/{{ kafka_manager_build_file }}
+      
+  - name: "install | Copy kafka_manager build file to {{ software_install_path }}"
+    unarchive:
+      src: "/tmp/kafka-manager-{{ kafka_manager_version }}/target/universal/kafka-manager-{{ kafka_manager_version }}.zip"
+      dest: "{{ software_install_path }}"
+      owner: "{{ kafka_manager_user }}"
+      group: "{{ kafka_manager_user }}"
+      remote_src: yes
+      creates: "{{ software_install_path }}/kafka-manager-{{ kafka_manager_version }}"
+  when: not kafka_manager_build_file_result.stat.exists
+
+- name: install | Copy kafka_manager build file to agent.
+  unarchive:
+    src: "{{ kafka_manager_build_file_path }}"
+    dest: "{{ software_install_path }}"
+    owner: "{{ kafka_manager_user }}"
+    group: "{{ kafka_manager_user }}"
+    creates: "{{ software_install_path }}/kafka-manager-{{ kafka_manager_version }}"
+  when: kafka_manager_build_file_result.stat.exists
+
+- name: "install | Set kafka-manager home directory user is [{{ kafka_manager_user }}]"
+  file: "dest={{ software_install_path }}/kafka-manager-{{ kafka_manager_version }} owner={{ kafka_manager_user }} group={{ kafka_manager_user }} recurse=yes"
+
+- name: install | Create kafka_manager dir soft link.
+  file: src={{ software_install_path }}/kafka-manager-{{ kafka_manager_version }} dest={{ software_install_path }}/kafka-manager owner={{ kafka_manager_user }} group={{ kafka_manager_user }} state=link
+  
+- name: install | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/kafka-manager/bin/:$PATH'
