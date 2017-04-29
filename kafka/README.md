@@ -63,3 +63,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/kafka
 	   - kafka_zk_quorum: "node1:2181,node2:2181,node3:2181/kafka"
 	  roles:
 		 - { role: kafka }
+		 
+## 使用
+service kafka
+Usage: /etc/init.d/kafka {start|stop|status|restart|reload|force-reload|condrestart}
