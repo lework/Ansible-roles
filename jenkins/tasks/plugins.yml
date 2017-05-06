@@ -1,0 +1,37 @@
+---
+# author: lework
+
+- name: plugins | Wait for jenkins http port is LISTEN.
+  wait_for: port={{ jenkins_http_port }} delay=5
+
+- name: "plugins | Create {{ jenkins_jar_location }} directory if it doesn't exist."
+  file: dest={{ jenkins_jar_location | dirname  }} state=directory
+  
+- name: plugins | Get the jenkins-cli jarfile from the Jenkins server.
+  get_url:
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/jnlpJars/jenkins-cli.jar"
+    dest: "{{ jenkins_jar_location }}"
+  register: jarfile_get
+  until: "'OK' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+  retries: 5
+  delay: 10
+  check_mode: no
+    
+- name: plugins | Install Jenkins plugins using password.
+  command: >
+    java -jar {{ jenkins_jar_location }} -s http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix | default('') }}/
+    install-plugin {{ item }}
+    --username {{ jenkins_admin_username }}
+    --password {{ jenkins_admin_password }}
+    creates="{{ jenkins_home }}/plugins/{{ item }}.jpi"
+  register: install_plugins
+  until: install_plugins.rc == 0
+  retries: 3
+  delay: 5
+  with_items: 
+    - "{{ jenkins_plugins_recommended }}"
+    - "{{ jenkins_plugins_extra }}"
+  when: jenkins_admin_password != ""
+
+- name: plugins | Restart Jenkins after plugins add.
+  service: name=jenkins state=restarted

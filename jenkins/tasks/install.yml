@@ -1,0 +1,46 @@
+---
+# author: lework
+
+- name: install | Ensure dependencies are installed.
+  package:
+    name:
+      - curl
+      - libselinux-python
+      - initscripts
+    state: installed
+
+- name: install | Check java version.
+  command: java -version
+  register: java_version
+  changed_when: false
+  ignore_errors: true
+
+- name: install | Install jdk8.
+  package: name=java-1.8.0-openjdk state=installed
+  when: "(not java_version.stdout|d() | search('1.8.')) and (
+         (jenkins_version | d('1') > 2.53 ) or 
+         jenkins_version is undefined)"
+        
+- name: Install | Install jdk7.
+  package: name=java-1.7.0-openjdk state=installed
+  when: "(not java_version.stdout | d() | search('1.7.')) and
+         (jenkins_version | d('1') <= 2.53 )"
+    
+- name: install | Install the jenkins rpm from a remote repo.
+  yum: name={{ jenkins_pkg_url }}/jenkins-{{ jenkins_version }}-1.1.noarch.rpm state=present
+  when: jenkins_version is defined
+  
+- block:
+  - name: install | Ensure Jenkins repo is installed.
+    get_url:
+      url: "{{ jenkins_repo_url }}"
+      dest: /etc/yum.repos.d/jenkins.repo
+
+  - name: install | Add Jenkins repo GPG key.
+    rpm_key:
+      state: present
+      key: "{{ jenkins_repo_key_url }}"
+      
+  - name: install | Install Jenkins from repository.
+    package: name=jenkins state=installed
+  when: jenkins_version is undefined

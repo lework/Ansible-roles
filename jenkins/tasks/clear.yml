@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: clear | Remove Jenkins security init scripts after startup.
+  file:
+    path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    state: absent

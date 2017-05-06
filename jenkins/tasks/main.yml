@@ -1,0 +1,14 @@
+---
+# author: lework
+
+# Setup/install tasks.
+- include: install.yml
+
+# Configure Jenkins init configure.
+- include: configure.yml
+
+# Update Jenkins and install configured plugins.
+- include: plugins.yml
+
+# Clear temporary files.
+- include: clear.yml

@@ -1,0 +1,41 @@
+---
+# author: lework
+
+- name: configure | Modify variables in init file.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    insertafter: '^{{ item.option }}='
+    regexp: '^{{ item.option}}=\"\${{ item.option }} '
+    line: '{{ item.option }}="${{ item.option }} {{ item.value }}"'
+    state: present
+  with_items:
+      "{{ jenkins_init_changes }}"
+
+- name: configure | Set the Jenkins home directory.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    regexp: '^JENKINS_HOME=.*'
+    line: 'JENKINS_HOME={{ jenkins_home }}'
+    
+- name: configure | Set HTTP port in Jenkins config.
+  lineinfile:
+    backrefs: yes
+    dest: "{{ jenkins_init_file }}"
+    regexp: '^JENKINS_PORT='
+    line: 'JENKINS_PORT={{ jenkins_http_port }}'
+
+- name: configure | Create custom init scripts directory.
+  file:
+    path: "{{ jenkins_home }}/init.groovy.d"
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: 0775
+
+- name: configure | Configure default users.
+  template:
+    src: basic-security.groovy
+    dest: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    
+- name: configure | Ensure jenkins is running and enabled on boot.
+  service: name=jenkins state=started  enabled=yes

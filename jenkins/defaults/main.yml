@@ -1,0 +1,56 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+
+jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
+jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
+jenkins_pkg_url: https://pkg.jenkins.io/redhat
+
+# jenkins_version: "2.46"
+
+jenkins_home: /var/lib/jenkins
+jenkins_hostname: localhost
+jenkins_http_port: 8080
+jenkins_jar_location: "{{ software_files_path }}/jenkins-cli.jar"
+jenkins_url_prefix: ""
+jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
+
+jenkins_admin_username: admin
+jenkins_admin_password: admin
+
+jenkins_init_file: /etc/sysconfig/jenkins
+jenkins_init_changes:
+  - option: "JENKINS_ARGS"
+    value: "--prefix={{ jenkins_url_prefix }}"
+  - option: "JENKINS_JAVA_OPTIONS"
+    value: "{{ jenkins_java_options }}"
+    
+jenkins_plugins_recommended:    
+  - ant
+  - msbuild
+  - gradle
+  - maven-plugin
+  - nodejs
+  - antisamy-markup-formatter
+  - build-timeout
+  - cloudbees-folder
+  - credentials-binding
+  - email-ext
+  - git
+  - subversion
+  - ldap
+  - mailer
+  - matrix-auth
+  - pam-auth
+  - pipeline-stage-view
+  - ssh-slaves
+  - publish-over-ssh
+  - windows-slaves
+  - timestamper
+  - workflow-aggregator
+  - ws-cleanup
+  
+jenkins_plugins_extra: []
+
+ansible_python_interpreter: /usr/bin/python2.6
