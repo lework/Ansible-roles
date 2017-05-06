@@ -1,0 +1,33 @@
+---
+# author: lework
+
+- name: install | Check if rabbitmq local file is already configured.
+  stat: path={{ rabbitmq_file_path }}
+  connection: local
+  register: rabbitmq_file_result
+
+- name: install | Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not rabbitmq_file_result.stat.exists
+
+- name: install | Download rabbitmq file.
+  get_url: url={{ rabbitmq_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not rabbitmq_file_result.stat.exists
+
+- name: install | Copy rabbitmq file to agent.
+  unarchive:
+    src: "{{ rabbitmq_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/rabbitmq_server-{{ rabbitmq_version }}"
+    
+- name: Create rabbitmq dir soft link.
+  file: src={{ software_install_path }}/rabbitmq_server-{{ rabbitmq_version }} dest={{ software_install_path }}/rabbitmq state=link
+  
+- name: "install | Create {{ rabbitmq_user }} group."
+  group: name={{ rabbitmq_user }}
+
+- name: "install | Create {{ rabbitmq_user }} user."
+  user: name={{ rabbitmq_user }} group={{ rabbitmq_user }} shell=/sbin/nologin
+  

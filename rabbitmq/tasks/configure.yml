@@ -1,0 +1,61 @@
+---
+# author: lework
+
+- name: configure | Create rabbitmq Directory.
+  file: path={{ item }} state=directory owner={{ rabbitmq_user }} group={{ rabbitmq_user }}
+  with_items:
+   - "{{ rabbitmq_logdir }}"
+   - "{{ rabbitmq_mnesiadir }}"
+  
+- name: configure | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/rabbitmq/sbin/:$PATH'
+ 
+- name: configure | Copy rabbitmq init.d script.
+  template:
+    src: "rabbitmq-server.sh.j2"
+    dest: "/etc/rc.d/init.d/rabbitmq-server"
+    mode: 0755
+    
+- name: configure | Setup hosts.
+  lineinfile: "dest=/etc/hosts line='{{ ansible_default_ipv4.address}} {{ ansible_hostname }}'"
+
+- name: configure | Setup server.properties file.
+  template:
+    dest: "{{ software_install_path }}/rabbitmq/etc/rabbitmq/rabbitmq-env.conf"
+    mode: 0644
+    src: rabbitmq-env.conf.j2
+
+- name: configure | Add rabbitmq-server services.
+  shell: "chkconfig --add rabbitmq-server && chkconfig rabbitmq-server on"
+
+- name: configure | Enable rabbitmq plugins.
+  command: "/usr/local/rabbitmq/sbin/rabbitmq-plugins enable {{ item  }}"
+  with_items:
+   - "rabbitmq_management"
+   - "{{ rabbitmq_plugins }}"
+
+- name: configure | Ensure rabbitmq-server is running.
+  service:
+    name: rabbitmq-server
+    state: started
+    enabled: yes
+  when: rabbitmq_enabled
+
+- wait_for: port={{ rabbitmq_nodeport }}
+
+- block:
+  - name: configure | Add rabbitmq users.
+    shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl add_user {{ item.user }} {{ item.pass }} && {{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_user_tags {{ item.user }} {{ item.role }}"
+    with_items:
+     - "{{ rabbitmq_server_users }}"
+
+  - name: configure | Set users virtual host permissions.
+    shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_permissions -p {{ rabbitmq_vhost }} {{item.user }} {{ rabbitmq_vhost_permission }}" 
+    with_items:
+     - "{{ rabbitmq_server_users }}"
+  become: true
+  become_user: "{{ rabbitmq_user }}"
+  become_method: su
+  become_flags: '-s /bin/sh'
+  ignore_errors: true
+  when: rabbitmq_server_users
