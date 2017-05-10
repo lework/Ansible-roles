@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: logrotate | Setup Tomcat logrotate conf file.
+  template:
+    dest: "/etc/logrotate.d/{{ tomcat_services_name }}"
+    src: tomcat.logrotate.j2

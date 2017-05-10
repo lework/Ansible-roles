@@ -1,0 +1,10 @@
+---
+# author: lework
+
+- name: Include tomcat8 variables.
+  include_vars: tomcat8.yml
+  when: tomcat_version | search('8.')
+  
+- include: install.yml
+- include: configure.yml
+- include: logrotate.yml

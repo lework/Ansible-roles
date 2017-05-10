@@ -1,0 +1,12 @@
+---
+# author: lework
+
+java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.8.0_121') }}"
+
+tomcat_version: "8.5.14"
+tomcat_file: "apache-tomcat-{{ tomcat_version }}.tar.gz"
+tomcat_path: "{{ software_install_path }}/apache-tomcat-{{ tomcat_version }}"
+tomcat_file_path: "{{ software_files_path }}/{{ tomcat_file }}"
+tomcat_file_url: "http://archive.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+
+tomcat_catalina_opts: "-server -Xms1024m -Xmx1024m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.awt.headless=true"

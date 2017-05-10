@@ -1,0 +1,66 @@
+---
+# author: lework
+
+- name: install | Check if tomcat local file is already configured.
+  stat: path={{ tomcat_file_path }}
+  connection: local
+  register: tomcat_file_result
+
+- name: install | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not tomcat_file_result.stat.exists
+  
+- name: install | Download tomcat file.
+  get_url: url={{ tomcat_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not tomcat_file_result.stat.exists
+
+- name: install | Create tomcat group.
+  group: name={{ tomcat_user }}
+
+- name: install | Create tomcat user.
+  user: name={{ tomcat_user }} group={{ tomcat_user }} shell=/sbin/nologin
+
+- name: install | Ensure gcc packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    
+- name: install | Copy tomcat file to agent.
+  unarchive:
+    src: "{{ tomcat_file_path }}"
+    dest: /tmp
+    creates: "/tmp/apache-tomcat-{{ tomcat_version }}/bin/startup.sh"
+
+- name: install | Move tomcat dir.
+  shell: "mv /tmp/apache-tomcat-{{ tomcat_version }} {{ tomcat_work_path }} removes=/tmp/apache-tomcat-{{ tomcat_version }}  creates={{ tomcat_work_path }}"
+
+- name: install | Check if jsvc is already configured.
+  stat: path="{{ tomcat_work_path }}/bin/jsvc"
+  register: tomcat_jsvc_result
+
+- block:
+  - name: install | Unarchive commons daemon.
+    unarchive:
+      src: "{{ tomcat_work_path }}/bin/commons-daemon-native.tar.gz"
+      dest: "{{ tomcat_work_path }}/bin/"
+      creates: "{{ tomcat_work_path }}/bin/commons-daemon-1.0.15-native-src"
+      copy: no
+
+  - name: install | Build commons daemon.
+    shell: "./configure && make chdir={{ tomcat_work_path }}/bin/commons-daemon-1.0.15-native-src/unix"
+
+  - name: install | Copy jsvc To bin directory.
+    copy: "src={{ tomcat_work_path }}/bin/commons-daemon-1.0.15-native-src/unix/jsvc dest={{ tomcat_work_path }}/bin/ mode=0755 remote_src=True"
+  when: not tomcat_jsvc_result.stat.exists
+
+
+
+- name: install | The directory belongs to tomcat.
+  file: "path={{ tomcat_work_path }} owner={{ tomcat_user }} group={{ tomcat_user }} recurse=yes state=directory"
