@@ -1,0 +1,37 @@
+---
+# author: lework
+
+- name: configure | Setup passphraseless ssh.
+  shell: "{{ item }}"
+  with_items:
+    - "ssh-keygen -t rsa -P '' -f /home{{ hadoop_standalone_user }}/.ssh/id_rsa"
+    - "cat ~/.ssh/id_rsa.pub >> /home{{ hadoop_standalone_user }}/.ssh/authorized_keys"
+    - "chmod 0600 /home{{ hadoop_standalone_user }}/.ssh/authorized_keys"
+    - "chown -R {{ hadoop_standalone_user }}.{{ hadoop_standalone_user }} /home{{ hadoop_standalone_user }}/.ssh"
+
+- name: configure | Setup consul.conf file.
+  template:
+    dest: "{{ hadoop_standalone_home }}/etc/hadoop/"
+    src: "{{ item }}"
+  with_items:
+    - core-site.xml
+    - hdfs-site.xml
+    - mapred-site.xml
+    - yarn-site.xml
+
+- name: configure | Set hadoop_HOME if configured.
+  template:
+    dest: "/etc/profile.d/hadoop_home.sh"
+    src: "hadoop_home.j2"
+    
+- name: configure | Format the filesystem.
+  shell: "runuser -s /bin/bash {{ hadoop_standalone_user }} -c  {{ hadoop_standalone_home }}/bin/hdfs namenode -format"
+  
+- name: configure | Start NameNode daemon and DataNode daemon.
+  shell: "runuser -s /bin/bash {{ hadoop_standalone_user }} -c  {{ hadoop_standalone_home }}/sbin/start-dfs.sh"
+  
+- name: configure | Make the HDFS directories.
+  shell: "runuser -s /bin/bash {{ hadoop_standalone_user }} -c  {{ hadoop_standalone_home }}/bin/hdfs dfs -mkdir -p /user/{{ hadoop_standalone_user }}"
+  
+- name: configure | Start ResourceManager daemon and NodeManager daemon.
+  shell: "runuser -s /bin/bash {{ hadoop_standalone_user }} -c  {{ hadoop_standalone_home }}/sbin/start-yarn.sh"

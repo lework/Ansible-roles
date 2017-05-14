@@ -1,0 +1,38 @@
+---
+# author: lework
+
+- name: install | Check if hadoop local file is already configured.
+  stat: path={{ hadoop_standalone_file_path }}
+  connection: local
+  register: hadoop_standalone_file_result
+
+- name: install | Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not hadoop_standalone_file_result.stat.exists
+
+- name: install | Download hadoop file.
+  get_url: url={{ hadoop_standalone_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not hadoop_standalone_file_result.stat.exists
+
+- name: install | Copy hadoop file to agent.
+  unarchive:
+    src: "{{ hadoop_standalone_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/hadoop-{{ hadoop_standalone_version }}"
+    
+- name: install | Ensure gcc packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - openssh-clients
+    - openssh-server
+    - rsync
+    
+- name: "install | Create {{ hadoop_standalone_user }} group."
+  group: name={{ hadoop_standalone_user }}
+
+- name: "install | Create {{ hadoop_standalone_user }} user."
+  user: name={{ hadoop_standalone_user }} group={{ hadoop_standalone_user }} shell=/sbin/nologin
