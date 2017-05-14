@@ -1,0 +1,72 @@
+---
+# author: lework
+
+- name: install | Check if haproxy local file is already configured.
+  stat: path={{ haproxy_file_path }}
+  connection: local
+  register: haproxy_file_result
+
+- name: install | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not haproxy_file_result.stat.exists
+  
+- name: install | Download haproxy file.
+  get_url: url={{ haproxy_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not haproxy_file_result.stat.exists
+
+- name: install | Copy haproxy file to agent.
+  unarchive:
+    src: "{{ haproxy_file_path }}"
+    dest: "/tmp"
+    creates: "/tmp/haproxy-{{ haproxy_version }}"
+
+- name: install | Ensure gcc packages are installed.
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    - zlib
+    - zlib-devel
+    - openssl
+    - openssl-devel
+    - kernel-devel
+    - pcre
+    - pcre-devel
+  when: ansible_os_family == 'RedHat'
+  
+- name: install | Create haproxy group.
+  group: name={{ haproxy_user }}
+
+- name: install | Create haproxy user.
+  user: name={{ haproxy_user }} group={{ haproxy_user }} shell=/sbin/nologin
+
+- name: install | Create haproxy work Directory.
+  file: path={{ item }} state=directory owner={{ haproxy_user }} group={{ haproxy_user }}
+  with_items:
+   - "{{ haproxy_conf_path }}"
+   - "{{ haproxy_logspath }}"
+
+- name: install | Check if haproxy bin file is already configured.
+  stat: path={{ haproxy_chroot }}/sbin/haproxy
+  register: haproxy_bin_result
+ 
+- name: install | Build an install haproxy.
+  shell: "{{ item }}" 
+  with_items:
+    - "{{ haproxy_configure_command }}"
+    - "make install PREFIX={{ haproxy_chroot }}"
+  args:
+    chdir: "/tmp/haproxy-{{ haproxy_version }}/"
+  when: not haproxy_bin_result.stat.exists
+
+- name: install | Copy errorfiles to haproxy home.
+  command: "cp -rf /tmp/haproxy-{{ haproxy_version }}/examples/errorfiles {{ haproxy_chroot }}/"
+  
+- name: install | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ haproxy_chroot }}/sbin/:$PATH'

@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: rsyslog | Ensure rsyslog packages are installed.
+  yum: name=rsyslog state=installed
+  when: ansible_os_family == 'RedHat'
+
+- name: install | Create haproxy dev log Directory.
+  file: path={{ haproxy_chroot }}/dev state=directory
+
+- name: rsyslog | Setup HAProxy rsyslog conf file.
+  template: dest=/etc/rsyslog.d/haproxy.conf src=haproxy.conf.j2
+    
+- name: rsyslog | Ensure rsyslog is resstarted and enabled on boot.
+  service: "name=rsyslog state=restarted enabled=yes"
+
+- name: configure | Ensure HAProxy is restarted.
+  service: "name=haproxy state=restarted"

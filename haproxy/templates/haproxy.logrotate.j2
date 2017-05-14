@@ -1,0 +1,12 @@
+{{ haproxy_logspath }}/haproxy.log {
+	daily
+    rotate 60
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+	/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+	/bin/kill -HUP `cat /var/run/rsyslogd.pid 2> /dev/null` 2> /dev/null || true
+	/bin/kill -HUP `cat /var/run/syslog-ng.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}

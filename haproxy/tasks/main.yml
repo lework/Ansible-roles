@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- include: install.yml
+- include: configure.yml 
+- include: rsyslog.yml
+- include: logrotate.yml

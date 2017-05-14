@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: configure | Copy HAProxy configuration in place.
+  template:
+    src: haproxy.cfg.j2
+    dest: "{{ haproxy_conf_path }}/haproxy.cfg"
+    mode: 0644
+    validate: /usr/local/haproxy/sbin/haproxy -f %s -c -q
+
+- name: configure | Setup HAProxy init script file.
+  template:
+    dest: "/etc/rc.d/init.d/haproxy"
+    mode: 0755
+    src: haproxy.init.j2
+
+- name: configure | Add HAProxy services.
+  shell: "chkconfig --add haproxy && chkconfig haproxy on"
+
+- name: configure | Ensure HAProxy is started and enabled on boot.
+  service: "name=haproxy state=started enabled=yes"
