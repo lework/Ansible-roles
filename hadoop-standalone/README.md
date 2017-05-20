@@ -1,13 +1,13 @@
-# Ansible Role: consul
+# Ansible Role: hadoop-standalone
 
-安装consul
+以standalone方式安装hadoop
 
 ## 介绍
-consul是HashiCorp公司推出的一款开源工具，用于实现分布式系统的服务发现与配置。与其他类似产品相比，提供更“一站式”的解决方案。consul内置有KV存储，服务注册/发现，健康检查，HTTP+DNS API，Web UI等多种功能。
+Hadoop是一个由Apache基金会所开发的分布式系统基础架构。
+用户可以在不了解分布式底层细节的情况下，开发分布式程序。充分利用集群的威力进行高速运算和存储。
 
-官方地址： https://www.consul.io/
-github: https://github.com/hashicorp/consul
-官方文档地址：https://www.consul.io/docs
+官方地址：http://hadoop.apache.org/
+官方文档地址：http://hadoop.apache.org/docs/r2.7.3
 
 ## 要求
 
@@ -22,58 +22,25 @@ os `Centos 6.7 X64`
 	software_files_path: "/opt/software"
 	software_install_path: "/usr/local"
 
-	hadoop_version: "2.7.3"
+	hadoop_standalone_version: "2.7.3"
 
-	hadoop_file: "hadoop-{{ hadoop_version }}.tar.gz"
-	hadoop_file_path: "{{ software_files_path }}/{{ hadoop_file }}"
-	hadoop_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common/hadoop-{{ hadoop_version }}/{{ hadoop_file }}"
+	hadoop_standalone_file: "hadoop-{{ hadoop_standalone_version }}.tar.gz"
+	hadoop_standalone_file_path: "{{ software_files_path }}/{{ hadoop_standalone_file }}"
+	hadoop_standalone_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common/hadoop-{{ hadoop_standalone_version }}/{{ hadoop_standalone_file }}"
 
-	hadoop_user: "hadoop"
+	hadoop_standalone_user: "hadoop"
 
-	hadoop_home: "{{ software_install_path }}/hadoop-{{ hadoop_version }}"
+	hadoop_standalone_home: "{{ software_install_path }}/hadoop-{{ hadoop_standalone_version }}"
 
 ## 依赖
 
-supervisor
+java
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/consul
+https://github.com/kuailemy123/Ansible-roles/tree/master/hadoop-standalone
 
 ## Example Playbook
 
-	安装consul：
-	- hosts: 192.168.77.129
-	  vars:
-		supervisor_name: consul
-		supervisor_stopsignal: INT
-		supervisor_program: 
-		  - { name: 'consul', command: 'consul agent -config-file /consul_data/conf/basic_config.json', user: 'consul' }
+	- hosts: node1
 	  roles:
-	   - { role: consul }
-	   - { role: python2.7 }
-	   - { role: supervisor }
-
-
-	分布式安装：
-	端口默认
-	- hosts: 192.168.77.129
-	  roles:
-		- { role: consul, consul_bootstrap: true }
-
-	- hosts: 192.168.77.130 192.168.77.131
-	  roles:
-	   - { role: consul, consul_bootstrap_expect: false, consul_start_join: ["192.168.77.129"]}
-
-	- hosts: 192.168.77.132
-	  roles:
-	  - { role: consul, consul_server: false, consul_start_join: ["192.168.77.129"]}
-
-	- hosts: all
-	  vars:
-		supervisor_name: consul
-		supervisor_stopsignal: INT
-		supervisor_program: 
-		  - { name: 'consul', command: 'consul agent -config-file /consul_data/conf/basic_config.json', user: 'consul' }
-	  roles:
-	   - { role: python2.7 }
-	   - { role: supervisor }
+		- { role: hadoop-standalone }
