@@ -4,6 +4,7 @@ logpath={{ mongodb_logpath }}
 pidfilepath={{ mongodb_pidfilepath }}
 fork={{ mongodb_fork }}
 logappend={{ mongodb_logappend }}
+logRotate=reopen
 directoryperdb={{ mongodb_directoryperdb }}
 {% if mongodb_auth %}
 auth=true
