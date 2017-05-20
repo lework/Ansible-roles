@@ -1,0 +1,13 @@
+---
+# author: lework
+
+kerberos_realm_name: EXAMPLE.COM
+kerberos_kdc_port: 88
+kerberos_master_db_pass: 123456
+kerberos_kadmin_pass: 123456
+kerberos_kadmin_user: root
+
+kerberos_users: []
+# kerberos_users: [{user: 'user1', pass: 'pass1'},]
+
+ansible_python_interpreter: /usr/bin/python2.6

@@ -1,0 +1,22 @@
+---
+# author: lework
+
+redhat_pkg:
+  - libselinux-python
+  - krb5-libs 
+  - krb5-server 
+  - krb5-workstation
+  - krb5-auth-dialog  
+
+redhat_service:
+  - krb5kdc
+  - kadmin
+
+ubuntu_pkg:
+  - krb5-kdc 
+  - krb5-admin-server
+  - python-selinux
+
+ubuntu_service:
+  - krb5-kdc
+  - krb5-admin-server
