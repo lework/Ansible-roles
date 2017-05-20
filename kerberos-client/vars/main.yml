@@ -1,0 +1,14 @@
+---
+# author: lework
+
+redhat_pkg:
+  - libselinux-python
+  - krb5-libs 
+  - krb5-workstation
+  - krb5-auth-dialog  
+  - cyrus-sasl-gssapi
+
+ubuntu_pkg:
+  - python-selinux
+  - krb5-user
+  - libsasl2-modules-gssapi-mit

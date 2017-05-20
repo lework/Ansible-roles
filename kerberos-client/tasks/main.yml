@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: Install the kerberos packages 
+  yum: name={{ item }} state=present
+  with_items: "{{ redhat_pkg }}"
+  when: ansible_os_family == "RedHat"
+
+- name: Install the kerberos packages 
+  apt: name={{ item }} state=present
+  with_items: "{{ ubuntu_pkg }}"
+  when: ansible_os_family == "Debian"
+
+- name: Copy the client configuration file 
+  template: src=krb5.conf.j2 dest=/etc/krb5.conf
+
+- name: Make sure we have the entry for hostname in /etc/hosts
+  lineinfile: "path=/etc/hosts line='{{ item.ipaddress }} {{ item.hostname }} {{ item.hostname + '.' + kerberos_realm_name|lower() }}'"
+  with_items:
+   - { hostname: "{{kerberos_kdc_hostname}}", ipaddress: "{{kerberos_kdc_ipaddress}}" }
+   - { hostname: "{{kerberos_admin_hostname}}", ipaddress: "{{kerberos_admin_ipaddress}}" }

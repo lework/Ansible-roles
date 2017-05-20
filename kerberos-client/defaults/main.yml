@@ -1,0 +1,16 @@
+---
+# author: lework
+
+kerberos_realm_name: EXAMPLE.COM
+kerberos_kdc_hostname: kerberos
+kerberos_kdc_ipaddress: 127.0.0.1
+kerberos_admin_hostname: "{{ kerberos_kdc_hostname }}"
+kerberos_admin_ipaddress: "{{ kerberos_kdc_ipaddress }}"
+kerberos_dns_lookup_realm: "false"
+kerberos_dns_lookup_kdc: "false"
+kerberos_ticket_lifetime: "24h"
+kerberos_renew_lifetime: "7d"
+kerberos_forwardable: "true"
+
+
+ansible_python_interpreter: /usr/bin/python2.6
