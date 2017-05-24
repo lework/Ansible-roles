@@ -1,0 +1,14 @@
+[kdcdefaults]
+ kdc_ports = {{ kerberos_kdc_port }}
+ kdc_tcp_ports = {{ kerberos_kdc_port }}
+
+[realms]
+ {{ kerberos_realm_name|upper() }} = {
+  #master_key_type = aes256-cts
+  acl_file = /var/kerberos/krb5kdc/kadm5.acl
+  dict_file = /usr/share/dict/words
+  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab
+  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal
+  max_life = 24h 0m 0s
+  max_renewable_life = 7d 0h 0m 0s
+ }

@@ -1,0 +1,40 @@
+---
+# author: lework
+
+- name: Install the kerberos packages 
+  yum: name={{ item }} state=present
+  with_items: "{{ redhat_pkg }}"
+
+- name: Copy the kdc configuration file 
+  template: src=kdc.conf.j2 dest=/var/kerberos/krb5kdc/kdc.conf
+  notify: 
+   - restart kerberos
+
+- name: Copy the kdc acl configuration file 
+  template: src=kadm5.acl.j2 dest=/var/kerberos/krb5kdc/kadm5.acl
+  notify: 
+   - restart kerberos
+
+- name: Copy the client configuration file 
+  template: src=krb5.conf.j2 dest=/etc/krb5.conf
+
+- name: Link /dev/random to /dev/urandom
+  file: path=/dev/random src=/dev/urandom state=link force=yes
+
+- name: Create the initial kerberos database
+  shell: echo -e "{{ kerberos_master_db_pass }}\n{{ kerberos_master_db_pass }}" | kdb5_util create -s; touch /var/kerberos/db_created creates=/var/kerberos/db_created
+
+- name: Make sure we have the entry for hostname in /etc/hosts
+  lineinfile: "path=/etc/hosts line='{{ ansible_default_ipv4.address }} {{ ansible_hostname }} {{ ansible_hostname + '.' + kerberos_realm_name|lower() }}'"
+
+- name: Start the kerberos services 
+  service: name={{ item }} state=started enabled=yes
+  with_items: "{{ redhat_service }}"
+
+- name: Create an admin for the administering the kerberos database
+  shell: echo -e "{{ kerberos_kadmin_pass }}\n{{ kerberos_kadmin_pass }}" | kadmin.local  -q "addprinc {{ kerberos_kadmin_user }}/admin"; touch /var/kerberos/admin_created creates=/var/kerberos/admin_created
+
+- name: Create kerberos users
+  shell: echo -e "{{ item.pass }}\n{{ item.pass }}" | kadmin.local  -q "addprinc {{ item.user }}"
+  with_items: "{{ kerberos_users }}"
+  when: kerberos_users
