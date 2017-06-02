@@ -1,25 +1,26 @@
 ---
 # author: lework
 
-- name: Check mysql running status.
+- name: service | Check mysql running status.
   stat: path={{ mysql_sock }}
   register: mysql_run_result
 
 - block:
-  - name: Start mysql service.
+  - name: service | Start mysql service.
     shell: "{{mysql_basedir }}/bin/mysqld_safe --defaults-file='{{ mysql_cnf }}' 2>&1 > /dev/null &" 
     ignore_errors: true
     delay: 2
 
-  - name: Wait for mysql start.
+  - name: service | Wait for mysql start.
     wait_for: port={{ mysql_port }} delay=10
 
-  - name: Configure root password.
+  - name: service | Configure root password.
     shell: "{{ mysql_basedir }}/bin/mysqladmin -u root password {{ mysql_password }} -S {{ mysql_sock }}"
     ignore_errors: true
 
-  - name: Configure root remote connection.
-    shell:  "{{mysql_basedir }}/bin/mysql -u{{ mysql_user }} -p{{ mysql_password }} -S {{ mysql_sock }} -e \"grant all privileges on *.* to root@'%' identified by '{{ mysql_password }}' with grant option;\""
+  - name: service | Configure root remote connection.
+    shell: "{{mysql_basedir }}/bin/mysql -u{{ mysql_user }} -p{{ mysql_password }} -S {{ mysql_sock }} -e \"grant all privileges on *.* to root@'%' identified by '{{ mysql_password }}' with grant option;\""
 
-  - lineinfile: dest=/etc/rc.local line="sh {{mysql_startsh}} start"
+  - name: service | Add start command to rc.local file.
+    lineinfile: dest=/etc/rc.local line="/bin/sh {{mysql_startsh}} start"
   when: not mysql_run_result.stat.exists

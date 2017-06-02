@@ -15,8 +15,9 @@ MySQL是一个关系型数据库管理系统，由瑞典MySQL AB 公司开发，
 
 ## 测试环境
 
-ansible `2.2.1.0`
+ansible `2.3.0.0`
 os `Centos 6.7 X64`
+python `2.6.6`
 
 ## 角色变量
 	software_files_path: "/opt/software"
@@ -62,7 +63,7 @@ os `Centos 6.7 X64`
 	mysql_replication_master: ''
 	mysql_replication_master_port: "3306"
 	mysql_replication_role: ''
-	auto_increment_offset: ''
+	mysql_auto_increment_offset: ''
 
 	mysql_binlog_format: "STATEMENT"
 

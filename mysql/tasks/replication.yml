@@ -1,13 +1,13 @@
 ---
 # author: lework
 
-- name: Install MySQL-python package.
-  yum: name={{item}} state=latest
+- name: replication | Install MySQL-python package.
+  yum: name={{ item }} state=latest
   with_items:
    - MySQL-python
   when: mysql_replication_role is defined and mysql_replication_role != ''
 
-- name: Ensure replication user exists on master.
+- name: replication | Ensure replication user exists on master.
   mysql_user:
     name: "{{ mysql_replication_user.name }}"
     host: "{{ mysql_replication_user.host | default('%') }}"
@@ -19,7 +19,7 @@
     (mysql_replication_role == 'master')
     and mysql_replication_user
 
-- name: Check slave replication status.
+- name: replication | Check slave replication status.
   mysql_replication: mode=getslave config_file={{ mysql_cnf }}
   ignore_errors: true
   register: slave
@@ -27,7 +27,7 @@
     mysql_replication_role == 'slave'
     and (mysql_replication_master != '')
 
-- name: Check master replication status.
+- name: replication | Check master replication status.
   mysql_replication: mode="getmaster" config_file={{ mysql_cnf }}
   delegate_to: "{{ mysql_replication_master }}"
   register: master
@@ -36,7 +36,7 @@
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
 
-- name: Open relay log.
+- name: replication | Open relay log.
   replace: dest={{ mysql_cnf }} regexp={{ item.s }} replace={{ item.r }}
   with_items:
     #- {'s':'^log-bin =', 'r':'#log-bin ='}
@@ -48,7 +48,7 @@
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
 
-- name: Restart mysql service.
+- name: replication | Restart mysql service.
   shell: "{{ item }}" 
   with_items:
     - "{{ mysql_startsh }} stop  2>&1 > /dev/null"
@@ -59,20 +59,21 @@
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
 
-- name: Wait for mysql start.
+- name: replication | Wait for mysql start.
   wait_for: port={{ mysql_port }} delay=10
   when: >
     ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
 
-- debug: var={{master|to_json}}
+- name: replication | Show master status.
+  debug: var={{ master | to_json }}
   when: >
     ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
 
-- name: Configure replication on the slave.
+- name: replication | Configure replication on the slave.
   mysql_replication:
     mode: changemaster
     master_host: "{{ mysql_replication_master }}"
@@ -89,14 +90,15 @@
     and (mysql_replication_master != '')
     and mysql_replication_master
 
-- name: Start replication.
+- name: replication | Start replication.
   mysql_replication: mode=startslave config_file={{ mysql_cnf }}
   when: >
     ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
    
-- mysql_replication: mode=getslave config_file={{ mysql_cnf }}
+- name: replication | Get slave status.
+  mysql_replication: mode=getslave config_file={{ mysql_cnf }}
   ignore_errors: true
   register: slave_status
   when: >
@@ -104,7 +106,7 @@
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
 
-- name: Check slave replication status.
+- name: replication | Check slave replication status.
   debug: msg="Slave replication status is faild. Error:{{slave.Last_IO_Error}}"
   ignore_errors: true
   when: mysql_replication_role == 'slave' and slave_status.Slave_SQL_Running != 'Yes' and slave_status.Slave_IO_Running != 'Yes' and mysql_replication_master != ''

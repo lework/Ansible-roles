@@ -1,23 +1,22 @@
 ---
 # author: lework
 
-- name: Create Mysql Directory.
+- name: Configure | Create Mysql Directory.
   file: path={{ item }} state=directory owner=mysql group=mysql
   with_items:
     - "{{ mysql_portdir }}"
     - "{{ mysql_datadir }}"
 
-- name: Initialize character set utf8mb4.
-  #replace: dest=/usr/share/mysql/charsets/Index.xml regexp=name="utf8" replace=name="utf8mb4"
+- name: Configure | Initialize character set utf8mb4.
   template: src=Index.xml.j2 dest=/usr/share/mysql/charsets/Index.xml backup=yes
 
-- name: Create Mysql configuration file.
+- name: Configure | Create Mysql configuration file.
   template: src=my.cnf.j2 dest={{ mysql_cnf }} owner=mysql group=mysql force=no
 
-- name: Mysql install db.
+- name: Configure | Mysql install db.
   shell: "{{ mysql_basedir }}/scripts/mysql_install_db --basedir={{ mysql_basedir }} --datadir={{ mysql_datadir }} --user=mysql"
   args:
    creates: "{{ mysql_datadir }}/ibdata1"
 
-- name: Create Mysql start shell.
+- name: Configure | Create Mysql start shell.
   template: src=mysql.sh.j2 dest={{ mysql_startsh }} mode=755 force=no
