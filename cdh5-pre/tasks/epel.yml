@@ -1,0 +1,29 @@
+---
+# author: lework
+
+- name: epel | Install epel release.
+  yum: name=http://mirrors.ustc.edu.cn/epel/epel-release-latest-6.noarch.rpm  state=present
+
+- name: epel | Download CentOS-Base.repo file.
+  get_url: 
+    url: https://lug.ustc.edu.cn/wiki/_export/code/mirrors/help/centos?codeblock=2
+    dest: /etc/yum.repos.d/CentOS-Base.repo
+    validate_certs: no
+    force: yes
+    
+- name: epel | Download epel.repo file.
+  get_url: 
+    url: https://lug.ustc.edu.cn/wiki/_export/code/mirrors/help/epel?codeblock=0
+    dest: /etc/yum.repos.d/epel.repo
+    validate_certs: no
+    force: yes
+    
+- name: epel | Download epel-testing.repo file.
+  get_url: 
+    url: https://lug.ustc.edu.cn/wiki/_export/code/mirrors/help/epel?codeblock=1
+    dest: /etc/yum.repos.d/epel-testing.repo
+    validate_certs: no
+    force: yes
+    
+- name: epel | Update yum cache.
+  shell: yum clean all && yum makecache

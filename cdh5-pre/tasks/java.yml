@@ -1,0 +1,37 @@
+---
+# author: lework
+
+- name: java | Check if java local file is already configured.
+  stat: path={{ cdh5_file_path }}
+  connection: local
+  register: java_file_result
+
+- name: java | Download java file.
+  get_url: url={{ cdh5_jdk_url }} dest={{ software_files_path }}
+  connection: local
+  when: not java_file_result.stat.exists
+
+- name: java | Copy java file to agent.
+  copy: src={{ cdh5_file_path }} dest=/tmp/
+    
+- name: java | Uninstall system java.
+  #shell: "rpm -qa | grep java | xargs -I {} rpm -e --nodeps {}"
+  yum: name=*-openjdk-1* state=absent
+
+- name: java | Install java.
+  yum: name=/tmp/{{ cdh5_jdk }} state=present
+
+- name: java | Set JAVA_HOME if configured.
+  template:
+    src: java_home.sh.j2
+    dest: /etc/profile.d/java_home.sh
+    force: no
+    mode: 0644
+
+- name: java | Get java version.
+  command: java -version
+  register: result
+  ignore_errors: True
+
+- name: java | Show java version.
+  debug: var=result.stderr_lines[0]

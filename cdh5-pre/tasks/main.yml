@@ -1,0 +1,53 @@
+---
+# author: lework
+
+- name: Change hostname.
+  hostname: "name={{ ipnames.get(ansible_default_ipv4.address)}}"
+  #hostname: "name={{ ipnames.get(ansible_bond1.ipv4.address)}}"
+
+- name: Add hostname and ip to /etc/hosts.
+  lineinfile: "dest=/etc/hosts line='{{ item.key }} {{ item.value }}'"
+  with_dict: "{{ ipnames }}"
+  
+- name: Ensure ntp packages are installed.
+  yum: name=ntp state=installed
+
+- name: Update time on server.
+  shell: ntpdate 0.asia.pool.ntp.org && hwclock --systohc
+  ignore_errors: true
+
+- name: Change ntpd server on ntp.conf.
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf backup=yes
+  notify: restart ntpd
+
+- name: Change nofile limits.
+  lineinfile: dest=/etc/security/limits.conf line={{ item }}
+  with_items:
+    - '* - nofile 165535'
+    - '* soft nofile 165535'
+    - '* hard nofile 165535'
+
+- name: Set vm.overcommit_memory to 1 in /etc/sysctl.conf.
+  sysctl:
+   name: vm.swappiness
+   value: 0
+   state: present
+
+- name: Shutdwon selinux.
+  replace: dest=/etc/selinux/config regexp=^SELINUX=enforcing replace=SELINUX=disabled
+
+- name: Shutdown transparent hugepage.
+  shell: echo never >> /sys/kernel/mm/transparent_hugepage/enabled && echo never >>  /sys/kernel/mm/transparent_hugepage/defrag
+
+- name: Add shutdown transparent hugepage command to rc.local.
+  lineinfile: dest=/etc/rc.local line={{ item }}
+  with_items:
+   - echo never >> /sys/kernel/mm/transparent_hugepage/enabled
+   - echo never >> /sys/kernel/mm/transparent_hugepage/defrag
+
+- name: Shutdown iptables.
+  service: name=iptables enabled=no state=stopped
+
+- include: epel.yml
+- include: java.yml
+- include: jdbc.yml
