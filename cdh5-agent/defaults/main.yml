@@ -1,0 +1,18 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+cdh5_version: "5.11.0"
+cdh5_rpms_url: "http://archive.cloudera.com/cm5/redhat/6/x86_64/cm/{{ cdh5_version }}/RPMS/x86_64"
+
+cdh5_cm_daemons: "cloudera-manager-daemons-5.11.0-1.cm5110.p0.101.el6.x86_64.rpm"
+cdh5_cm_daemons_url: "{{ cdh5_rpms_url }}/{{ cdh5_cm_daemons }}"
+
+cdh5_cm_agent: "cloudera-manager-agent-5.11.0-1.cm5110.p0.101.el6.x86_64.rpm"
+cdh5_cm_agent_url: "{{ cdh5_rpms_url }}/{{ cdh5_cm_agent }}"
+
+cdh5_server_host: 'localhost'
+
+ansible_python_interpreter: /usr/bin/python2.6

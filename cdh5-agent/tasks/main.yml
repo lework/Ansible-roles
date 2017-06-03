@@ -1,0 +1,48 @@
+---
+# author: lework
+
+- name: Check if cm daemons local file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_cm_daemons }}
+  connection: local
+  register: cm_daemons_file_result
+  
+- name: Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not cm_daemons_file_result.stat.exists
+  
+- name: Download cm daemons file.
+  get_url: url={{ cdh5_cm_daemons_url }} dest={{ software_files_path }}
+  connection: local
+  when: not cm_daemons_file_result.stat.exists
+
+- name: Check if cm agent local file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_cm_agent }}
+  connection: local
+  register: cm_agent_file_result
+
+- name: Download cm agent file.
+  get_url: url={{ cdh5_cm_agent_url }} dest={{ software_files_path }}
+  connection: local
+  when: not cm_agent_file_result.stat.exists
+
+- name: Create cdh5 software dir.
+  file: dest={{ software_files_path }}/cdh5 state=directory
+
+- name: Copy cdh file to agent.
+  copy: "src={{ software_files_path }}/{{ item }} dest={{ software_files_path }}/cdh5"
+  with_items:
+   - "{{ cdh5_cm_daemons }}"
+   - "{{ cdh5_cm_agent }}"
+
+- name: Install cdh5 agent from a local file.
+  yum: name={{ software_files_path }}/cdh5/{{ item }} disable_gpg_check=yes  state=present
+  with_items: 
+   - "{{ cdh5_cm_daemons }}"
+   - "{{ cdh5_cm_agent }}"
+
+- name: Set server host for config.ini file.
+  replace: path=/etc/cloudera-scm-agent/config.ini regexp=localhost replace={{ cdh5_server_host }}
+
+- name: Ensure cloudera-scm-agent is running and enabled on boot.
+  service: "name=cloudera-scm-agent state=started enabled=yes"
