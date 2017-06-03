@@ -1,0 +1,11 @@
+---
+# author: lework
+
+- include: file.yml
+  connection: local
+- include: install.yml
+- include: jdbc.yml
+- include: configure_db.yml 
+
+- name: main | Ensure cloudera-scm-server is running and enabled on boot.
+  service: "name=cloudera-scm-server state=started enabled=yes"

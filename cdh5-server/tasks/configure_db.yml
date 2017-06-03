@@ -1,0 +1,33 @@
+---
+# author: lework
+
+- name: configure_db | Create cdh5 database.
+  shell: mysql -u{{ mysql_user }} -p{{ mysql_password }} -h{{ mysql_host }} -P{{ mysql_port | default('3306')}} -e "create database {{ item }} DEFAULT CHARSET utf8;"
+  with_items:
+   - "{{ hive_db_name }}"
+   - "{{ amon_db_name }}"
+   - "{{ hue_db_name }}"
+   - "{{ oozie_db_name }}"
+  when: mysql_host is defined
+
+- name: configure_db | Ensure db role user exists.
+  shell: mysql -u{{ mysql_user}} -p{{ mysql_password }} -h{{ mysql_host }} -P{{ mysql_port | default('3306')}} -e "{{ item }}"
+  with_items:
+   - grant all privileges on {{  hive_db_name }}.* to '{{ hive_db_user }}'@'%' identified by '{{ hive_db_pass }}';
+   - grant all privileges on {{  amon_db_name }}.* to '{{ amon_db_user }}'@'%' identified by '{{ amon_db_pass }}';
+   - grant all privileges on {{  hue_db_name }}.* to '{{ hue_db_user }}'@'%' identified by '{{ hue_db_pass }}';
+   - grant all privileges on {{  oozie_db_name }}.* to '{{ oozie_db_user }}'@'%' identified by '{{ oozie_db_pass }}';
+   - grant all privileges on *.* to '{{ cmf_db_user }}'@'%' identified by '{{ cmf_db_pass }}';
+   - flush privileges;
+  when: mysql_host is defined
+
+- name: configure_db | Ensure cdh5 db properties is configured.
+  template:
+    src: db.properties.j2
+    dest: "/etc/cloudera-scm-server/db.properties"
+    mode: 0644
+    owner: cloudera-scm
+    group: cloudera-scm
+
+- name: configure_db | Create cmf databases.
+  shell: sh /usr/share/cmf/schema/scm_prepare_database.sh -h{{ mysql_host }} -P{{ mysql_port | default('3306')}} -u{{ mysql_user }} -p{{ mysql_password }} mysql {{ cmf_db_name }} {{ cmf_db_user }} {{ cmf_db_pass }}

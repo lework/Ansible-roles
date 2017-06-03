@@ -1,0 +1,31 @@
+---
+# author: lework
+
+- name: install | Create cdh5 software dir.
+  file: dest={{ software_files_path }}/cdh5 state=directory
+
+- name: install | Copy cdh file to agent.
+  copy: "src={{ software_files_path }}/{{ item }} dest={{software_files_path}}/cdh5"
+  with_items:
+   - "{{ cdh5_cm_daemons }}"
+   - "{{ cdh5_cm_server }}"
+   - "{{ cdh5_parcels_cdh }}"
+   - "{{ cdh5_parcels_cdh_sha }}"
+   - "{{ cdh5_parcels_manifest }}"
+
+- name: install | Install cdh5 server from a local file.
+  yum: name={{ software_files_path }}/cdh5/{{ item }} disable_gpg_check=yes  state=present
+  with_items: 
+   - "{{ cdh5_cm_daemons }}"
+   - "{{ cdh5_cm_server }}"
+
+- name: install | Copy parcels file to /opt/cloudera/parcel-repo
+  shell: "cp {{ item }} /opt/cloudera/parcel-repo/ chdir={{ software_files_path }}/cdh5/"
+  with_items:
+    - "{{ cdh5_parcels_cdh }}"
+    - "{{ cdh5_parcels_manifest }}"
+
+- name: install | Copy parcels sha file to /opt/cloudera/parcel-repo.
+  shell: "cp {{ item }} /opt/cloudera/parcel-repo/{{ item | regex_replace('sha1$', 'sha')}}  chdir={{ software_files_path }}/cdh5/"
+  with_items:
+    - "{{ cdh5_parcels_cdh_sha }}"

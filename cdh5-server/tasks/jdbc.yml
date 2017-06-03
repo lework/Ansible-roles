@@ -1,0 +1,22 @@
+---
+# author: lework
+
+- name: Check if java local file is already configured.
+  stat: path={{ jdbc_file_path }}
+  connection: local
+  register: jdbc_file_result
+
+- name: Download jdbc file.
+  get_url: url={{ jdbc_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not jdbc_file_result.stat.exists
+
+- name: Unarchive jdbc file.
+  unarchive:
+    src: "{{ jdbc_file_path }}"
+    dest: "{{ software_files_path }}"
+    creates: "{{ software_files_path }}/{{ jdbc_jar_file }}"
+  connection: local
+
+- name: Coppy jdbc jar file to agent.
+  copy: src={{ software_files_path }}/{{ jdbc_jar_file }} dest=/usr/share/cmf/lib/

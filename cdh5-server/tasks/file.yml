@@ -1,0 +1,47 @@
+---
+# author: lework
+
+- name: file | Check if cm daemons local file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_cm_daemons }}
+  register: cm_daemons_file_result
+  
+- name: file | Create software files.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not cm_daemons_file_result.stat.exists
+  
+- name: file | Download cm daemons file.
+  get_url: url={{ cdh5_cm_daemons_url }} dest={{ software_files_path }}
+  when: not cm_daemons_file_result.stat.exists
+
+- name: file | Check if cm server local file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_cm_server }}
+  register: cm_server_file_result
+
+- name: file | Download cm server file.
+  get_url: url={{ cdh5_cm_server_url }} dest={{ software_files_path }}
+  when: not cm_server_file_result.stat.exists
+
+- name: file | Check if cdh parcels local file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_parcels_cdh }}
+  register: cdh_parcels_file_result
+
+- name: file | Download cdh parcels file.
+  get_url: url={{ cdh5_parcels_cdh_url }} dest={{ software_files_path }}
+  when: not cdh_parcels_file_result.stat.exists
+
+- name: file | Check if cdh parcels sha local file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_parcels_cdh_sha }}
+  register: cdh_parcels_sha_file_result
+
+- name: file | Download cdh parcels sha file.
+  get_url: url={{ cdh5_parcels_cdh_sha_url }} dest={{ software_files_path }}
+  when: not cdh_parcels_sha_file_result.stat.exists
+
+- name: file | Check if parcels manifest file is already configured.
+  stat: path={{ software_files_path }}/{{ cdh5_parcels_manifest }}
+  register: parcels_manifest_file_result
+
+- name: file | Download parcels manifest file.
+  get_url: url={{ cdh5_parcels_manifest_url }} dest={{ software_files_path }}
+  when: not parcels_manifest_file_result.stat.exists
