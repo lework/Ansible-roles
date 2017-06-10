@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- name: install | Ensure NFS utilities are installed.
+  package: name=nfs-utils state=installed
+ 
+- name: install | Ensure rpcbind are installed.
+  package: name=rpcbind state=installed
