@@ -1,0 +1,41 @@
+---
+# author: lework
+- name: configure | Disable SELinux
+  selinux: state=disabled
+  
+- name: configure | Create Samba system users if they don't exist yet.
+  user: name={{ item.name }} createhome=no
+  with_items: "{{ samba_users }}"
+
+- name: configure | Create Samba users if they don't exist yet.
+  shell: >
+    (pdbedit --user={{ item.name }} > /dev/null 2>&1 ) \
+    || (echo {{ item.password }}; echo {{ item.password }}) \
+    | smbpasswd -s -a {{ item.name }}
+  with_items: "{{ samba_users }}"
+  register: create_user_output
+  changed_when: "'Added user' in create_user_output.stdout"
+  
+- name: configure | Create share directories.
+  file:
+    state: directory
+    path: "{{ item.path|default(samba_shares_path) }}"
+    owner: "{{ item.owner|default('root') }}"
+    group: "{{ item.group|default('root') }}"
+    mode: "{{ item.directory_mode|default('0775') }}"
+  with_items: "{{ samba_shares }}"
+
+- name: configure | Samba configuration.
+  template:
+    dest: /etc/samba/smb.conf
+    src: smb.conf.j2
+    validate: 'testparm -s %s'
+  notify:
+    - Restart Samba services
+
+- name: configure | Start Samba service(s).
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items: "{{ samba_services }}"

@@ -1,0 +1,6 @@
+---
+# author: lework
+
+- name: install | Ensure Samba-related packages are installed.
+  package: "name={{ item }} state=installed"
+  with_items: "{{ samba_packages }}"

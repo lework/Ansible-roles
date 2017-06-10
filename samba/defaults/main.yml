@@ -1,0 +1,38 @@
+---
+# author: lework
+
+samba_packages:
+  - samba-common
+  - samba
+  - samba-client
+  - cifs-utils
+  - libselinux-python
+  
+samba_services:
+  - smb
+  - nmb
+  
+samba_workgroup: 'WORKGROUP'
+samba_server_string: 'Fileserver %m'
+samba_netbios_name: "{{ ansible_hostname | d() }}"
+samba_log_size: 50000
+samba_log_file: '/var/log/samba/log'
+samba_interfaces: []
+samba_security: 'user'
+samba_passdb_backend: 'tdbsam'
+samba_map_to_guest: 'bad user'
+samba_guest_account: 'nobody'
+samba_load_printers: false
+samba_load_homes: false
+samba_full_audit: true
+samba_shares_path: '/samba_shares'
+samba_users: []
+# samba_users:
+#  - name: alice
+#    password: ecila
+samba_shares: 
+  - name: default
+    comment: 'default share'
+    guest_ok: yes
+    directory_mode: 777
+    recycle: true
