@@ -1,0 +1,321 @@
+# This is the main Samba configuration file. You should read the
+# smb.conf(5) manual page in order to understand the options listed
+# here. Samba has a huge number of configurable options (perhaps too
+# many!) most of which are not shown in this example
+#
+# For a step to step guide on installing, configuring and using samba, 
+# read the Samba-HOWTO-Collection. This may be obtained from:
+#  http://www.samba.org/samba/docs/Samba-HOWTO-Collection.pdf
+#
+# Many working examples of smb.conf files can be found in the 
+# Samba-Guide which is generated daily and can be downloaded from: 
+#  http://www.samba.org/samba/docs/Samba-Guide.pdf
+#
+# Any line which starts with a ; (semi-colon) or a # (hash) 
+# is a comment and is ignored. In this example we will use a #
+# for commentry and a ; for parts of the config file that you
+# may wish to enable
+#
+# NOTE: Whenever you modify this file you should run the command "testparm"
+# to check that you have not made any basic syntactic errors. 
+#
+#---------------
+# SELINUX NOTES:
+#
+# If you want to use the useradd/groupadd family of binaries please run:
+# setsebool -P samba_domain_controller on
+#
+# If you want to share home directories via samba please run:
+# setsebool -P samba_enable_home_dirs on
+#
+# If you create a new directory you want to share you should mark it as
+# "samba_share_t" so that selinux will let you write into it.
+# Make sure not to do that on system directories as they may already have
+# been marked with othe SELinux labels.
+#
+# Use ls -ldZ /path to see which context a directory has
+#
+# Set labels only on directories you created!
+# To set a label use the following: chcon -t samba_share_t /path
+#
+# If you need to share a system created directory you can use one of the
+# following (read-only/read-write):
+# setsebool -P samba_export_all_ro on
+# or
+# setsebool -P samba_export_all_rw on
+#
+# If you want to run scripts (preexec/root prexec/print command/...) please
+# put them into the /var/lib/samba/scripts directory so that smbd will be
+# allowed to run them.
+# Make sure you COPY them and not MOVE them so that the right SELinux context
+# is applied, to check all is ok use restorecon -R -v /var/lib/samba/scripts
+#
+#--------------
+#
+#======================= Global Settings =====================================
+	
+[global]
+	
+# ----------------------- Network Related Options -------------------------
+#
+# workgroup = NT-Domain-Name or Workgroup-Name, eg: MIDEARTH
+#
+# server string is the equivalent of the NT Description field
+#
+# netbios name can be used to specify a server name not tied to the hostname
+#
+# Interfaces lets you configure Samba to use multiple interfaces
+# If you have multiple network interfaces then you can list the ones
+# you want to listen on (never omit localhost)
+#
+# Hosts Allow/Hosts Deny lets you restrict who can connect, and you can
+# specifiy it as a per share option as well
+#
+	workgroup = {{ samba_workgroup }}
+	server string = {{ samba_server_string }}
+{% if samba_netbios_name %}
+	netbios name = {{ samba_netbios_name }}
+{% endif %}
+	
+;	interfaces = lo eth0 192.168.12.2/24 192.168.13.2/24 
+;	hosts allow = 127. 192.168.12. 192.168.13.
+
+# --------------------------- Logging Options -----------------------------
+#
+# Log File let you specify where to put logs and how to split them up.
+#
+# Max Log Size let you specify the max size log files should reach
+	
+	# logs split per machine
+	log file = {{ samba_log_file }}.%m
+	# max 50KB per log file, then rotate
+	max log size = {{ samba_log_size }}
+	
+# ----------------------- Standalone Server Options ------------------------
+#
+# Scurity can be set to user, share(deprecated) or server(deprecated)
+#
+# Backend to store user information in. New installations should 
+# use either tdbsam or ldapsam. smbpasswd is available for backwards 
+# compatibility. tdbsam requires no further configuration.
+
+	security = {{ samba_security }}
+	passdb backend = {{ samba_passdb_backend }}
+	map to guest = {{ samba_map_to_guest }}
+	guest account = {{ samba_guest_account }}
+
+
+# ----------------------- Domain Members Options ------------------------
+#
+# Security must be set to domain or ads
+#
+# Use the realm option only with security = ads
+# Specifies the Active Directory realm the host is part of
+#
+# Backend to store user information in. New installations should 
+# use either tdbsam or ldapsam. smbpasswd is available for backwards 
+# compatibility. tdbsam requires no further configuration.
+#
+# Use password server option only with security = server or if you can't
+# use the DNS to locate Domain Controllers
+# The argument list may include:
+#   password server = My_PDC_Name [My_BDC_Name] [My_Next_BDC_Name]
+# or to auto-locate the domain controller/s
+#   password server = *
+	
+	
+;	security = domain
+;	passdb backend = tdbsam
+;	realm = MY_REALM
+
+;	password server = <NT-Server-Name>
+
+# ----------------------- Domain Controller Options ------------------------
+#
+# Security must be set to user for domain controllers
+#
+# Backend to store user information in. New installations should 
+# use either tdbsam or ldapsam. smbpasswd is available for backwards 
+# compatibility. tdbsam requires no further configuration.
+#
+# Domain Master specifies Samba to be the Domain Master Browser. This
+# allows Samba to collate browse lists between subnets. Don't use this
+# if you already have a Windows NT domain controller doing this job
+#
+# Domain Logons let Samba be a domain logon server for Windows workstations. 
+#
+# Logon Scrpit let yuou specify a script to be run at login time on the client
+# You need to provide it in a share called NETLOGON
+#
+# Logon Path let you specify where user profiles are stored (UNC path)
+#
+# Various scripts can be used on a domain controller or stand-alone
+# machine to add or delete corresponding unix accounts
+#
+;	security = user
+;	passdb backend = tdbsam
+	
+	domain master = yes 
+;	domain logons = yes
+	
+	# the login script name depends on the machine name
+;	logon script = %m.bat
+	# the login script name depends on the unix user used
+;	logon script = %u.bat
+;	logon path = \\%L\Profiles\%u
+	# disables profiles support by specifing an empty path
+;	logon path =          
+	
+;	add user script = /usr/sbin/useradd "%u" -n -g users
+;	add group script = /usr/sbin/groupadd "%g"
+;	add machine script = /usr/sbin/useradd -n -c "Workstation (%u)" -M -d /nohome -s /bin/false "%u"
+;	delete user script = /usr/sbin/userdel "%u"
+;	delete user from group script = /usr/sbin/userdel "%u" "%g"
+;	delete group script = /usr/sbin/groupdel "%g"
+	
+	
+# ----------------------- Browser Control Options ----------------------------
+#
+# set local master to no if you don't want Samba to become a master
+# browser on your network. Otherwise the normal election rules apply
+#
+# OS Level determines the precedence of this server in master browser
+# elections. The default value should be reasonable
+#
+# Preferred Master causes Samba to force a local browser election on startup
+# and gives it a slightly higher chance of winning the election
+ 	local master = yes
+;	os level = 33
+	preferred master = yes
+	
+#----------------------------- Name Resolution -------------------------------
+# Windows Internet Name Serving Support Section:
+# Note: Samba can be either a WINS Server, or a WINS Client, but NOT both
+#
+# - WINS Support: Tells the NMBD component of Samba to enable it's WINS Server
+#
+# - WINS Server: Tells the NMBD components of Samba to be a WINS Client
+#
+# - WINS Proxy: Tells Samba to answer name resolution queries on
+#   behalf of a non WINS capable client, for this to work there must be
+#   at least one	WINS Server on the network. The default is NO.
+#
+# DNS Proxy - tells Samba whether or not to try to resolve NetBIOS names
+# via DNS nslookups.
+	
+	wins support = yes
+;	wins server = w.x.y.z
+;	wins proxy = yes
+	
+;	dns proxy = yes
+	
+# --------------------------- Printing Options -----------------------------
+#
+# Load Printers let you load automatically the list of printers rather
+# than setting them up individually
+#
+# Cups Options let you pass the cups libs custom options, setting it to raw
+# for example will let you use drivers on your Windows clients
+#
+# Printcap Name let you specify an alternative printcap file
+#
+# You can choose a non default printing system using the Printing option
+{% if not samba_load_printers %}	
+	load printers = no
+	cups options = raw
+	disable spoolss = yes
+	#obtain list of printers automatically on SystemV
+	printcap name = /dev/null
+;	printing = bsd
+{% endif %}
+
+nt pipe support = no
+
+# --------------------------- Filesystem Options ---------------------------
+#
+# The following options can be uncommented if the filesystem supports
+# Extended Attributes and they are enabled (usually by the mount option
+# user_xattr). Thess options will let the admin store the DOS attributes
+# in an EA and make samba not mess with the permission bits.
+#
+# Note: these options can also be set just per share, setting them in global
+# makes them the default for all shares
+
+;	map archive = no
+;	map hidden = no
+;	map read only = no
+;	map system = no
+;	store dos attributes = yes
+
+{% if samba_full_audit %}
+#Audit settings
+full_audit:prefix = %u|%I|%S
+full_audit:failure = connect
+full_audit:sucess = connect disconnect opendir mkdir rmdir open fchmod chown fchown chdir rename write
+full_audit:facility = local5
+full_audit:priority = notice
+{% endif %}
+#============================ Share Definitions ==============================
+{% if samba_load_homes %}
+[homes]
+	comment = Home Directories
+	browseable = no
+	writable = yes
+;	valid users = %S
+;	valid users = MYDOMAIN\%S
+{% endif %}
+
+{% if samba_shares|length > 0 %}
+## Shared directories
+{% for share in samba_shares %}
+[{{ share.name }}]
+{% if share.comment is defined %}
+  comment = {{ share.comment }}
+{% endif %}
+{% if samba_full_audit %}
+  vfs object = full_audit
+{% endif %}
+{% if share.recycle is defined  %}
+  vfs object = recycle
+  recycle:repository = .deleted/%U
+  recycle:keeptree = Yes
+  recycle:versions = Yes
+  recycle:maxsixe = 0
+{% endif %}
+  path = {{ share.path | default(samba_shares_path) }}
+  browseable = {{ share.browseable|default('yes') }}
+  read only = {{ share.read_only|default('no') }}
+{% if share.valid_users is defined %}
+  valid users= {{ share.valid_users }}
+{% endif %}
+{% if share.invalid_users is defined %}
+  invalid users= {{ share.invalid_users }}
+{% endif %}
+{% if share.admin_users is defined %}
+  admin users= {{ share.admin_users }}
+{% endif %}
+{% if share.write_list is defined %}
+  write list = {{ share.write_list }}
+{% endif %}
+{% if share.group is defined %}
+  force group = {{ share.group }}
+{% endif %}
+{% if share.guest_ok is defined %}
+  guest ok = {{ share.guest_ok }}
+{% endif %}
+{% if share.writable is defined %}
+  writable = {{ share.writable }}
+{% endif %}
+{% if share.allow_hosts is defined %}
+  allow hosts = {{ share.allow_hosts }}
+{% endif %}
+{% if share.deny_hosts is defined %}
+  deny hosts = {{ share.deny_hosts }}
+{% endif %}
+  create mode = {{ share.create_mode|default('0664') }}
+  force create mode = {{ share.force_create_mode|default('0664') }}
+  directory mode = {{ share.directory_mode|default('0775') }}
+  force directory mode = {{ share.force_directory_mode|default('0775') }}
+
+{% endfor %}
+{% endif%}

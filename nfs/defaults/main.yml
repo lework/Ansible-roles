@@ -1,0 +1,5 @@
+---
+# author: lework
+
+nfs_exports: 
+  - /nfs_data *(rw,all_squash,async)

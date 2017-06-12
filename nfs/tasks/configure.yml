@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- name: configure | Ensure directories to export exist.
+  file: 'path="{{ item.strip().split()[0] }}" state=directory mode=777'
+  with_items: "{{ nfs_exports }}"
+
+- name: configure | Copy exports file.
+  template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: 0644
+  register: nfs_exports_copy
+
+- name: configure | Ensure rpcbind is running.
+  service: name=rpcbind state=started enabled=yes
+  
+- name: configure | Restart NFS immediately if exports are updated.
+  service: name=nfs state=restarted enabled=yes
+  when: nfs_exports_copy.changed
+
+- name: configure | Ensure nfs is running.
+  service: name=nfs state=restarted enabled=yes
+  when: nfs_exports|length
