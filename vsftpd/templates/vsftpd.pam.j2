@@ -1,0 +1,3 @@
+#%PAM-1.0
+auth required pam_userdb.so db={{ vsftpd_userdb | replace('.db', '')}}
+account required pam_userdb.so db={{ vsftpd_userdb | replace('.db', '')}}

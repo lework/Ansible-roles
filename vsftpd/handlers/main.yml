@@ -1,0 +1,5 @@
+---
+# author: lework
+
+- name: Restart Vsftpd services.
+  service: name=vsftpd state=restarted
