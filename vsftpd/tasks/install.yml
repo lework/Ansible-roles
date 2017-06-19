@@ -1,0 +1,6 @@
+---
+# author: lework
+
+- name: install | Ensure vsftpd packages are installed.
+  package: "name={{ item }} state=installed"
+  with_items: "{{ vsftpd_packages }}"

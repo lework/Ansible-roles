@@ -1,0 +1,63 @@
+---
+# author: lework
+
+- name: configure | Disable SELinux.
+  selinux: state=disabled
+
+- name: configure | Create share directories.
+  file: path={{ vsftpd_share_path }} mode=0755 state=directory
+  when: not vsftpd_local_users and not vsftpd_vusers
+  
+- name: configure | Create ftp local users.
+  user: 
+    name: "{{ item.name }}"
+    home: "{{ item.home | default('/home/' + item.name) }}"
+    password: "{{ item.password | password_hash('sha512') }}"
+    shell: "/sbin/nologin"
+    group: "ftp"
+  with_items: "{{ vsftpd_local_users }}"
+  when: vsftpd_local_users
+    
+- block:
+  - name: configure | Setup vsftpd guest user file.
+    template:
+      dest: "{{ vsftpd_userfile }}"
+      src: vuser.j2
+      mode: "600"
+    
+  - name: configure | Setup vsftpd guest user db file.
+    shell: "db_load -T -thash -f {{ vsftpd_userfile }} {{ vsftpd_userdb }} && chmod 600 {{ vsftpd_userdb }}"
+   
+  - name: configure | Setup vsftpd pam file.
+    template:
+      dest: "/etc/pam.d/vsftpd.vu"
+      src: vsftpd.pam.j2
+      
+  - name: configure | Create guest user conf directories.
+    file: path={{ vsftpd_userconf }} state=directory
+
+  - name: configure | Setup vsftpd guest user conf file.
+    template:
+      dest: "{{ vsftpd_userconf }}/{{ item.name }}"
+      src: vuser_conf.j2
+    when: item.conf is defined
+    with_items: "{{ vsftpd_vusers }}"
+    
+  - name: configure | Create guest share directories.
+    file: path={{ vsftpd_share_path }} mode=0775 owner=ftp group=ftp state=directory
+  
+  - name: configure | Create vsftpd guest user local path.
+    file: path={{ item.local_root }} mode=0775 owner=ftp group=ftp state=directory
+    when: item.local_root is defined
+    with_items: "{{ vsftpd_vusers }}"
+  when: vsftpd_vusers
+  
+- name: configure | Setup vsftpd configuration file.
+  template:
+    dest: /etc/vsftpd/vsftpd.conf
+    src: vsftpd.conf.j2
+  notify:
+    - Restart Vsftpd services.
+
+- name: configure | Start Vsftpd service(s).
+  service: name=vsftpd state=started enabled=yes
