@@ -13,14 +13,15 @@
   when: ruby_install_from_source == true
 
 - name: Change ruby gem source.
-  shell: gem sources --add https://gems.ruby-china.org/ --remove https://rubygems.org/ --remove http://rubygems.org/
+  shell: "gem sources --add {{ ruby_gem_sources }} --remove http://rubygems.org/ && gem source --remove https://rubygems.org/"
+  
 # Install Bundler and configured gems.
 - name: Install Bundler.
   gem: name=bundler state=present user_install=no
   when: ruby_install_bundler
   
 - name: Change bundler source.
-  shell: bundle config mirror.https://rubygems.org https://gems.ruby-china.org
+  shell: "bundle config mirror.https://rubygems.org {{ ruby_gem_sources }}"
   when: ruby_install_bundler
   
 - name: Install configured gems.
