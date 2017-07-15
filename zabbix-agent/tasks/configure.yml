@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: configure | Create zabbix logs path.
+  file: name={{ zabbix_agent_logs_path }} state=directory owner={{ zabbix_agent_user }} group={{ zabbix_agent_group }}
+
+- name: configure | Setup zabbix server config file.
+  replace: path={{ zabbix_agent_conf_path }}/zabbix_agentd.conf regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: '# PidFile=/tmp/zabbix_agentd.pid', s: "PidFile={{ zabbix_agent_logs_path }}/zabbix_agentd.pid"}
+   - { r: "/tmp", s: "{{ zabbix_agent_logs_path }}"}
+   - { r: "127.0.0.1", s: "{{ zabbix_agent_server_host }}"}
+   - { r: "Hostname=Zabbix server", s: "Hostname={{ zabbix_agent_hostname }}"}
+    
+- name: configure | Ensure zabbix services is started and enabled on boot.
+  service: "name=zabbix-agent state=started enabled=yes"

@@ -1,0 +1,32 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+zabbix_agent_version: "3.2.6"
+
+zabbix_agent_file: "zabbix-{{ zabbix_agent_version }}.tar.gz"
+zabbix_agent_file_path: "{{ software_files_path }}/{{ zabbix_agent_file }}"
+zabbix_agent_file_url: "https://jaist.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
+
+zabbix_agent_repo_url: "http://repo.zabbix.com/zabbix/3.2/rhel/6/x86_64/zabbix-release-3.2-1.el6.noarch.rpm"
+zabbix_agent_packages:
+  - "zabbix-agent-{{ zabbix_agent_version }}-1.el6"
+
+zabbix_agent_user: zabbix
+zabbix_agent_group: zabbix
+
+zabbix_agent_install_from_source: false
+
+zabbix_agent_source_dir: "/tmp/{{ zabbix_agent_file | replace('.tar.gz','') }}"
+zabbix_agent_source_configure_command: >
+  ./configure
+  --prefix={{ software_install_path }}/zabbix-{{ zabbix_agent_version }}
+  --enable-agent
+
+zabbix_agent_conf_path: "/etc/zabbix" 
+zabbix_agent_logs_path: "/var/log/zabbix"
+
+zabbix_agent_hostname: "{{ ansible_hostname | d() }}"
+zabbix_agent_server_host: "127.0.0.1"

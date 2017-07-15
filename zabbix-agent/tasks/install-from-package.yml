@@ -1,0 +1,9 @@
+---
+# author: lework
+
+- name: install_package | Ensure zabbix repo packages are installed.
+  package: name={{ zabbix_agent_repo_url }}
+
+- name: install_package | Ensure zabbix packages are installed.
+  package: name={{ item }} enablerepo=zabbix-deprecated
+  with_items: "{{ zabbix_agent_packages }}"
