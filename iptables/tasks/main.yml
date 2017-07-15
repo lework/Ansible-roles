@@ -9,49 +9,49 @@
     shell: iptables-save > /tmp/iptables.bak
     
   - name: Configure iptables allowed tcp ports.
-    iptables: chain=INPUT destination_port={{ item }} protocol=tcp jump=ACCEPT state=present action={{ action }} state={{ state }}
+    iptables: chain=INPUT destination_port={{ item }} protocol=tcp jump=ACCEPT state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_allowed_tcp_ports }}"
     when: iptables_allowed_tcp_ports != ''
     notify: save iptables 
 
   - name: Configure iptables allowed udp ports.
-    iptables: chain=INPUT destination_port={{ item }} protocol=udp jump=ACCEPT state=present action={{ action }} state={{ state }}
+    iptables: chain=INPUT destination_port={{ item }} protocol=udp jump=ACCEPT state=present action={{iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_allowed_udp_ports }}"
     when: iptables_allowed_udp_ports != ''
     notify: save iptables 
   
   - name: Configure iptables deny tcp ports.
-    iptables: chain=INPUT destination_port={{ item }} protocol=tcp jump=DROP state=present action={{ action }} state={{ state }}
+    iptables: chain=INPUT destination_port={{ item }} protocol=tcp jump=DROP state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_deny_tcp_ports }}"
     when: iptables_deny_tcp_ports != ''
     notify: save iptables
 
   - name: Configure iptables deny tcp ports.
-    iptables: chain=INPUT destination_port={{ item }} protocol=tcp jump=DROP state=present action={{ action }} state={{ state }}
+    iptables: chain=INPUT destination_port={{ item }} protocol=tcp jump=DROP state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_deny_udp_ports }}"
     when: iptables_deny_udp_ports != ''
     notify: save iptables
     
   - name: Configure iptables forwarded tcp ports.
-    iptables: table=nat chain=PREROUTING destination_port={{ item.src }} to_ports={{ item.dest }} protocol=tcp jump=REDIRECT state=present action={{ action }} state={{ state }}
+    iptables: table=nat chain=PREROUTING destination_port={{ item.src }} to_ports={{ item.dest }} protocol=tcp jump=REDIRECT state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_forwarded_tcp_ports }}"
     when: iptables_forwarded_tcp_ports != ''
     notify: save iptables
   
   - name: Configure iptables forwarded tcp ports.
-    iptables: table=nat chain=OUTPUT destination_port={{ item.src }} to_ports={{ item.dest }} protocol=tcp out_interface=lo jump=REDIRECT state=present action={{ action }} state={{ state }}
+    iptables: table=nat chain=OUTPUT destination_port={{ item.src }} to_ports={{ item.dest }} protocol=tcp out_interface=lo jump=REDIRECT state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_forwarded_tcp_ports }}"
     when: iptables_forwarded_tcp_ports != ''
     notify: save iptables
     
   - name: Configure iptables forwarded udp ports.
-    iptables: table=nat chain=PREROUTING destination_port={{ item.src }} to_ports={{ item.dest }} protocol=udp jump=REDIRECT state=present action={{ action }} state={{ state }}
+    iptables: table=nat chain=PREROUTING destination_port={{ item.src }} to_ports={{ item.dest }} protocol=udp jump=REDIRECT state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_forwarded_udp_ports }}"
     when: iptables_forwarded_udp_ports != ''
     notify: save iptables
   
   - name: Configure iptables forwarded tcp ports.
-    iptables: table=nat chain=OUTPUT destination_port={{ item.src }} to_ports={{ item.dest }} protocol=udp out_interface=lo jump=REDIRECT state=present action={{ action }} state={{ state }}
+    iptables: table=nat chain=OUTPUT destination_port={{ item.src }} to_ports={{ item.dest }} protocol=udp out_interface=lo jump=REDIRECT state=present action={{ iptables_action }} state={{ iptables_state }}
     with_items: "{{ iptables_forwarded_udp_ports }}"
     when: iptables_forwarded_udp_ports != ''
     notify: save iptables
