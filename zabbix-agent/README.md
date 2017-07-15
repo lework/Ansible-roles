@@ -76,9 +76,9 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-agent
 ~]# /etc/init.d/zabbix-agent 
 Usage: /etc/init.d/zabbix-agent {start|stop|status|restart|help}
 
-			start		- start zabbix_agentd
-			stop		- stop zabbix_agentd
-			status		- show current status of zabbix_agentd
-			restart		- restart zabbix_agentd if running by sending a SIGHUP or start if not running
-			help		- this screen
+	start		- start zabbix_agentd
+	stop		- stop zabbix_agentd
+	status		- show current status of zabbix_agentd
+	restart		- restart zabbix_agentd if running by sending a SIGHUP or start if not running
+	help		- this screen
 ```
