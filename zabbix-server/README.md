@@ -75,7 +75,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-server
 ## Example Playbook
 
     源码安装
-     ---
+    ---
     # 配置web服务器和mysql服务器
     - hosts: node2
       vars:
@@ -105,38 +105,38 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-server
     
       roles:
        - { role: zabbix-server, zabbix_server_install_from_source: true }
+    
+    rpm方式安装
+    ---
+    # 配置web服务器和mysql服务器
+    - hosts: node2
+      vars:
+       - zabbix_server_db: zabbix
+       - zabbix_server_db_user: zabbix
+       - zabbix_server_db_password: zabbix
    
-   rpm方式安装
-   ---
-   # 配置web服务器和mysql服务器
-   - hosts: node2
-     vars:
-      - zabbix_server_db: zabbix
-      - zabbix_server_db_user: zabbix
-      - zabbix_server_db_password: zabbix
+      roles: 
+       - php
+       - mysql
    
-     roles: 
-      - php
-      - mysql
-   
-     # 配置zabbix数据库,如果有可省略此步骤
-     tasks:
-      - name: configure_db | Create zabbix database.
-        shell: mysql -uroot -p123456 -h192.168.77.130 -P3306 -e "{{ item }}"
-        with_items:
+      # 配置zabbix数据库,如果有可省略此步骤
+      tasks:
+       - name: configure_db | Create zabbix database.
+         shell: mysql -uroot -p123456 -h192.168.77.130 -P3306 -e "{{ item }}"
+         with_items:
           - "create database {{ zabbix_server_db }} character set utf8 collate utf8_bin;"
           - "grant all privileges on {{  zabbix_server_db }}.* to '{{ zabbix_server_db_user }}'@'%' identified by '{{ zabbix_server_db_password }}';"
    
-   # 配置zabbix-server
-   - hosts: node2
-     vars:
-      - zabbix_server_db: zabbix
-      - zabbix_server_db_user: zabbix
-      - zabbix_server_db_password: zabbix
-      - zabbix_server_db_host: 192.168.77.130
+    # 配置zabbix-server
+    - hosts: node2
+      vars:
+       - zabbix_server_db: zabbix
+       - zabbix_server_db_user: zabbix
+       - zabbix_server_db_password: zabbix
+       - zabbix_server_db_host: 192.168.77.130
    
-     roles:
-      - zabbix-server
+      roles:
+       - zabbix-server
    
 ## 使用
 
