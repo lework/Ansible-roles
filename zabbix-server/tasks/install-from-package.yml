@@ -1,0 +1,12 @@
+---
+# author: lework
+
+- name: install_package | Ensure zabbix repo packages are installed.
+  package: name={{ zabbix_server_repo_url }}
+
+- name: install_package | Ensure zabbix packages are installed.
+  package: name={{ item }} enablerepo=zabbix-deprecated
+  with_items: "{{ zabbix_server_packages }}"
+
+- name: install_package | Copy zabbix web file to webroot.
+  shell: "cp -rf /usr/share/zabbix {{ zabbix_server_webroot }} && chown -R {{ zabbix_server_webserver_user }} {{ zabbix_server_webroot }}"

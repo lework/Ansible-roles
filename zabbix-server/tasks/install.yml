@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: install | Ensure mysql packages are installed (RedHat).
+  package: "name={{ item }} state=installed"
+  with_items:
+    - MySQL-python
+    - mysql
+    - mysql-devel
+  when: ansible_os_family == 'RedHat'
+
+- include: install-from-package.yml
+  when: not zabbix_server_install_from_source
+
+- include: install-from-source.yml
+  when: zabbix_server_install_from_source

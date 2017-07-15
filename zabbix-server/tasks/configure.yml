@@ -1,0 +1,71 @@
+---
+# author: lework
+
+- name: configure | Set hostname.
+  hostname: name={{ zabbix_server_hostanme }}
+
+- block:
+  - name: configure | Create zabbix logs path.
+    file: name={{ zabbix_server_logs_path }} state=directory owner={{ zabbix_server_user }} group={{ zabbix_server_group }}
+
+  - name: configure | Set zabbix pid file.
+    replace: path={{ zabbix_server_conf_path }}/{{ item }}.conf regexp='# PidFile=/tmp/{{ item }}.pid' replace=PidFile={{ zabbix_server_logs_path }}/{{ item }}.pid
+    with_items:
+     - zabbix_server
+     - zabbix_agentd
+
+  - name: configure | Set zabbix log file.
+    replace: path={{ zabbix_server_conf_path }}/{{ item }}.conf regexp=/tmp replace={{ zabbix_server_logs_path }}
+    with_items:
+     - zabbix_server
+     - zabbix_agentd
+
+  - name: configure | Create zabbix server mysql from source install.
+    mysql_db: 
+      login_host: "{{ zabbix_server_db_host }}"
+      login_port: "{{ zabbix_server_db_port }}"
+      login_user: "{{ zabbix_server_db_user }}"
+      login_password: "{{ zabbix_server_db_password }}"
+      state: import
+      name: "{{ zabbix_server_db }}"
+      target: "{{ zabbix_server_source_dir }}/database/mysql/{{ item }}"
+    with_items:
+     - "schema.sql"
+     - "images.sql"
+     - "data.sql"
+  when: zabbix_server_install_from_source
+ 
+- name: configure | Create zabbix server mysql from package install.
+  mysql_db: 
+    login_host: "{{ zabbix_server_db_host }}"
+    login_port: "{{ zabbix_server_db_port }}"
+    login_user: "{{ zabbix_server_db_user }}"
+    login_password: "{{ zabbix_server_db_password }}"
+    state: import
+    name: "{{ zabbix_server_db }}"
+    target: "/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_version }}/create.sql.gz"
+  when: not zabbix_server_install_from_source
+   
+- name: configure | Setup zabbix server config file.
+  replace: path={{ zabbix_server_conf_path }}/zabbix_server.conf regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: "DBName=zabbix", s: "DBName={{ zabbix_server_db }}"}
+   - { r: "DBUser=zabbix", s: "DBUser={{ zabbix_server_db_user }}"}
+   - { r: "# DBPassword=", s: "DBPassword={{ zabbix_server_db_password }}"}
+   - { r: "# DBHost=localhost", s: "DBHost={{ zabbix_server_db_host }}"}
+
+- name: configure | fixs zabbix web bugs.
+  lineinfile: 
+    path: "{{ zabbix_server_webroot }}/include/func.inc.php"
+    insertafter: '\$last\ =\ strtolower\(substr\(\$val, -1\)\);'
+    line: '        $val = substr_replace(trim($val), "", -1);'
+  when: zabbix_server_version == '3.2.6'
+    
+- name: configure | Ensure zabbix services is started and enabled on boot.
+  service: "name={{ item }} state=started enabled=yes"
+  with_items:
+   - zabbix-server
+   - zabbix-agent
+
+- name: configure | Restart web services.
+  service: "name={{ zabbix_server_webserver }} state=restarted"

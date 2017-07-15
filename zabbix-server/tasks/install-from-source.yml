@@ -1,0 +1,92 @@
+---
+# author: lework
+
+- name: install_source | Check if zabbix_server local file is already configured.
+  stat: path={{ zabbix_server_file_path }}
+  connection: local
+  register: zabbix_server_file_result
+
+- name: install_source | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not zabbix_server_file_result.stat.exists
+
+- name: install_source | Download zabbix_server file.
+  get_url: url={{ zabbix_server_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not zabbix_server_file_result.stat.exists
+
+- name: install_source | Create zabbix_server group.
+  group: name={{ zabbix_server_group }}
+
+- name: install_source | Create zabbix_server user.
+  user: name={{ zabbix_server_user }} group={{ zabbix_server_group }} shell=/sbin/nologin createhome=no
+  
+- name: install_source | Copy zabbix_server file to agent.
+  unarchive:
+    src: "{{ zabbix_server_file_path }}"
+    dest: "{{ zabbix_server_source_dir | dirname }}"
+    owner: "{{ zabbix_server_user }}"
+    group: "{{ zabbix_server_group }}"
+    creates: "{{ zabbix_server_source_dir }}"
+
+- name: install_source | Ensure dependencies for building from source are installed (RedHat).
+  package: "name={{ item }} state=installed"
+  with_items:
+    - gcc
+    - fping
+    - libxml2-devel
+    - unixODBC-devel
+    - net-snmp-devel
+    - libcurl-devel
+    - libssh2-devel
+    - OpenIPMI-devel
+    - openssl-devel
+    - openldap-devel
+  when: ansible_os_family == 'RedHat'
+
+- name: install_source | Check if zabbix_server init file is already configured.
+  stat: path=/etc/init.d/zabbix_server
+  register: zabbix_server_init_file_result
+  
+- name: install_source | Run configure script.
+  shell: >
+    {{ zabbix_server_source_configure_command }}
+    chdir={{ zabbix_server_source_dir }}
+  when: not zabbix_server_init_file_result.stat.exists
+
+- name: install_source | Make and install zabbix_server.
+  shell: >
+    make install
+    chdir={{ zabbix_server_source_dir }}
+  when: not zabbix_server_init_file_result.stat.exists
+  
+- name: install_source | Ensure zabbix_server init script is installed.
+  copy:
+    src: "{{ zabbix_server_source_dir }}/misc/init.d/fedora/core/zabbix_server"
+    dest: "/etc/init.d/zabbix-server"
+    mode: 0755
+    remote_src: true
+    
+- name: install_source | Ensure zabbix_agentd init script is installed.
+  copy:
+    src: "{{ zabbix_server_source_dir }}/misc/init.d/fedora/core/zabbix_agentd"
+    dest: "/etc/init.d/zabbix-agent"
+    mode: 0755
+    remote_src: true
+    
+- name: install_source | Copy zabbix web file to webroot.
+  shell: "cp -rf {{ zabbix_server_source_dir }}/frontends/php/ {{ zabbix_server_webroot }} && chown -R {{ zabbix_server_webserver_user }} {{ zabbix_server_webroot }}"
+
+- name: install_source | Ensure zabbix executable is symlinked into a standard path.
+  file:
+    src: "{{ software_install_path }}/zabbix-{{ zabbix_server_version }}/sbin/{{ item }}"
+    dest: /usr/local/sbin/{{ item }}
+    state: link
+  with_items:
+   - zabbix_server
+   - zabbix_agentd
+
+- name: install_source | Set zabbix conf path.
+  set_fact:
+    zabbix_server_conf_path: "{{ software_install_path }}/zabbix-{{ zabbix_server_version }}/etc"
