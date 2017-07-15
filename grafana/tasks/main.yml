@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: install grafana package.
+  package: name={{ grafana_package_url }} state=present
+  
+- name: install grafana plugins.
+  shell: "grafana-cli plugins install {{ item }}"
+  with_items:
+    - "{{ grafana_plugins }}"
+  when: grafana_plugins
+
+- name: Setup grafana server config file.
+  replace: path=/etc/grafana/grafana.ini regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: ";http_port = 3000", s: "http_port = {{ grafana_http_port }}"}
+   - { r: ";admin_user = admin", s: "admin_user = {{ grafana_admin_user }}"}
+   - { r: ";admin_password = admin", s: "admin_password = {{ grafana_admin_password }}"}
+  
+- name: start and enable grafana-server.
+  service: name=grafana-server state=started enabled=yes

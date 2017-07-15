@@ -1,0 +1,14 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+grafana_version: "4.4.1"
+grafana_package_url: "https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-{{ grafana_version }}-1.x86_64.rpm"
+
+grafana_plugins: []
+
+grafana_http_port: 3000
+grafana_admin_user: "admin"
+grafana_admin_password: "admin"
