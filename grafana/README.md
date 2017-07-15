@@ -1,25 +1,25 @@
 # Ansible Role: grafana
 
-°²×°grafana
+å®‰è£…grafana
 
-## ½éÉÜ
-Grafana ÊÇ Graphite ºÍ InfluxDB ÒÇ±íÅÌºÍÍ¼ĞÎ±à¼­Æ÷¡£Grafana ÊÇ¿ªÔ´µÄ£¬¹¦ÄÜÆëÈ«µÄ¶ÈÁ¿ÒÇ±íÅÌºÍÍ¼ĞÎ±à¼­Æ÷£¬Ö§³Ö Graphite£¬InfluxDB ºÍ OpenTSDB¡£
+## ä»‹ç»
+Grafana æ˜¯ Graphite å’Œ InfluxDB ä»ªè¡¨ç›˜å’Œå›¾å½¢ç¼–è¾‘å™¨ã€‚Grafana æ˜¯å¼€æºçš„ï¼ŒåŠŸèƒ½é½å…¨çš„åº¦é‡ä»ªè¡¨ç›˜å’Œå›¾å½¢ç¼–è¾‘å™¨ï¼Œæ”¯æŒ Graphiteï¼ŒInfluxDB å’Œ OpenTSDBã€‚
 
-¹Ù·½µØÖ·£ºhttps://grafana.com/
+å®˜æ–¹åœ°å€ï¼šhttps://grafana.com/
 github: https://github.com/grafana/grafana
-¹Ù·½ÎÄµµµØÖ·£ºhttp://docs.grafana.org/
+å®˜æ–¹æ–‡æ¡£åœ°å€ï¼šhttp://docs.grafana.org/
 
-## ÒªÇó
+## è¦æ±‚
 
-´Ë½ÇÉ«½öÔÚRHEL¼°ÆäÑÜÉú²úÆ·ÉÏÔËĞĞ¡£
+æ­¤è§’è‰²ä»…åœ¨RHELåŠå…¶è¡ç”Ÿäº§å“ä¸Šè¿è¡Œã€‚
 
-## ²âÊÔ»·¾³
+## æµ‹è¯•ç¯å¢ƒ
 
 ansible `2.3.0.0`
 os `Centos 6.7 X64`
 python `2.6.6`
 
-## ½ÇÉ«±äÁ¿
+## è§’è‰²å˜é‡
 	software_files_path: "/opt/software"
 	software_install_path: "/usr/local"
 
@@ -32,28 +32,28 @@ python `2.6.6`
 	grafana_admin_user: "admin"
 	grafana_admin_password: "admin"
 
-## ÒÀÀµ
+## ä¾èµ–
 
 None
 
-## githubµØÖ·
+## githubåœ°å€
 https://github.com/kuailemy123/Ansible-roles/tree/master/grafana
 
 ## Example Playbook
-   - hosts: node1
-     roles:
-      - grafana
+     - hosts: node1
+       roles:
+        - grafana
 		
-   - hosts: node1
-     vars:
-      - grafana_plugins:
-         - alexanderzobnin-zabbix-app
-      - grafana_admin_password: '123456'
-     roles:
-      - { role: grafana }
-      - { role: iptables, iptables_allowed_tcp_ports: [ "3000"]}
+     - hosts: node1
+       vars:
+        - grafana_plugins:
+           - alexanderzobnin-zabbix-app
+        - grafana_admin_password: '123456'
+       roles:
+        - { role: grafana }
+        - { role: iptables, iptables_allowed_tcp_ports: [ "3000"]}
 
-## Ê¹ÓÃ
+## ä½¿ç”¨
 
 ```
 ~]# /etc/init.d/grafana-server 
