@@ -1,0 +1,27 @@
+---
+# author: lework
+
+- block:
+  - name: services | Create nexus dir soft link.
+    file: src={{ software_install_path }}/nexus-{{ nexus_version }}/bin/nexus dest=/etc/init.d/nexus state=link
+    
+  - name: services | Add nexus services.
+    shell: "chkconfig --add nexus && chkconfig nexus on"
+    
+  - name: services | Ensure nexus is running for centos6.
+    service: "name=nexus state=started enabled=yes"
+ 
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+- block:
+  - name: services | Setup nexus.service file.
+    template:
+      dest: "/etc/systemd/system/nexus.service"
+      mode: 0755
+      src: nexus.service.j2
+      
+  - name: services | Ensure nexus is running for centos7.
+    systemd: "name=nexus state=started enabled=yes"
+    
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  

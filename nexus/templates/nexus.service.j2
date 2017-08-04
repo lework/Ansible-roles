@@ -1,0 +1,13 @@
+[Unit]
+Description=nexus service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/nexus/bin/nexus start
+ExecStop=/usr/local/nexus/bin/nexus stop
+User={{ nexus_user }}
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

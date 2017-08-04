@@ -1,0 +1,19 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+nexus_version: "3.4.0-02"
+
+nexus_file: "nexus-{{ nexus_version }}-unix.tar.gz"
+nexus_file_path: "{{ software_files_path }}/{{ nexus_file }}"
+nexus_file_url: "https://sonatype-download.global.ssl.fastly.net/nexus/3/{{ nexus_file }}"
+
+nexus_user: 'nexus'
+nexus_group: 'nexus'
+
+nexus_port: 8081
+nexus_workspace: "{{ software_install_path }}/nexus"
+
+java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.8.0_144') }}"

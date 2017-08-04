@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- name: configure | Set java home.
+  replace:
+    path: "{{ software_install_path }}/nexus/bin/nexus"
+    regexp: "# INSTALL4J_JAVA_HOME_OVERRIDE="
+    replace: "INSTALL4J_JAVA_HOME_OVERRIDE={{ java_home }}"
+
+- name: configure | Set nexus workspace.
+  replace:
+    path: "{{ software_install_path }}/nexus/bin/nexus.vmoptions"
+    regexp: \.\.\/
+    replace: "{{ nexus_workspace }}/"
+    
+- name: configure | Set nexus start user.
+  replace:
+    path: "{{ software_install_path }}/nexus/bin/nexus.rc"
+    regexp: '#run_as_user=""'
+    replace: "run_as_user='{{ nexus_user }}'"
+    
+- name: configure | Set nexus service port.
+  replace:
+    path: "{{ software_install_path }}/nexus/etc/nexus-default.properties"
+    regexp: "application-port=8081"
+    replace: "application-port={{ nexus_port }}"
