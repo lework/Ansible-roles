@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: logrotate | Setup openresty logrotate conf file.
+  template:
+    dest: "/etc/logrotate.d/openresty"
+    src: nginx.logrotate.j2

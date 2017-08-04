@@ -1,0 +1,74 @@
+---
+# author: lework
+
+- name: install | Check if openresty local file is already configured.
+  stat: path={{ openresty_file_path }}
+  connection: local
+  register: openresty_file_result
+
+- name: install | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not openresty_file_result.stat.exists
+  
+- name: install | Download openresty file.
+  get_url: url={{ openresty_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not openresty_file_result.stat.exists
+
+- name: install | Copy openresty file to agent.
+  unarchive:
+    src: "{{ openresty_file_path }}"
+    dest: "/tmp"
+    creates: "/tmp/openresty-{{ openresty_version }}"
+
+- name: install | Ensure gcc packages are installed.
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    - libtool
+    - zlib
+    - zlib-devel
+    - openssl
+    - openssl-devel
+    - pcre
+    - pcre-devel
+    - readline-devel
+
+- name: install | Create openresty group.
+  group: name={{ openresty_user }}
+
+- name: install | Create openresty user.
+  user: name={{ openresty_user }} group={{ openresty_group }} shell=/sbin/nologin createhome=no
+
+- name: install | Check if openresty bin file is already configured.
+  stat: path={{ software_install_path }}/openresty/bin/openresty
+  register: openresty_bin_result
+
+- name: install | Build an install openresty.
+  shell: "{{ item }}" 
+  with_items:
+    - "{{ openresty_configure_command }}"
+    - make && make install
+  args:
+    chdir: "/tmp/openresty-{{ openresty_version }}/"
+  when: not openresty_bin_result.stat.exists
+
+- name: install | Set the owner of the openresty directory.
+  file: path={{ software_install_path }}/openresty-{{ openresty_version }} state=directory owner={{ openresty_user }} group={{ openresty_group }} recurse=yes
+
+- name: install | Create openresty dir soft link.
+  file: src={{ software_install_path }}/openresty-{{ openresty_version }} dest={{ software_install_path }}/openresty owner={{ openresty_user }} group={{ openresty_group }} state=link
+
+- name: install | Create openresty work Directory.
+  file: path={{ item }} state=directory owner={{ openresty_user }} group={{ openresty_group }}
+  with_items:
+   - "{{ openresty_logpath }}"
+
+- name: install | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/openresty/bin/:$PATH'

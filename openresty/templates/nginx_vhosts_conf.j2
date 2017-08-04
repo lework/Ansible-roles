@@ -1,0 +1,74 @@
+{% for vhost in openresty_vhosts %}
+    server {
+        listen {{ vhost.listen | default('80 default_server') }};
+{% if vhost.server_name is defined %}
+        server_name {{ vhost.server_name }};
+{% endif %}
+{% if vhost.root is defined %}
+        root {{ vhost.root }};
+{% endif %}
+{% if vhost.index is defined %}
+        index {{ vhost.index }};
+{% endif %}
+{% if vhost.error_page is defined %}
+        error_page {{ vhost.error_page }};
+{% endif %}
+{% if vhost.access_log is defined %}
+        access_log {{ vhost.access_log }};
+{% endif %}
+{% if vhost.error_log is defined %}
+        error_log {{ vhost.error_log }} error;
+{% endif %}
+
+{% if vhost.locations is defined %}
+{% for location in vhost.locations %}
+        location {{ location.name }} {
+{% if location.fastcgi_pass is defined %}
+            fastcgi_pass {{ location.fastcgi_pass }};
+{% endif %}
+{% if location.fastcgi_index is defined %}
+            fastcgi_index {{ location.fastcgi_index }};
+{% endif %}
+{% if location.fastcgi_pass is defined %}
+            fastcgi_param {{ location.fastcgi_param }};
+{% endif %}
+{% if location.include is defined %}
+            fastcgi_include {{ location.fastcgi_include }};
+{% endif %}
+{% if location.proxy_pass is defined %}
+            proxy_pass {{ location.proxy_pass }};
+{% endif %}
+{% if location.proxy_set_headers is defined %}
+{% for proxy_set_header in location.proxy_set_headers %}
+            proxy_set_header {{ proxy_set_header }} {{ location.proxy_set_headers[proxy_set_header] }};
+{% endfor %}
+{% endif %}
+{% if location.proxy_cache is defined %}
+ 	    proxy_cache {{ location.proxy_cache }};
+{% endif %}
+{% if location.proxy_cache_valid is defined %}
+ 	    proxy_cache_valid {{ location.proxy_cache_valid  }};
+{% endif %}
+{% if location.proxy_cache_use_stale is defined %}
+ 	    proxy_cache_use_stale {{ location.proxy_cache_use_stale  }};
+{% endif %}
+{% if location.extra_parameters is defined %}
+            {{ location.extra_parameters|indent(4)}}
+{% endif %}
+{% if location.return is defined %}
+ 	    return {{ location.return  }};
+{% endif %}
+        }
+{% endfor %}
+{% endif %}
+{% if vhost.proxy_pass is defined %}
+        proxy_pass {{ vhost.proxy_pass }};
+{% endif %}
+{% if vhost.return is defined %}
+        return {{ vhost.return }};
+{% endif %}
+{% if vhost.extra_parameters is defined %}
+        {{ vhost.extra_parameters |indent(4) }}
+{% endif %}
+    }
+{% endfor %}

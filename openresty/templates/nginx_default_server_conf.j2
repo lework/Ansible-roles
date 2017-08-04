@@ -1,0 +1,21 @@
+{% if not openresty_upstreams and not openresty_proxys and not openresty_vhosts %}
+    server{
+        listen       80;
+        server_name  localhost;
+        charset utf-8;
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+        {% if openresty_stub_status %}
+        location /status 
+        {
+            stub_status on;
+        }  
+        {% endif %}
+    }
+{% endif %}

@@ -1,0 +1,28 @@
+---
+# author: lework
+
+- name: configure | Setup nginx.conf.
+  template:
+    dest: "{{ openresty_conf_file_path }}"
+    src: nginx.conf.j2
+    mode: 0644
+    owner: "{{ openresty_user }}"
+    group: "{{ openresty_group }}"
+  notify: Reload nginx.
+
+- name: configure | Setup nginx.sh file.
+  template:
+    dest: "/etc/rc.d/init.d/openresty"
+    mode: 0755
+    src: nginx.sh.j2
+
+- name: configure | Add openresty services.
+  shell: "chkconfig --add openresty && chkconfig openresty on"
+  
+- name: configure | Ensure openresty is running for centos6.
+  service: "name=openresty state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: configure | Ensure openresty is running for centos7.
+  systemd: "name=openresty state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

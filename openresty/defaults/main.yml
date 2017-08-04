@@ -1,0 +1,100 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+openresty_version: "1.11.2.3"
+
+openresty_file: "openresty-{{ openresty_version }}.tar.gz"
+openresty_file_path: "{{ software_files_path }}/{{ openresty_file }}"
+openresty_file_url: "https://openresty.org/download/openresty-{{ openresty_version }}.tar.gz"
+
+openresty_conf_path: "{{ software_install_path }}/openresty/nginx/conf/"
+openresty_conf_file_path: "{{ software_install_path }}/openresty/nginx/conf/nginx.conf"
+
+openresty_user: 'openresty'
+openresty_group: 'openresty'
+openresty_build_options: ''
+openresty_configure_command: >
+  ./configure 
+  --prefix={{ software_install_path }}/openresty-{{ openresty_version }}
+  --user={{ openresty_user }}
+  --group={{ openresty_user }}
+  --with-http_realip_module
+  --with-http_sub_module
+  --with-http_auth_request_module
+  --with-http_stub_status_module
+  --with-stream
+  --with-http_gunzip_module
+  --with-http_gzip_static_module
+  --with-http_iconv_module 
+  {{ openresty_build_options }}
+
+openresty_pidfile: '/var/run/nginx.pid'
+openresty_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
+openresty_worker_connections: "1024"
+openresty_multi_accept: "off"
+
+openresty_logpath: "/var/log/openresty"
+openresty_error_log: "{{ openresty_logpath }}/error.log"
+openresty_access_log: "{{ openresty_logpath }}/access.log"
+openresty_mime_file_path: "mime.types"
+
+openresty_sendfile: "on"
+openresty_tcp_nopush: "on"
+openresty_tcp_nodelay: "off"
+
+openresty_keepalive_timeout: "65"
+openresty_keepalive_requests: "100"
+
+openresty_client_max_body_size: "64m"
+
+openresty_server_names_hash_bucket_size: "64"
+
+openresty_proxy_cache_path: ""
+
+openresty_extra_conf_options: ""
+# Example extra main options, used within the main openresty's context:
+#   openresty_extra_conf_options: |
+#     env VARIABLE;
+#     include /etc/openresty/main.d/*.conf;
+
+openresty_extra_http_options: ""
+# Example extra http options, printed inside the main server http config:
+#    openresty_extra_http_options: |
+#      proxy_buffering    off;
+#      proxy_set_header   X-Real-IP $remote_addr;
+#      proxy_set_header   X-Scheme $scheme;
+#      proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+#      proxy_set_header   Host $http_host;
+
+openresty_remove_default_vhost: false
+openresty_vhosts: []
+# Example vhost below, showing all available options:
+# - listen: "80 default_server" # default: "80 default_server"
+#   server_name: "example.com" # default: N/A
+#   root: "/var/www/example.com" # default: N/A
+#   index: "index.html index.htm" # default: "index.html index.htm"
+#
+#   # Properties that are only added if defined:
+#   error_page: ""
+#   access_log: ""
+#   error_log: ""
+#   extra_parameters: "" # Can be used to add extra config blocks (multiline).
+
+openresty_upstreams: ''
+# - name: myapp1
+#   strategy: "ip_hash" # "least_conn", etc.
+#   keepalive: 16 # optional
+#   servers: {
+#     "srv1.example.com",
+#     "srv2.example.com weight=3",
+#     "srv3.example.com"
+#   }
+openresty_proxys: false
+openresty_gzip: false
+openresty_stub_status: false
+# - openresty_stub_status: true
+openresty_stream: false
+# - openresty_stream: true

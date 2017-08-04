@@ -1,0 +1,11 @@
+{{ openresty_access_log }} {
+    daily
+    dateext
+    missingok
+    rotate 100
+    nocompress
+    sharedscripts
+    postrotate
+        [ ! -f {{ openresty_pidfile }} ] || kill -USR1 `cat {{ openresty_pidfile }}`
+    endscript
+}
