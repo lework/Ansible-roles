@@ -14,82 +14,86 @@ Nginx ("engine x") 是一个高性能的HTTP和反向代理服务器，也是一
 
 ## 测试环境
 
-ansible `2.2.1.0`
-os `Centos 6.7 X64`
+ansible主机
+
+    ansible: `2.3.1.0`
+    os: `Centos 7.2 X64`
+    python: `2.7.5`
+
+ansible管理主机
+
+    os: `Centos 6.7 X64, Centos 7.2 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	nginx_version: "1.10.2"
+    nginx_version: "1.12.1"
 
-	nginx_file: "nginx-{{ nginx_version }}.tar.gz"
-	nginx_file_path: "{{ software_files_path }}/{{ nginx_file }}"
-	nginx_file_url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+    nginx_file: "nginx-{{ nginx_version }}.tar.gz"
+    nginx_file_path: "{{ software_files_path }}/{{ nginx_file }}"
+    nginx_file_url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
 
-	nginx_temp_path: "/var/tmp/nginx"
-	nginx_conf_path: "{{ software_install_path }}/nginx/conf/"
-	nginx_conf_file_path: "{{ software_install_path }}/nginx/conf/nginx.conf"
+    nginx_temp_path: "/var/tmp/nginx"
+    nginx_conf_path: "{{ software_install_path }}/nginx-{{ nginx_version }}/conf/"
+    nginx_conf_file_path: "{{ software_install_path }}/nginx-{{ nginx_version }}/conf/nginx.conf"
 
-	nginx_user: 'nginx'
-	nginx_build_options: ''
-	nginx_configure_command: >
-	  ./configure 
-	  --prefix={{ software_install_path }}/nginx
-	  --user={{ nginx_user }}
-	  --group={{ nginx_user }}
-	  --with-stream
-	  --with-http_ssl_module
-	  --with-http_flv_module
-	  --with-http_stub_status_module
-	  --with-http_gzip_static_module
-	  --with-http_realip_module
-	  --http-client-body-temp-path={{ nginx_temp_path }}/client/
-	  --http-proxy-temp-path={{ nginx_temp_path }}/proxy/
-	  --http-fastcgi-temp-path={{ nginx_temp_path }}/fcgi/
-	  --http-uwsgi-temp-path={{ nginx_temp_path }}/uwsgi
-	  --http-scgi-temp-path={{ nginx_temp_path }}/scgi 
-	  --with-pcre 
-	  {{ nginx_build_options }}
+    nginx_user: 'nginx'
+    nginx_group: 'nginx'
+    nginx_build_options: ''
+    nginx_configure_command: >
+      ./configure 
+      --prefix={{ software_install_path }}/nginx-{{ nginx_version }}
+      --user={{ nginx_user }}
+      --group={{ nginx_group }}
+      --with-stream
+      --with-http_ssl_module
+      --with-http_flv_module
+      --with-http_stub_status_module
+      --with-http_gzip_static_module
+      --with-http_realip_module
+      --http-client-body-temp-path={{ nginx_temp_path }}/client/
+      --http-proxy-temp-path={{ nginx_temp_path }}/proxy/
+      --http-fastcgi-temp-path={{ nginx_temp_path }}/fcgi/
+      --http-uwsgi-temp-path={{ nginx_temp_path }}/uwsgi
+      --http-scgi-temp-path={{ nginx_temp_path }}/scgi 
+      --with-pcre 
+      {{ nginx_build_options }}
 
-	nginx_pidfile: '/var/run/nginx.pid'
-	nginx_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
-	nginx_worker_connections: "1024"
-	nginx_multi_accept: "off"
-	nginx_pid_file: "/var/run/nginx.pid"
+    nginx_pidfile: '/var/run/nginx.pid'
+    nginx_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
+    nginx_worker_connections: "1024"
+    nginx_multi_accept: "off"
+    nginx_pid_file: "/var/run/nginx.pid"
 
-	nginx_error_log: "/var/log/nginx/error.log warn"
-	nginx_access_log: "/var/log/nginx/access.log main buffer=64k"
-	nginx_mime_file_path: "mime.types"
+    nginx_logpath: "/var/log/nginx"
+    nginx_error_log: "{{ nginx_logpath }}/error.log"
+    nginx_access_log: "{{ nginx_logpath }}/access.log"
+    nginx_mime_file_path: "mime.types"
 
-	nginx_sendfile: "on"
-	nginx_tcp_nopush: "on"
-	nginx_tcp_nodelay: "on"
+    nginx_sendfile: "on"
+    nginx_tcp_nopush: "on"
+    nginx_tcp_nodelay: "off"
 
-	nginx_keepalive_timeout: "65"
-	nginx_keepalive_requests: "100"
+    nginx_keepalive_timeout: "65"
+    nginx_keepalive_requests: "100"
 
-	nginx_client_max_body_size: "64m"
+    nginx_client_max_body_size: "64m"
+    nginx_server_names_hash_bucket_size: "64"
 
-	nginx_server_names_hash_bucket_size: "64"
+    nginx_proxy_cache_path: ""
+    nginx_extra_conf_options: ""
+    nginx_extra_http_options: ""
 
-	nginx_proxy_cache_path: ""
-
-	nginx_extra_conf_options: ""
-
-	nginx_extra_http_options: ""
-	nginx_remove_default_vhost: false
-	nginx_vhosts_filename: "vhosts.conf"
-	nginx_vhosts: []
-
-	nginx_upstreams: ''
-	nginx_proxys: false
-	nginx_gzip: false
-	nginx_stub_status: false
-	nginx_stream: false
-
-	ansible_python_interpreter: /usr/bin/python2.6
-
+    nginx_remove_default_vhost: false
+    nginx_vhosts: []
+    
+    nginx_upstreams: ''
+    nginx_proxys: false
+    nginx_gzip: false
+    nginx_stub_status: false
+    nginx_stream: false
+    
 ## 依赖
 
 没有
@@ -102,7 +106,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/nginx
 
 	- hosts: node1
 	  roles:
-	   - { role: nginx }
+	   - nginx
 
 	反向代理
 	- hosts: node1

@@ -4,23 +4,24 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-nginx_version: "1.10.2"
+nginx_version: "1.12.1"
 
 nginx_file: "nginx-{{ nginx_version }}.tar.gz"
 nginx_file_path: "{{ software_files_path }}/{{ nginx_file }}"
-nginx_file_url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+nginx_file_url: "https://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
 
 nginx_temp_path: "/var/tmp/nginx"
-nginx_conf_path: "{{ software_install_path }}/nginx/conf/"
-nginx_conf_file_path: "{{ software_install_path }}/nginx/conf/nginx.conf"
+nginx_conf_path: "{{ software_install_path }}/nginx-{{ nginx_version }}/conf/"
+nginx_conf_file_path: "{{ software_install_path }}/nginx-{{ nginx_version }}/conf/nginx.conf"
 
 nginx_user: 'nginx'
+nginx_group: 'nginx'
 nginx_build_options: ''
 nginx_configure_command: >
   ./configure 
-  --prefix={{ software_install_path }}/nginx
+  --prefix={{ software_install_path }}/nginx-{{ nginx_version }}
   --user={{ nginx_user }}
-  --group={{ nginx_user }}
+  --group={{ nginx_group }}
   --with-stream
   --with-http_ssl_module
   --with-http_flv_module
@@ -41,13 +42,14 @@ nginx_worker_connections: "1024"
 nginx_multi_accept: "off"
 nginx_pid_file: "/var/run/nginx.pid"
 
-nginx_error_log: "/var/log/nginx/error.log warn"
-nginx_access_log: "/var/log/nginx/access.log main buffer=64k"
+nginx_logpath: "/var/log/nginx"
+nginx_error_log: "{{ nginx_logpath }}/error.log"
+nginx_access_log: "{{ nginx_logpath }}/access.log"
 nginx_mime_file_path: "mime.types"
 
 nginx_sendfile: "on"
 nginx_tcp_nopush: "on"
-nginx_tcp_nodelay: "on"
+nginx_tcp_nodelay: "off"
 
 nginx_keepalive_timeout: "65"
 nginx_keepalive_requests: "100"
@@ -74,7 +76,6 @@ nginx_extra_http_options: ""
 #      proxy_set_header   Host $http_host;
 
 nginx_remove_default_vhost: false
-nginx_vhosts_filename: "vhosts.conf"
 nginx_vhosts: []
 # Example vhost below, showing all available options:
 # - listen: "80 default_server" # default: "80 default_server"
@@ -103,5 +104,3 @@ nginx_stub_status: false
 # - nginx_stub_status: true
 nginx_stream: false
 # - nginx_stream: true
-
-ansible_python_interpreter: /usr/bin/python2.6

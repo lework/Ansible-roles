@@ -1,29 +1,29 @@
 ---
 # author: lework
 
-- name: Check if nginx local file is already configured.
+- name: install | Check if nginx local file is already configured.
   stat: path={{ nginx_file_path }}
   connection: local
   register: nginx_file_result
 
-- name: Create software files.
+- name: install | Create software files.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not nginx_file_result.stat.exists
   
-- name: Download nginx file.
+- name: install | Download nginx file.
   get_url: url={{ nginx_file_url }} dest={{ software_files_path }}
   connection: local
   when: not nginx_file_result.stat.exists
 
-- name: Copy nginx file to agent.
+- name: install | Copy nginx file to agent.
   unarchive:
     src: "{{ nginx_file_path }}"
     dest: "/tmp"
     creates: "/tmp/nginx-{{ nginx_version }}"
 
-- name: Ensure gcc packages are installed.
-  yum:
+- name: install | Ensure gcc packages are installed.
+  package:
     name: "{{ item }}"
     state: installed
   with_items:
@@ -39,24 +39,24 @@
     - pcre
     - pcre-devel
 
-- name: Create nginx group.
-  group: name={{ nginx_user }}
+- name: install | Create nginx group.
+  group: name={{ nginx_group }}
 
-- name: Create nginx user.
-  user: name={{ nginx_user }} group={{ nginx_user }} shell=/sbin/nologin
+- name: install | Create nginx user.
+  user: name={{ nginx_user }} group={{ nginx_group }} shell=/sbin/nologin createhome=no
 
-- name: Create nginx work Directory.
-  file: path={{ item }} state=directory owner={{ nginx_user }} group={{ nginx_user }}
+- name: install | Create nginx work Directory.
+  file: path={{ item }} state=directory owner={{ nginx_user }} group={{ nginx_group }}
   with_items:
-   - "{{ software_install_path }}/nginx"
+   - "{{ software_install_path }}/nginx-{{ nginx_version }}"
    - "{{ nginx_temp_path }}/client"
-   - "/var/log/nginx"
+   - "{{ nginx_logpath }}"
 
-- name: Check if nginx bin file is already configured.
+- name: install | Check if nginx bin file is already configured.
   stat: path={{ software_install_path }}/nginx/sbin/nginx
   register: nginx_bin_result
 
-- name: Build an install nginx.
+- name: install | Build an install nginx.
   shell: "{{ item }}" 
   with_items:
     - "{{ nginx_configure_command }}"
@@ -64,7 +64,12 @@
   args:
     chdir: "/tmp/nginx-{{ nginx_version }}/"
   when: not nginx_bin_result.stat.exists
+  
+- name: install | Set the owner of the nginx directory.
+  file: path={{ software_install_path }}/nginx-{{ nginx_version }} state=directory owner={{ nginx_user }} group={{ nginx_group }} recurse=yes
 
-- name: Config environment variable.
+- name: install | Create nginx dir soft link.
+  file: src={{ software_install_path }}/nginx-{{ nginx_version }} dest={{ software_install_path }}/nginx owner={{ nginx_user }} group={{ nginx_group }} state=link
+  
+- name: install | Config environment variable.
   lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/nginx/sbin/:$PATH'
-  run_once: yes

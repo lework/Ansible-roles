@@ -1,24 +1,28 @@
 ---
 # author: lework
 
-- name: Setup nginx.conf.
+- name: configure | Setup nginx.conf.
   template:
     dest: "{{ nginx_conf_file_path }}"
     src: nginx.conf.j2
     mode: 0644
-    owner: nginx
-    group: nginx
-    force: yes
-    backup: yes
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  notify: Reload nginx.  
 
-- name: Setup nginx.sh file.
+- name: configure | Setup nginx.sh file.
   template:
     dest: "/etc/rc.d/init.d/nginx"
     mode: 0755
     src: nginx.sh.j2
 
-- name: Add nginx services.
-  shell: "chkconfig --add nginx  && chkconfig nginx on"
+- name: configure | Add nginx services.
+  shell: "chkconfig --add nginx && chkconfig nginx on"
   
-- name: Ensure nginx is running.
+- name: configure | Ensure nginx is running for centos6.
   service: "name=nginx state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: configure | Ensure nginx is running for centos7.
+  systemd: "name=nginx state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

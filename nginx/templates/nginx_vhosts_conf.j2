@@ -44,16 +44,19 @@
 {% endfor %}
 {% endif %}
 {% if location.proxy_cache is defined %}
- 	proxy_cache	{{ location.proxy_cache }};
+        proxy_cache	{{ location.proxy_cache }};
 {% endif %}
 {% if location.proxy_cache_valid is defined %}
- 	proxy_cache_valid	  {{ location.proxy_cache_valid  }};
+        proxy_cache_valid	  {{ location.proxy_cache_valid  }};
 {% endif %}
 {% if location.proxy_cache_use_stale is defined %}
- 	proxy_cache_use_stale {{ location.proxy_cache_use_stale  }};
+        proxy_cache_use_stale {{ location.proxy_cache_use_stale  }};
+{% endif %}
+{% if location.extra_parameters is defined %}
+    {{ location.extra_parameters|indent(4) }}
 {% endif %}
 {% if location.return is defined %}
- 	return	{{ location.return  }};
+        return	{{ location.return  }};
 {% endif %}
         }
 {% endfor %}

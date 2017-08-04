@@ -1,0 +1,11 @@
+{{ nginx_access_log }} {
+    daily
+    dateext
+    missingok
+    rotate 100
+    nocompress
+    sharedscripts
+    postrotate
+        [ ! -f {{ nginx_pidfile }} ] || kill -USR1 `cat {{ nginx_pidfile }}`
+    endscript
+}
