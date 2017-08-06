@@ -59,3 +59,4 @@
   - LUA_CPATH: "{{ software_install_path }}/luarocks/lib/lua/{{ lua_version | splitext | first  }}/?.so;?.so;;"
   with_items:
    - "{{ lua_install_rocks }}"
+  when: lua_install_rocks
