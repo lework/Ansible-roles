@@ -62,7 +62,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/lua
 	# 安装指定版本的lua
 	- hosts: node1
       roles:
-        - { role: lua, lua_version: '19.3' }
+        - { role: lua, lua_version: '5.3.3' }
     
     # 安装luajit
     - hosts: node1
