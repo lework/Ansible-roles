@@ -9,9 +9,10 @@ Lua 是巴西里约热内卢天主教大学（Pontifical Catholic University of 
 
 官网: http://www.lua.org/
 官方文档: http://www.lua.org/docs.html
-wike: http://lua-users.org/wiki/
+wiki: http://lua-users.org/wiki/
 编译好的lua：http://luabinaries.sourceforge.net/
 lua软件包管理器： https://luarocks.org/
+luajit: http://luajit.org/
 
 ## 要求
 
@@ -62,7 +63,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/lua
 	# 安装指定版本的lua
 	- hosts: node1
       roles:
-        - { role: lua, lua_version: '19.3' }
+        - { role: lua, lua_version: '5.3.3' }
     
     # 安装luajit
     - hosts: node1
