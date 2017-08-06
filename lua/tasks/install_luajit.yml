@@ -1,0 +1,46 @@
+---
+# author: lework
+  
+- name: install_luajit | Check if lua_luajit local file is already configured.
+  stat: path={{ lua_luajit_file_path }}
+  connection: local
+  register: lua_luajit_file_result
+
+- name: install_luajit | Download lua_luajit file.
+  get_url: url={{ lua_luajit_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not lua_luajit_file_result.stat.exists
+    
+- name: install_luajit | Copy lua_luajit file to agent.
+  unarchive:
+    src: "{{ lua_luajit_file_path }}"
+    dest: "/tmp/"
+    creates: "/tmp/LuaJIT-{{ lua_luajit_version }}"    
+
+- name: install_luajit | Check if luajit bin file is already configured.
+  stat: path={{ software_install_path }}/LuaJIT/bin/luajit
+  register: lua_luajit_bin_result
+
+- name: install_luajit | Replace luajit prefix.
+  replace: path=/tmp/LuaJIT-{{ lua_luajit_version }}/Makefile regexp=/usr/local replace=/usr/local/LuaJIT-{{ lua_luajit_version }} 
+  when: not lua_luajit_bin_result.stat.exists
+
+- name: install_luajit | Build an install lua_luajit.
+  shell: make && make install
+  args:
+    chdir: "/tmp/LuaJIT-{{ lua_luajit_version }}"
+  when: not lua_luajit_bin_result.stat.exists
+
+- name: install_luajit | Create luajit dir soft link.
+  file: src={{ software_install_path }}/LuaJIT-{{ lua_luajit_version }} dest={{ software_install_path }}/LuaJIT state=link
+
+- name: install_luajit | Set luajit environment variable.
+  lineinfile: path=/etc/profile line="export PATH=$PATH:{{ software_install_path }}/LuaJIT/bin"
+
+- name: install_luajit | luajit version.
+  command: "{{ software_install_path }}/LuaJIT/bin/luajit -v"
+  register: luajit_result
+  changed_when: false
+  ignore_errors: True
+  
+- debug: var=luajit_result.stdout

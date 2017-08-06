@@ -1,0 +1,61 @@
+---
+# author: lework
+  
+- name: install_luarocks | Check if lua_luarocks local file is already configured.
+  stat: path={{ lua_luarocks_file_path }}
+  connection: local
+  register: lua_luarocks_file_result
+
+- name: install_luarocks | Download lua_luarocks file.
+  get_url: url={{ lua_luarocks_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not lua_luarocks_file_result.stat.exists
+    
+- name: install_luarocks | Copy lua_luarocks file to agent.
+  unarchive:
+    src: "{{ lua_luarocks_file_path }}"
+    dest: "/tmp/"
+    creates: "/tmp/luarocks-{{ lua_luarocks_version }}"    
+
+- name: install_luarocks | Check if lua_luarocks bin file is already configured.
+  stat: path={{ software_install_path }}/luarocks/bin/luarocks
+  register: lua_luarocks_bin_result
+ 
+- name: install_luarocks | Build an install lua_luarocks.
+  shell: >
+   ./configure
+   --prefix={{ software_install_path }}/luarocks-{{ lua_luarocks_version }}
+   --with-lua={{ software_install_path }}/lua
+   && make && make install
+  args:
+    chdir: "/tmp/luarocks-{{ lua_luarocks_version }}"
+  when: not lua_luarocks_bin_result.stat.exists
+
+- name: install_luarocks | Create luarocks dir soft link.
+  file: src={{ software_install_path }}/luarocks-{{ lua_luarocks_version }} dest={{ software_install_path }}/luarocks state=link
+
+- name: install_luarocks | Set luarocks environment variable.
+  lineinfile: path=/etc/profile line={{ item }}
+  with_items:
+   - export PATH=$PATH:{{ software_install_path }}/luarocks/bin
+   - export LUA_PATH='{{ software_install_path }}/luarocks/share/lua/{{ lua_version | splitext | first }}/?.lua;?.lua;;'
+   - export LUA_CPATH='{{ software_install_path }}/luarocks/lib/lua/{{ lua_version | splitext | first  }}/?.so;?.so;;'
+
+- name: install_luarocks | luarocks version.
+  command: "{{ software_install_path }}/luarocks/bin/luarocks --version"
+  environment:
+  - LUA_PATH: "{{ software_install_path }}/luarocks/share/lua/{{ lua_version | splitext | first }}/?.lua;?.lua;;"
+  - LUA_CPATH: "{{ software_install_path }}/luarocks/lib/lua/{{ lua_version | splitext | first  }}/?.so;?.so;;"
+  register: lua_luarocks_result
+  changed_when: false
+  ignore_errors: True
+  
+- debug: var=lua_luarocks_result.stdout_lines[0]
+   
+- name: install_luarocks | Install a rock.
+  shell: "{{ software_install_path }}/luarocks/bin/luarocks install {{ item }}"
+  environment:
+  - LUA_PATH: "{{ software_install_path }}/luarocks/share/lua/{{ lua_version | splitext | first }}/?.lua;?.lua;;"
+  - LUA_CPATH: "{{ software_install_path }}/luarocks/lib/lua/{{ lua_version | splitext | first  }}/?.so;?.so;;"
+  with_items:
+   - "{{ lua_install_rocks }}"

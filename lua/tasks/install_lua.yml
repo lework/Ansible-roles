@@ -1,0 +1,71 @@
+---
+# author: lework
+
+- name: install_lua | Check if lua local file is already configured.
+  stat: path={{ lua_file_path }}
+  connection: local
+  register: lua_file_result
+  
+- name: install_lua | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not lua_file_result.stat.exists
+  
+- name: install_lua | Download lua file.
+  get_url: url={{ lua_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not lua_file_result.stat.exists
+
+- name: install_lua | Copy lua file to agent.
+  unarchive:
+    src: "{{ lua_file_path }}"
+    dest: "/tmp/"
+    creates: "/tmp/lua-{{ lua_version }}"
+    
+- name: install_lua | Ensure gcc packages are installed.
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - libtool
+    - make
+    - libtool
+    - zlib
+    - zlib-devel
+    - openssl
+    - openssl-devel
+    - ncurses-devel
+    - libtermcap-devel
+    - ncurses-devel
+    - libevent-devel
+    - readline-devel
+
+- name: install_lua | Check if lua bin file is already configured.
+  stat: path={{ software_install_path }}/lua/bin/lua
+  register: lua_bin_result
+
+- name: install_lua | Replace lua prefix.
+  replace: path=/tmp/lua-{{ lua_version }}/Makefile regexp=/usr/local replace=/usr/local/lua-{{ lua_version }}
+  when: not lua_bin_result.stat.exists
+    
+- name: install_lua | Build an install lua.
+  shell: "make linux && make install" 
+  args:
+    chdir: "/tmp/lua-{{ lua_version }}"
+  when: not lua_bin_result.stat.exists
+
+- name: install_lua | Create lua dir soft link.
+  file: src={{ software_install_path }}/lua-{{ lua_version }} dest={{ software_install_path }}/lua state=link
+
+- name: install_lua | Set lua environment variable.
+  lineinfile: path=/etc/profile line="export PATH=$PATH:{{ software_install_path }}/lua/bin"
+   
+- name: install_lua | lua version.
+  command: lua -v
+  register: lua_result
+  changed_when: false
+  ignore_errors: True
+
+- debug: var=lua_result.stderr

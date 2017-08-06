@@ -1,0 +1,25 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+lua_version: "5.3.4"
+lua_file: "lua-{{ lua_version }}.tar.gz"
+lua_file_path: "{{ software_files_path }}/{{ lua_file }}"
+lua_file_url: " http://www.lua.org/ftp/{{ lua_file }}"
+
+lua_luarocks_version: "2.4.2"
+lua_luarocks_file: "luarocks-{{ lua_luarocks_version }}.tar.gz"
+lua_luarocks_file_path: "{{ software_files_path }}/{{ lua_luarocks_file }}"
+lua_luarocks_file_url: "http://luarocks.github.io/luarocks/releases/{{ lua_luarocks_file }}"
+
+lua_luajit_version: "2.0.5"
+lua_luajit_file: "LuaJIT-{{ lua_luajit_version }}.tar.gz"
+lua_luajit_file_path: "{{ software_files_path }}/{{ lua_luajit_file }}"
+lua_luajit_file_url: "http://luajit.org/download/{{ lua_luajit_file }}"
+
+lua_install_rocks: []
+ 
+install_luarocks: true
+install_luajit: false

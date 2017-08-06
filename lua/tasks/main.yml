@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- include: install_lua.yml
+- include: install_luarocks.yml
+  when: install_luarocks
+- include: install_luajit.yml
+  when: install_luajit
