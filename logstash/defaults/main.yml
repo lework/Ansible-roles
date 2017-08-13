@@ -1,0 +1,34 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+logstash_version: "5.4.1"
+
+logstash_file: "logstash-{{ logstash_version }}.tar.gz"
+logstash_file_path: "{{ software_files_path }}/{{ logstash_file }}"
+logstash_file_url: "https://artifacts.elastic.co/downloads/logstash/{{ logstash_file }}"
+
+logstash_user: logstash
+logstash_group: logstash
+
+logstash_home_dir: "/usr/local/logstash"
+logstash_log_dir: "/var/log/logstash"
+logstash_pid_dir: "/var/run/logstash"
+logstash_conf_dir: "{{ logstash_home_dir }}/config"
+logstash_data_dir: "{{ logstash_home_dir }}/data"
+logstash_pipeline_dir: "{{ logstash_home_dir }}/pipeline"
+logstash_pipeline_file: "{{ logstash_service_name }}.conf"
+
+logstash_node_name: ""
+logstash_service_name: "logstash"
+logstash_service_start: false
+
+logstash_install_plugins: []
+logstash_config: ""
+
+logstash_heap_ms: "256m"
+logstash_heap_mx: "1g"
+logstash_jvm_options: ""
+logstash_java_home: ""

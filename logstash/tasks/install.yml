@@ -1,0 +1,39 @@
+---
+# author: lework
+
+- name: install | Check if logstash local file is already configured.
+  stat: path={{ logstash_file_path }}
+  connection: local
+  register: logstash_file_result
+
+- name: install | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not logstash_file_result.stat.exists
+
+- name: install | Download logstash file.
+  get_url: url={{ logstash_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not logstash_file_result.stat.exists
+
+- name: install | Create logstash group.
+  group: name={{ logstash_group }}
+
+- name: install | Create logstash user.
+  user: name={{ logstash_user }} group={{ logstash_group }} shell=/sbin/nologin createhome=no
+  
+- name: install | Copy logstash file to agent.
+  unarchive:
+    src: "{{ logstash_file_path }}"
+    dest: "{{ software_install_path }}"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    creates: "{{ software_install_path }}/{{ logstash_file | replace('.tar.gz','') }}"
+
+- name: install | Check if logstash remote soft link is already configured.
+  stat: path={{ logstash_home_dir }}
+  register: logstash_soft_link_result
+
+- name: install | Create logstash dir soft link.
+  file: "src={{ logstash_file | replace('.tar.gz','') }} dest={{ logstash_home_dir }} state=link owner={{ logstash_user }} group={{ logstash_group }}"
+  when: not logstash_soft_link_result.stat.exists

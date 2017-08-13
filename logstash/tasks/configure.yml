@@ -1,0 +1,44 @@
+---
+# author: lework
+
+- name: configure | Create logstash Directory.
+  file: path={{ item }} state=directory owner={{ logstash_user }} group={{ logstash_group }}
+  with_items:
+   - "{{ logstash_pid_dir }}"
+   - "{{ logstash_log_dir }}"
+   - "{{ logstash_pipeline_dir }}"
+   
+- name: configure | Setup logstash config yml file.
+  template:
+    dest: "{{ logstash_conf_dir }}/logstash.yml"
+    mode: 0644
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    src: logstash.yml.j2
+
+- name: configure | Setup logstash conf file.
+  template:
+    dest: "{{ logstash_pipeline_dir }}/{{ logstash_pipeline_file }}"
+    mode: 0644
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    src: logstash.conf.j2
+  when: logstash_config
+   
+- name: configure | Setup logstash jvm options file.
+  template:
+    dest: "{{ logstash_conf_dir }}/jvm.options"
+    mode: 0644
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    src: jvm.options.j2
+   
+- name: configure | Setup logstash init file.
+  template:
+    dest: "/etc/init.d/{{ logstash_service_name }}"
+    mode: 0755
+    src: logstash.init.j2
+    
+- name: configure | Ensure logstash is started and enabled on boot.
+  service: "name={{ logstash_service_name }} state=started enabled=yes"
+  when: logstash_service_start

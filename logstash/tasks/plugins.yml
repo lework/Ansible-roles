@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- name: plugins | Get list of installed plugins.
+  command: >
+    ./bin/logstash-plugin list
+    chdir={{ logstash_home_dir }}
+  register: logstash_plugins_list
+  changed_when: false
+- name: plugins| Install configured plugins.
+  command: >
+    ./bin/logstash-plugin install {{ item }}
+    chdir={{ logstash_home_dir }}
+  with_items: "{{ logstash_install_plugins }}"
+  when: "item not in logstash_plugins_list.stdout"
