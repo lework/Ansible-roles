@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# Init script for grokdebug
+# chkconfig: 2345 80 02
+# description: Starts and stops a single grokdebug instance on this system
+#
+
+
+name=grokdebug
+port={{ grokdebug_port }}
+pidfile="/var/run/$name.pid"
+log=/var/log/$name.log
+
+CMD="cd {{ software_install_path }}/grokdebug-master/; /usr/local/bin/bundle exec /usr/local/bin/unicorn -p $port -c ./unicorn >> $log 2>&1 & echo \$! > $pidfile"
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+start() {
+  # Run the program!
+  echo -n $"Starting grokdebug: "
+
+  daemon --pidfile $pidfile $CMD
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && success || failure
+  echo
+  return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping grokdebug: "
+    killproc -p $pidfile
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && rm -f $LOCKFILE $pidfile
+    return $RETVAL
+}
+
+force_stop() {
+  if status ; then
+    stop
+    status -p $pidfile $name && kill -KILL $(cat "$pidfile")
+  fi
+}
+
+case "$1" in
+  start)
+    status -p $pidfile $name > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      echo "$name is already running"
+      exit $?
+    else
+      start
+      exit $?
+    fi
+    ;;
+  stop) 
+    stop
+    ;;
+  force-stop)
+    force_stop
+    ;;
+  status)
+    status -p $pidfile $name
+    ;;
+  restart)
+    stop && start
+    ;;
+  *)
+    echo "Usage: $SCRIPTNAME {start|stop|force-stop|status|restart}" >&2
+    exit 3
+  ;;
+esac
+
+exit $?

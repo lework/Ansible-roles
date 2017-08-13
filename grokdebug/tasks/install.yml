@@ -1,0 +1,19 @@
+---
+# author: lework
+
+- name: install | Install Bundler.
+  gem: name=bundler state=present user_install=no
+  
+- name: install | Change bundler source.
+  shell: bundle config mirror.https://rubygems.org https://gems.ruby-china.org
+
+- name: install | Install the required gem package.
+  gem: "name={{ item.name }} version={{ item.version }} user_install=no state=present"
+  with_items: "{{ grokdebug_gem_package }}"
+    
+- name: install | Unzip the grokdebug package.
+  unarchive:
+    src: "{{ grokdebug_file_url }}"
+    dest: "{{ software_install_path }}/"
+    creates: "{{ software_install_path }}/grokdebug-master"
+    remote_src: True

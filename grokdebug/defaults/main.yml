@@ -1,0 +1,26 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+grokdebug_file_url: " https://codeload.github.com/nickethier/grokdebug/zip/master"
+
+grokdebug_logstash: 4.1.0
+grokdebug_patterns_url: "https://github.com/logstash-plugins/logstash-patterns-core/archive/v{{ grokdebug_logstash }}.tar.gz"
+
+grokdebug_gem_package:
+ - { name: "cabin", version: "0.5.0"}
+ - { name: "haml", version: "3.1.7"}
+ - { name: "jls-grok", version: "0.10.10"}
+ - { name: "json", version: "1.7.5"}
+ - { name: "kgio", version: "2.8.0"}
+ - { name: "rack", version: "1.4.1"}
+ - { name: "rack-protection", version: "1.2.0"}
+ - { name: "raindrops", version: "0.11.0"}
+ - { name: "shotgun", version: "0.9"}
+ - { name: "tilt", version: "1.3.3"}
+ - { name: "unicorn", version: "4.6.3"}
+ - { name: "sinatra", version: "1.3.3"}
+ 
+grokdebug_port: 8080

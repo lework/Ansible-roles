@@ -1,0 +1,36 @@
+---
+# author: lework
+
+- name: configure | Download the logstash patterns file.
+  unarchive:
+    src: "{{ grokdebug_patterns_url }}"
+    dest: "/tmp/"
+    creates: "/tmp/logstash-patterns-core-master"
+    remote_src: True
+    
+- name: configure | Update the logstash patterns file
+  shell: "rm -f {{ software_install_path }}/grokdebug-master/public/patterns/* && cp -rf /tmp/logstash-patterns-core-{{ grokdebug_logstash }}/patterns/* {{ software_install_path }}/grokdebug-master/public/patterns/"
+  
+- name: configure | Modify the js file URL for index.haml.
+  replace: "dest={{ software_install_path }}/grokdebug-master/views/index.haml regexp='{{ item.r }}' replace='{{ item.s }}'"
+  with_items:
+    - {r: '//ajax\.googleapis\.com/ajax/libs/jqueryui/', s: '//lib.sinaapp.com/js/jquery-ui/'}
+    - {r: '//ajax\.googleapis\.com/ajax/libs/', s: '//lib.sinaapp.com/js/'}
+  
+- name: configure | Modify the js file URL for patterns.haml.
+  replace: dest={{ software_install_path }}/grokdebug-master/views/patterns.haml regexp='//ajax\.googleapis\.com/ajax/libs/' replace='//lib.sinaapp.com/js/'
+
+- name: configure | Modify the js file URL for layout.haml.
+  replace: dest={{ software_install_path }}/grokdebug-master/views/layout.haml regexp='//ajax\.googleapis\.com/ajax/libs/jqueryui/' replace='//lib.sinaapp.com/js/jquery-ui/'
+  
+- name: configure | Modify the js file URL for discover.haml.
+  replace: dest={{ software_install_path }}/grokdebug-master/views/discover.haml regexp='//ajax\.googleapis\.com/ajax/libs/' replace='//lib.sinaapp.com/js/'
+  
+- name: configure | Setup grokdebug init file.
+  template:
+    dest: "/etc/init.d/grokdebug"
+    mode: 0755
+    src: grokdebug.init.j2
+    
+- name: configure | Ensure grokdebug is started and enabled on boot.
+  service: "name=grokdebug state=started enabled=yes"
