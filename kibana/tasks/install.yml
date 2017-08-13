@@ -1,0 +1,39 @@
+---
+# author: lework
+
+- name: install | Check if kibana local file is already configured.
+  stat: path={{ kibana_file_path }}
+  connection: local
+  register: kibana_file_result
+
+- name: install | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not kibana_file_result.stat.exists
+
+- name: install | Download kibana file.
+  get_url: url={{ kibana_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not kibana_file_result.stat.exists
+
+- name: install | Create kibana group.
+  group: name={{ kibana_group }}
+
+- name: install | Create kibana user.
+  user: name={{ kibana_user }} group={{ kibana_group }} shell=/sbin/nologin createhome=no
+  
+- name: install | Copy kibana file to agent.
+  unarchive:
+    src: "{{ kibana_file_path }}"
+    dest: "{{ software_install_path }}"
+    owner: "{{ kibana_user }}"
+    group: "{{ kibana_group }}"
+    creates: "{{ software_install_path }}/{{ kibana_file | replace('.tar.gz','') }}"
+
+- name: install | Check if kibana remote soft link is already configured.
+  stat: path={{ kibana_home_dir }}
+  register: kibana_soft_link_result
+
+- name: install | Create kibana dir soft link.
+  file: "src={{ kibana_file | replace('.tar.gz','') }} dest={{ kibana_home_dir }} state=link owner={{ kibana_user }} group={{ kibana_group }}"
+  when: not kibana_soft_link_result.stat.exists

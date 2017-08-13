@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# Init script for kibana
+# chkconfig: 2345 98 02
+# description: Starts and stops a single kibana instance on this system
+#
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export PATH
+
+name=kibana
+program={{kibana_home_dir}}/bin/kibana
+user={{kibana_user}}
+group={{kibana_group}}
+args="-c {{kibana_conf_dir}}/{{kibana_conf_file}}"
+pidfile="{{kibana_pid_dir}}/$name.pid"
+logdir={{kibana_log_dir}}
+
+CMD="$program $args >> $logdir/kibana.log 2>&1 & echo \$! > $pidfile"
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+start() {
+  # Ensure the log directory is setup correctly.
+  [ ! -d "$logdir" ] && mkdir "$logdir"
+  chown "$user":"$group" "$logdir"
+  chmod 755 "$logdir"
+
+  # Run the program!
+
+  echo -n $"Starting Kibana: "
+  daemon --user $user --pidfile $pidfile $CMD
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && success || failure
+  echo
+  return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping Kibana: "
+    killproc -p $pidfile
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && rm -f $LOCKFILE $pidfile
+    return $RETVAL
+}
+
+force_stop() {
+  if status ; then
+    stop
+    status -p $pidfile $name && kill -KILL $(cat "$pidfile")
+  fi
+}
+
+case "$1" in
+  start)
+    status -p $pidfile $name > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      echo "$name is already running"
+      exit $?
+    else
+      start
+      exit $?
+    fi
+    ;;
+  stop) 
+    stop
+    ;;
+  force-stop)
+    force_stop
+    ;;
+  status)
+    status -p $pidfile $name
+    ;;
+  restart)
+    stop && start
+    ;;
+  *)
+    echo "Usage: $SCRIPTNAME {start|stop|force-stop|status|restart}" >&2
+    exit 3
+  ;;
+esac
+
+exit $?

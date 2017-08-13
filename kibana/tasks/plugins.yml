@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- name: plugins | Get list of installed plugins.
+  command: >
+    ./bin/kibana-plugin list
+    chdir={{ kibana_home_dir }}
+  register: kibana_plugins_list
+  changed_when: false
+- name: plugins| Install configured plugins.
+  command: >
+    ./bin/kibana-plugin install {{ item }}
+    chdir={{ kibana_home_dir }}
+  with_items: "{{ kibana_install_plugins }}"
+  when: "item not in kibana_plugins_list.stdout"
