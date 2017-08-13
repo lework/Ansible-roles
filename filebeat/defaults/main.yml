@@ -1,0 +1,22 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+filebeat_version: "5.4.1"
+
+filebeat_file: "filebeat-{{ filebeat_version }}-linux-x86_64.tar.gz"
+filebeat_file_path: "{{ software_files_path }}/{{ filebeat_file }}"
+filebeat_file_url: "https://artifacts.elastic.co/downloads/beats/filebeat/{{ filebeat_file }}"
+
+filebeat_pid_dir: "/var/run/filebeat"
+filebeat_home_dir: "/usr/local/filebeat"
+filebeat_log_dir: "/var/log/filebeat"
+filebeat_conf_dir: "{{ filebeat_home_dir }}/conf"
+filebeat_data_dir: "{{ filebeat_home_dir }}/data"
+
+filebeat_service_name: "filebeat"
+filebeat_service_start: false
+filebeat_conf_file: "{{ filebeat_service_name }}.yml"
+filebeat_config : ""

@@ -1,0 +1,27 @@
+---
+# author: lework
+
+- name: configure | Create filebeat Directory.
+  file: path={{ item }} state=directory
+  with_items:
+   - "{{ filebeat_pid_dir }}"
+   - "{{ filebeat_log_dir }}"
+   - "{{ filebeat_conf_dir }}"
+   - "{{ filebeat_data_dir }}"
+
+- name: configure | Setup filebeat yml file.
+  template:
+    dest: "{{ filebeat_conf_dir }}/{{ filebeat_conf_file }}"
+    mode: 0644
+    src: filebeat.yml.j2
+  when: filebeat_config
+    
+- name: configure | Setup filebeat init file.
+  template:
+    dest: "/etc/init.d/{{ filebeat_service_name }}"
+    mode: 0755
+    src: filebeat.init.j2
+    
+- name: configure | Ensure filebeat is started and enabled on boot.
+  service: "name={{ filebeat_service_name }} state=started enabled=yes"
+  when: filebeat_service_start and filebeat_config

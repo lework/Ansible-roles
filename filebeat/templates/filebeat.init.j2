@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# filebeat          filebeat shipper
+#
+# chkconfig: 2345 98 02
+# description: Starts and stops a single filebeat instance on this system
+#
+
+### BEGIN INIT INFO
+# Provides:          filebeat
+# Required-Start:    $local_fs $network $syslog
+# Required-Stop:     $local_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Filebeat sends log files to Logstash or directly to Elasticsearch.
+# Description:       filebeat is a shipper part of the Elastic Beats 
+#					 family. Please see: https://www.elastic.co/products/beats
+### END INIT INFO
+
+
+
+PATH=/usr/bin:/sbin:/bin:/usr/sbin
+export PATH
+
+[ -f /etc/sysconfig/filebeat ] && . /etc/sysconfig/filebeat
+
+PIDFILE=${PIDFILE-/var/run/{{ filebeat_service_name }}.pid}
+agent=${BEATS_AGENT-{{ software_install_path }}/filebeat/filebeat}
+args="-c {{ filebeat_conf_dir }}/{{ filebeat_conf_file }} -path.home {{ software_install_path }}/filebeat -path.config {{ filebeat_conf_dir }} -path.data {{filebeat_data_dir }} -path.logs {{ filebeat_log_dir }}"
+test_args="-e -configtest"
+LOCKFILE="/var/lock/subsys/{{ filebeat_service_name }}"
+LOGFILE="{{ filebeat_log_dir }}/{{ filebeat_service_name }}-wrapper.log"
+RETVAL=0
+
+CMD="$agent $args >> $LOGFILE 2>&1 & echo \$! > $PIDFILE"
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+test() {
+    $agent $args $test_args >> $LOGFILE 2>&1
+}
+
+start() {
+    echo -n $"Starting {{ filebeat_service_name }}: "
+    test
+    if [ $? -ne 0 ]; then
+        echo "Exiting: error loading config file:{{ filebeat_conf_dir }}/{{ filebeat_conf_file }}"
+ 	echo
+	exit 1
+    fi
+    daemon --pidfile $PIDFILE $CMD
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && touch $LOCKFILE && success || failure
+    echo
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping {{ filebeat_service_name }}: "
+    killproc -p $PIDFILE
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && rm -f $LOCKFILE $PIDFILE
+    return $RETVAL
+}
+
+restart() {
+    test
+    if [ $? -ne 0 ]; then
+	return 1
+    fi
+    stop
+    start
+}
+
+case "$1" in
+    start)
+        start
+    ;;
+    stop)
+        stop
+    ;;
+    restart)
+        restart
+    ;;
+    condrestart|try-restart)
+        [ -f $LOCKFILE ] && restart || :
+    ;;
+    status)
+        status -p $PIDFILE {{ filebeat_service_name }}
+	RETVAL=$?
+    ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+        exit 1
+esac
+
+exit $RETVAL

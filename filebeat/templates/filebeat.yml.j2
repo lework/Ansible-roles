@@ -1,0 +1,3 @@
+{% if filebeat_config %}
+{{ filebeat_config | replace("'","")}}
+{% endif %}
