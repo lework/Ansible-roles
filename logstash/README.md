@@ -95,8 +95,8 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/logstash
 	  roles:
 	   - { role: logstash }
    
-   #单机多实例
-   - hosts: node1
+	#单机多实例
+	- hosts: node1
 	  vars:
 	  - logstash_config_1: |
 		  'input {
