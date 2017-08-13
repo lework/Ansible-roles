@@ -1,0 +1,72 @@
+---
+# author: lework
+
+- name: configure | Set Maximum map count.
+  sysctl:
+   name: vm.max_map_count
+   value: "{{ es_max_map_count }}"
+   state: present
+   
+- name: configure | Set vm swappiness to 1.
+  sysctl:
+   name: vm.swappiness
+   value: 1
+   state: present
+   
+- name: Disable all swap files.
+  shell: swapoff -a
+  become: yes  
+  
+- name: Change nofile limits.
+  lineinfile: dest=/etc/security/limits.conf line={{ item }}
+  with_items:
+    - "{{ es_user }}  soft  memlock  unlimited"
+    - "{{ es_user }}  hard  memlock  unlimited"
+    - "{{ es_user }} soft nofile {{ es_max_open_files }}"
+    - "{{ es_user }} hard nofile {{ es_max_open_files }}"
+    - "{{ es_user }}  soft  nproc  {{ es_max_processes }}"
+    - "{{ es_user }}  hard  nproc  {{ es_max_processes }}"
+    
+- name: configure | Create es required Directory.
+  file: path={{ item }} state=directory owner={{ es_user }} group={{ es_group }}
+  with_items:
+   - "{{ es_pid_dir }}"
+   - "{{ es_log_dir }}"
+   - "{{ es_data_dir }}"
+   - "{{ es_conf_dir }}"
+   - "{{ es_script_dir }}"
+
+- name: configure | Setup es config yml file.
+  template:
+    dest: "{{ es_conf_dir }}/elasticsearch.yml"
+    mode: 0644
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    src: elasticsearch.yml.j2
+   
+- name: configure | Setup es jvm options file.
+  template:
+    dest: "{{ es_conf_dir }}/jvm.options"
+    mode: 0644
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    src: jvm.options.j2
+
+- name: configure | Setup es log4j2 properties file.
+  template:
+    dest: "{{ es_conf_dir }}/log4j2.properties"
+    mode: 0644
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    src: log4j2.properties.j2
+    
+- name: configure | Copy scripts to elasticsearch.
+  copy: src={{ item }} dest={{ es_script_dir }} owner={{ es_user }} group={{ es_group }}
+  with_fileglob: "{{ es_scripts_fileglob | default('') }}"
+  when: es_scripts_fileglob
+  
+- name: configure | Setup es init file.
+  template:
+    dest: "/etc/init.d/{{ es_service_name }}"
+    mode: 0755
+    src: elasticsearch.init.j2

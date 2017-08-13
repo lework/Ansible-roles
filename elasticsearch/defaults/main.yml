@@ -1,0 +1,54 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+es_version: "5.4.1"
+
+es_file: "elasticsearch-{{ es_version }}.tar.gz"
+es_file_path: "{{ software_files_path }}/{{ es_file }}"
+es_file_url: "https://artifacts.elastic.co/downloads/elasticsearch/{{ es_file }}"
+
+es_user: elasticsearch
+es_group: elasticsearch
+
+es_http_host: "0.0.0.0"
+es_http_port: 9200
+es_transport_port: 9300
+
+es_max_open_files: 165535
+es_max_map_count: 262155
+es_max_processes: 4096
+
+es_service_name: "elasticsearch{% if es_http_port != 9200 %}{{ es_http_port }}{% endif %}"
+es_service_start: false
+
+es_home_dir: "/usr/local/elasticsearch"
+es_pid_dir: "/var/run/elasticsearch"
+es_log_dir: "/{{ es_service_name }}_data/logs"
+es_conf_dir: "/{{ es_service_name }}_data/config"
+es_data_dir: "/{{ es_service_name }}_data/data"
+es_script_dir: "/{{ es_service_name }}_data/scripts"
+
+es_cluster_name: ""
+es_node_name: ""
+es_node_rack: ""
+
+es_unicast_hosts: ""
+es_minimum_master_nodes: ""
+
+es_scripts_fileglob: ""
+es_install_plugins: []
+es_config: ""
+
+es_heap_ms: "1g"
+es_heap_mx: "1g"
+es_jvm_options: ""
+es_java_home: ""
+es_g1gc: false
+
+es_node_data: false
+es_node_master: false
+es_node_ingest: false
+es_node_client: false

@@ -1,0 +1,24 @@
+---
+# author: lework
+
+- name: plugins | Get list of installed plugins.
+  command: >
+    ./bin/elasticsearch-plugin list
+    chdir={{ es_home_dir }}
+  register: es_plugins_list
+  changed_when: false
+  
+- name: plugins | Install configured plugins.
+  shell: >
+    ./bin/elasticsearch-plugin install {{ item }}
+    chdir={{ es_home_dir }}
+  with_items: "{{ es_install_plugins }}"
+  when: "item not in es_plugins_list.stdout"
+  register: plugin_installed
+  failed_when: "'ERROR' in plugin_installed.stdout"
+  changed_when: plugin_installed.rc == 0
+
+- name: "plugins | Copy the plug-in configuration directory to the {{ es_conf_dir }} directory"
+  shell: "cp -rf {{ es_home_dir }}/config/{{ item }} {{ es_conf_dir }}/{{ item }} && chown -R {{ es_user }}.{{ es_group }} {{ es_conf_dir }}/{{ item }}"
+  ignore_errors: true
+  with_items: "{{ es_install_plugins }}"

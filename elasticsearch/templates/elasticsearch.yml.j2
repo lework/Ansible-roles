@@ -1,0 +1,138 @@
+# ======================== Elasticsearch Configuration =========================
+#
+# NOTE: Elasticsearch comes with reasonable defaults for most settings.
+#       Before you set out to tweak and tune the configuration, make sure you
+#       understand what are you trying to accomplish and the consequences.
+#
+# The primary way of configuring a node is via this file. This template lists
+# the most important settings you may want to configure for a production cluster.
+#
+# Please consult the documentation for further information on configuration options:
+# https://www.elastic.co/guide/en/elasticsearch/reference/index.html
+#
+# ---------------------------------- Cluster -----------------------------------
+#
+# Use a descriptive name for your cluster:
+#
+{% if es_cluster_name %}
+cluster.name: {{ es_cluster_name }}
+{% else %}
+#cluster.name: my-application
+{% endif %}
+#
+# ------------------------------------ Node ------------------------------------
+#
+# Use a descriptive name for the node:
+#
+{% if es_node_name %}
+node.name: {{ es_node_name }}
+{% else %}
+#node.name: node-1
+{% endif %}
+#
+# Add custom attributes to the node:
+#
+{% if es_node_rack %}
+node.attr.rack: {{ es_node_rack }}
+{% else %}
+#node.attr.rack: r1
+{% endif %}
+#
+
+{% if es_node_master %}
+node.master: true
+node.data: {{ (es_node_data | bool) | ternary('true','false') }}
+node.ingest: {{ (es_node_ingest | bool) | ternary('true','false') }}
+{% elif es_node_data %}
+node.master: {{ (es_node_master | bool) | ternary('true','false') }}
+node.data: true
+node.ingest: {{ (es_node_ingest | bool) | ternary('true','false') }}
+{% elif es_node_ingest %}
+node.master: false
+node.data: false
+node.ingest: true
+search.remote.connect: false
+{% endif %}
+{% if es_node_client %}
+node.master: false 
+node.data: false 
+node.ingest: false 
+search.remote.connect: false 
+{% endif %}
+# ----------------------------------- Paths ------------------------------------
+#
+# Path to directory where to store the data (separate multiple locations by comma):
+#
+path.data: {{ es_data_dir }}
+#
+# Path to log files:
+#
+path.logs: {{ es_log_dir }}
+#
+# ----------------------------------- Memory -----------------------------------
+#
+# Lock the memory on startup:
+#
+bootstrap.memory_lock: true
+#
+# Make sure that the heap size is set to about half the memory available
+# on the system and that the owner of the process is allowed to use this
+# limit.
+#
+# Elasticsearch performs poorly when the system is swapping the memory.
+#
+# ---------------------------------- Network -----------------------------------
+#
+# Set the bind address to a specific IP (IPv4 or IPv6):
+#
+network.host: {{ es_http_host | default('localhost') }}
+#
+# Set a custom port for HTTP:
+#
+http.port: {{ es_http_port | default('9200') }}
+#
+# For more information, consult the network module documentation.
+#
+# --------------------------------- Discovery ----------------------------------
+#
+transport.tcp.port: {{ es_transport_port | default('9300') }}
+# Pass an initial list of hosts to perform discovery when new node is started:
+# The default list of hosts is ["127.0.0.1", "[::1]"]
+#
+{% if es_unicast_hosts %}
+discovery.zen.ping.unicast.hosts: {{ es_unicast_hosts }}
+{% else %}
+#discovery.zen.ping.unicast.hosts: ["host1", "host2"]
+{% endif %}
+#
+# Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
+#
+{% if es_minimum_master_nodes %}
+discovery.zen.minimum_master_nodes: {{ es_minimum_master_nodes }}
+{% else %}
+#discovery.zen.minimum_master_nodes: 3
+{% endif %}
+#
+# For more information, consult the zen discovery module documentation.
+#
+# ---------------------------------- Gateway -----------------------------------
+#
+# Block initial recovery after a full cluster restart until N nodes are started:
+#
+#gateway.recover_after_nodes: 3
+#
+# For more information, consult the gateway module documentation.
+#
+# ---------------------------------- Various -----------------------------------
+#
+# Require explicit names when deleting indices:
+#
+#action.destructive_requires_name: true
+#
+{% if ansible_distribution_major_version == "6" and ansible_distribution == "CentOS" %}
+bootstrap.system_call_filter: false
+{% endif %}
+
+{% if es_config %}
+{{ es_config }}
+{% endif %}

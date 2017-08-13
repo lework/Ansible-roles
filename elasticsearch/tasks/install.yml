@@ -1,0 +1,39 @@
+---
+# author: lework
+
+- name: install | Check if es local file is already configured.
+  stat: path={{ es_file_path }}
+  connection: local
+  register: es_file_result
+
+- name: install | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not es_file_result.stat.exists
+
+- name: install | Download es file.
+  get_url: url={{ es_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not es_file_result.stat.exists
+
+- name: install | Create es group.
+  group: name={{ es_group }}
+
+- name: install | Create es user.
+  user: name={{ es_user }} group={{ es_group }} shell=/sbin/nologin createhome=no
+  
+- name: install | Copy es file to agent.
+  unarchive:
+    src: "{{ es_file_path }}"
+    dest: "{{ software_install_path }}"
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    creates: "{{ software_install_path }}/{{ es_file | replace('.tar.gz','') }}"
+
+- name: install | Check if es remote soft link is already configured.
+  stat: path={{ es_home_dir }}
+  register: es_soft_link_result
+
+- name: install | Create es dir soft link.
+  file: "src={{ es_file | replace('.tar.gz','') }} dest={{ es_home_dir }} state=link owner={{ es_user }} group={{ es_group }}"
+  when: not es_soft_link_result.stat.exists
