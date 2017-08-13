@@ -12,7 +12,7 @@
   when: not nginx_file_result.stat.exists
   
 - name: install | Download nginx file.
-  get_url: url={{ nginx_file_url }} dest={{ software_files_path }}
+  get_url: url={{ nginx_file_url }} dest={{ software_files_path }} validate_certs=no
   connection: local
   when: not nginx_file_result.stat.exists
 
