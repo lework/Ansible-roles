@@ -1,0 +1,55 @@
+---
+# author: lework
+
+- name: Check if ant local file is already configured.
+  stat: path={{ ant_file_path }}
+  connection: local
+  register: ant_file_result
+
+- name: Check if ivy local file is already configured.
+  stat: path={{ ivy_file_path }}
+  connection: local
+  register: ivy_file_result
+  
+- name: Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not ant_file_result.stat.exists
+  
+- name: Download ant file.
+  get_url: url={{ ant_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not ant_file_result.stat.exists
+
+- name: Download ivy file.
+  get_url: url={{ ivy_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not ivy_file_result.stat.exists
+ 
+- name: Copy ant file to agent.
+  unarchive:
+    src: "{{ ant_file_path }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ ant_install_path }}"
+    
+- name: Copy ivy file to agent.
+  copy:
+    src: "{{ ivy_file_path }}"
+    dest: "{{ ant_install_path }}/lib/"
+    
+- name: Create ant dir soft link.
+  file: "src={{ ant_install_path }} dest={{ software_install_path }}/ant state=link"
+
+- name: Set ant environment.
+  lineinfile: path=/etc/profile line={{ item }}
+  with_items:
+    - "export PATH={{ software_install_path }}/ant/bin:$PATH"
+    - "export ANT_HOME={{ software_install_path }}/ant"
+
+- name: Get ant version.
+  shell: "{{ software_install_path }}/ant/bin/ant -version"
+  register: result
+  changed_when: false
+  ignore_errors: True
+
+- debug: var=result.stdout
