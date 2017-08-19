@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- name: rollback | 检查{{ deploy_old_path }}是否存在代码
+  shell: "ls {{ deploy_old_path}} | wc -l"
+  register: rollback_code_result
+  failed_when: rollback_code_result.stdout == 0
+
+- name: rollback | 关闭服务
+  shell: "{{ deploy_service_start_script }} stop"
+  ignore_errors: true
+
+- name: rollback | 等待端口关闭
+  wait_for: port={{ deploy_port }} state=stopped
+
+- name: rollback | 部署上一版代码
+  shell: "cd /tmp/ && rm -rf {{ deploy_file_workpath }}/* && cp -rf {{ deploy_pre_path }}/* {{ deploy_file_workpath }}/ && chown -R {{ deploy_service_user }} {{ deploy_file_workpath }}/"
+
+- name: rollback | 启动服务
+  shell: "{{ deploy_service_start_script }} start"
+  ignore_errors: true
+
+- name: rollback | 等待端口开启
+  wait_for: port={{ deploy_port }}
+
+- include: verify.yml

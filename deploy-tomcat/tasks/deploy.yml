@@ -1,0 +1,27 @@
+---
+# author: lework
+
+- name: deloy | 解压代码至目标服务器
+  unarchive:
+    src: "{{ deploy_file_stats.stdout_lines[0] }}"
+    dest: "{{ deploy_new_path }}"
+
+- name: deloy | 关闭服务
+  shell: "{{ deploy_service_start_script }} stop"
+  ignore_errors: true
+  
+- name: deloy | 等待端口关闭
+  wait_for: port={{ deploy_port }} state=stopped delay=10
+  
+- name: deloy | 移动线上代码
+  shell: "cd /tmp/ && rm -rf {{ deploy_pre_path }}/* && mv {{ deploy_file_workpath }}/* {{ deploy_pre_path }}/"
+  
+- name: deloy | 部署最新代码
+  shell: "cp -rf {{ deploy_new_path }}/* {{ deploy_file_workpath }}/ && chown -R {{ deploy_service_user }} {{ deploy_file_workpath }}/"
+  
+- name: deloy | 启动服务
+  shell: "{{ deploy_service_start_script }} start"
+  ignore_errors: true
+  
+- name: deloy | 等待端口开启
+  wait_for: port={{ deploy_port }} delay=10

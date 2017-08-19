@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: check | 发布文件是否存在
+  shell: "ls {{ deploy_file }}"
+  connection: local
+  register: deploy_file_stats
+  changed_when: false
+  failed_when: deploy_file_stats.stdout_lines[0] == "" or deploy_file == ""
+
+- name: check | 目标应用服务的家目录是否存在
+  stat: path={{ deploy_file_workpath }}
+  register: deploy_service_work_result
+  failed_when: not deploy_service_work_result.stat.exists
+  
+- name: check | 工作目录如果不存在则创建
+  file: path={{ item }} state=directory
+  with_items:
+   - "{{ deploy_new_path }}"
+   - "{{ deploy_pre_path }}"
+   - "{{ deploy_old_path }}"

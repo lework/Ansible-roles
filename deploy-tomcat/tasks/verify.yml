@@ -1,0 +1,12 @@
+---
+# author: lework
+
+- name: verify | 查看http状态.
+  uri: "url=http://{{ ansible_default_ipv4.address }}:{{ deploy_port }}"
+  register: curl_result
+  until: curl_result.status == 200
+  retries: 3
+  delay: 5
+  changed_when: false
+  check_mode: no
+  connection: local

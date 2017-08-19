@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- name: backup | 创建存储备份的文件夹
+  file: path={{ deploy_old_path }}/{{ ansible_date_time.date }}/{{ deploy_file_stats.stdout_lines[0] | splitext | first  | basename }} state=directory
+
+- name: backup | 备份上线的代码
+  shell: "mv {{ deploy_new_path }}/* {{ deploy_old_path }}/{{ ansible_date_time.date }}/{{ deploy_file_stats.stdout_lines[0] | splitext| first | basename }}"
