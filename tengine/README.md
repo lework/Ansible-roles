@@ -16,13 +16,13 @@ Tengine是由淘宝网发起的Web服务器项目。它在Nginx的基础上，�
 
 ansible主机
 
-    ansible: `2.3.1.0`
-    os: `Centos 7.2 X64`
-    python: `2.7.5`
+    ansible: 2.3.1.0
+    os: Centos 7.2 X64
+    python: 2.7.5
 
 ansible管理主机
 
-    os: `Centos 6.7 X64, Centos 7.2 X64`
+    os: Centos 6.7 X64, Centos 7.2 X64
 
 ## 角色变量
    software_files_path: "/opt/software"
