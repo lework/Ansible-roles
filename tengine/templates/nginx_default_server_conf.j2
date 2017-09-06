@@ -1,0 +1,21 @@
+{% if not tengine_upstreams and not tengine_proxys and not tengine_vhosts %}
+    server{
+        listen       80;
+        server_name  localhost;
+        charset utf-8;
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+        {% if tengine_stub_status %}
+	location /status 
+	{
+	    stub_status on;
+	}  
+        {% endif %}
+    }
+{% endif %}

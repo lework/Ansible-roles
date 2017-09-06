@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- name: Configtest tengine.
+  shell: /etc/rc.d/init.d/tengine configtest
+
+- name: Reload tengine - after config check.
+  shell: /etc/rc.d/init.d/tengine reload
+
+- name: Reload tengine.
+  debug: msg="checking config first"
+  changed_when: True
+  notify: 
+   - Configtest tengine.
+   - Reload tengine - after config check.

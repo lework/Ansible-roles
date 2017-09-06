@@ -1,0 +1,120 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+tengine_version: "2.2.0"
+
+tengine_file: "tengine-{{ tengine_version }}.tar.gz"
+tengine_file_path: "{{ software_files_path }}/{{ tengine_file }}"
+tengine_file_url: "http://tengine.taobao.org/download/tengine-{{ tengine_version }}.tar.gz"
+
+tengine_temp_path: "/var/tmp/tengine"
+tengine_conf_path: "{{ software_install_path }}/tengine-{{ tengine_version }}/conf/"
+tengine_conf_file_path: "{{ software_install_path }}/tengine-{{ tengine_version }}/conf/nginx.conf"
+
+tengine_user: 'tengine'
+tengine_group: 'tengine'
+tengine_build_options: ''
+tengine_configure_command: >
+  ./configure 
+  --prefix={{ software_install_path }}/tengine-{{ tengine_version }}
+  --user={{ tengine_user }}
+  --group={{ tengine_group }}
+  --with-poll_module
+  --with-file-aio
+  --with-http_sub_module
+  --with-http_ssl_module
+  --with-http_flv_module
+  --with-http_dav_module
+  --with-http_mp4_module
+  --with-http_stub_status_module
+  --with-http_gunzip_module
+  --with-http_gzip_static_module
+  --with-http_realip_module
+  --with-http_slice_module
+  --with-http_image_filter_module
+  --with-http_auth_request_module
+  --with-http_concat_module
+  --with-http_random_index_module
+  --with-http_secure_link_module
+  --with-http_sysguard_module
+  --with-http_degradation_module
+  --with-http_v2_module
+  --http-client-body-temp-path={{ tengine_temp_path }}/client/
+  --http-proxy-temp-path={{ tengine_temp_path }}/proxy/
+  --http-fastcgi-temp-path={{ tengine_temp_path }}/fcgi/
+  --http-uwsgi-temp-path={{ tengine_temp_path }}/uwsgi
+  --http-scgi-temp-path={{ tengine_temp_path }}/scgi 
+  --with-pcre 
+  {{ tengine_build_options }}
+
+tengine_pidfile: '/var/run/tengine.pid'
+tengine_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
+tengine_worker_connections: "10240"
+tengine_multi_accept: "off"
+tengine_pid_file: "/var/run/tengine.pid"
+
+tengine_logpath: "/var/log/tengine"
+tengine_error_log: "{{ tengine_logpath }}/error.log"
+tengine_access_log: "{{ tengine_logpath }}/access.log"
+tengine_mime_file_path: "mime.types"
+
+tengine_sendfile: "on"
+tengine_tcp_nopush: "on"
+tengine_tcp_nodelay: "off"
+
+tengine_keepalive_timeout: "65"
+tengine_keepalive_requests: "1000"
+
+tengine_client_max_body_size: "64m"
+
+tengine_server_names_hash_bucket_size: "64"
+
+tengine_proxy_cache_path: ""
+
+tengine_extra_conf_options: ""
+# Example extra main options, used within the main tengine's context:
+#   tengine_extra_conf_options: |
+#     env VARIABLE;
+#     include /etc/tengine/main.d/*.conf;
+
+tengine_extra_http_options: ""
+# Example extra http options, printed inside the main server http config:
+#    tengine_extra_http_options: |
+#      proxy_buffering    off;
+#      proxy_set_header   X-Real-IP $remote_addr;
+#      proxy_set_header   X-Scheme $scheme;
+#      proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+#      proxy_set_header   Host $http_host;
+
+tengine_remove_default_vhost: false
+tengine_vhosts: []
+# Example vhost below, showing all available options:
+# - listen: "80 default_server" # default: "80 default_server"
+#   server_name: "example.com" # default: N/A
+#   root: "/var/www/example.com" # default: N/A
+#   index: "index.html index.htm" # default: "index.html index.htm"
+#
+#   # Properties that are only added if defined:
+#   error_page: ""
+#   access_log: ""
+#   error_log: ""
+#   extra_parameters: "" # Can be used to add extra config blocks (multiline).
+
+tengine_upstreams: ''
+# - name: myapp1
+#   strategy: "ip_hash" # "least_conn", etc.
+#   keepalive: 16 # optional
+#   servers: {
+#     "srv1.example.com",
+#     "srv2.example.com weight=3",
+#     "srv3.example.com"
+#   }
+tengine_proxys: false
+tengine_gzip: false
+tengine_stub_status: false
+# - tengine_stub_status: true
+tengine_stream: false
+# - tengine_stream: true

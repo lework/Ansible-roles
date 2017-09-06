@@ -1,0 +1,69 @@
+user  {{ tengine_user }};
+
+error_log  {{ tengine_error_log }};
+pid        {{ tengine_pidfile }};
+
+worker_processes  {{ tengine_worker_processes }};
+
+events {
+    worker_connections  {{ tengine_worker_connections }};
+    multi_accept {{ tengine_multi_accept }};
+}
+{% if tengine_extra_conf_options %}
+{{ tengine_extra_conf_options }}
+{% endif %}
+http {
+    include       {{ tengine_mime_file_path }};
+    default_type  application/octet-stream;
+
+    server_names_hash_bucket_size {{ tengine_server_names_hash_bucket_size }};
+
+    client_max_body_size {{ tengine_client_max_body_size }};
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  {{ tengine_access_log }};
+
+    sendfile        {{ tengine_sendfile }};
+    tcp_nopush      {{ tengine_tcp_nopush }};
+    tcp_nodelay     {{ tengine_tcp_nodelay }};
+
+    keepalive_timeout  {{ tengine_keepalive_timeout }};
+    keepalive_requests {{ tengine_keepalive_requests }};
+{% if tengine_gzip %}
+    gzip on;
+    gzip_min_length  1100;
+    gzip_buffers     4 32k;
+    gzip_http_version 1.0;
+    gzip_comp_level 6;
+    gzip_types text/html text/plain text/css text/javascript application/json application/javascript application/x-javascript application/xml;
+    gzip_vary on;
+{% endif %}
+{% if tengine_proxy_cache_path %}
+    proxy_cache_path {{ tengine_proxy_cache_path }};
+{% endif %}
+{% if tengine_extra_http_options %}
+    {{ tengine_extra_http_options|indent(4, False) }}
+{% endif %}
+{% if tengine_stream %}
+}
+stream {
+{% endif %}
+{% for upstream in tengine_upstreams %}
+    upstream {{ upstream.name }} {
+{% if upstream.strategy is defined %}
+        {{ upstream.strategy }};
+{% endif %}
+{% for server in upstream.servers %}
+        server {{ server }};
+{% endfor %}
+{% if upstream.keepalive is defined %}
+        keepalive {{ upstream.keepalive }};
+{% endif %}
+    }
+{% endfor %}
+{% include 'nginx_default_server_conf.j2' %}
+{% include 'nginx_vhosts_conf.j2' %}
+}

@@ -1,0 +1,28 @@
+---
+# author: lework
+
+- name: configure | Setup nginx.conf.
+  template:
+    dest: "{{ tengine_conf_file_path }}"
+    src: nginx.conf.j2
+    mode: 0644
+    owner: "{{ tengine_user }}"
+    group: "{{ tengine_group }}"
+  notify: Reload tengine.  
+
+- name: configure | Setup tengine.sh file.
+  template:
+    dest: "/etc/rc.d/init.d/tengine"
+    mode: 0755
+    src: tengine.sh.j2
+
+- name: configure | Add tengine services.
+  shell: "chkconfig --add tengine && chkconfig tengine on"
+  
+- name: configure | Ensure tengine is running for centos6.
+  service: "name=tengine state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: configure | Ensure tengine is running for centos7.
+  systemd: "name=tengine state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
