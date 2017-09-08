@@ -4,7 +4,10 @@
 - name: Check if supervisor local file is already configured.
   stat: path={{ supervisor_bin }}
   register: supervisor_bin_result
-
+  
+- name: Install pip.
+  easy_install: name=supervisor
+  
 - name: Install supervisor for pip.
   pip: name=supervisor
   when: not supervisor_bin_result.stat.exists
@@ -12,26 +15,32 @@
 - name: Create supervisor dir.
   file: dest={{ item }} state=directory mode=755
   with_items:
-    - "{{ supervisor_conf }}"
-    - "{{ supervisor_run }}"
-    - "{{ supervisor_log }}/{{ supervisor_name }}"
+    - "{{ supervisor_conf_path }}"
+    - "{{ supervisor_run_path }}"
+    - "{{ supervisor_log_path }}"
     
-- name: "Set supervisor {{ supervisor_name }} config if configured."
+- name: Set supervisor config if configured.
   template:
-    src: supervisor.conf.j2
-    dest: "{{ supervisor_conf }}/{{ supervisor_name }}.conf"
+    src: supervisord.conf.j2
+    dest: "{{ supervisor_conf_path }}/supervisord.conf"
 
-- name: "Set supervisor {{ supervisor_name }} start shell if configured."
-  template:
-    src: supervisor.sh.j2
-    dest: /etc/rc.d/init.d/{{ supervisor_name }}
-    mode: 755
-    
-- name: "Add {{ supervisor_name }} services."
-  shell: "chkconfig --add {{ supervisor_name }}"
- 
-- name: "Add supervisord {{ supervisor_name }} in rc.local."
-  lineinfile: "dest=/etc/rc.local line='/usr/local/bin/supervisord -c {{ supervisor_conf }}/{{ supervisor_name }}.conf'"
+- block: 
+  - name: Set supervisor start scripts if configured or centos6.
+    template:
+      src: supervisor.sh.j2
+      dest: /etc/rc.d/init.d/supervisor
+      mode: 755
 
-- name: "Ensure {{ supervisor_name }} is running."
-  shell: "/usr/local/bin/supervisord -d /tmp/ -c {{ supervisor_conf }}/{{ supervisor_name }}.conf"
+  - name: Ensure supervisor is running for centos6.
+    service: name=openresty state=started enabled=yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+- block: 
+  - name: Set supervisor start scripts if configured or centos7.
+    template:
+      src: supervisor.service.j2
+      dest: /etc/systemd/system/supervisor.service
+   
+  - name: Ensure supervisor is running for centos7.
+    systemd: name=supervisor state=started enabled=yes daemon_reload=yes
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

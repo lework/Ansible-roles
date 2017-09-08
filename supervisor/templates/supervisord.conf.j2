@@ -1,0 +1,43 @@
+; author: lework
+; Configuration for Airflow webserver and scheduler in Supervisor
+[unix_http_server]
+file={{ supervisor_run_path }}/supervisord.sock
+
+[supervisord]
+pidfile={{ supervisor_run_path }}/supervisord.pid
+logfile={{ supervisor_log_path }}/supervisord.log
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix://{{ supervisor_run_path }}/supervisord.sock
+
+{% for p in supervisor_program %}
+[program:{{ p.name }}]
+process_name=%(program_name)s
+command={{ p.command }}
+directory={{ p.directory | d("/tmp") }}
+stopsignal={{ supervisor_stopsignal }}
+stopasgroup={{ p.stopasgroup | d("true") }}
+killasgroup={{ p.killasgroup | d("true") }}
+{% if p.user is defined %}
+user={{ p.user }}
+{% endif %}
+{% if p.env is defined %}
+environment={{ p.env }}
+{% elif supervisor_env != "" %}
+environment={{ supervisor_env }}
+{% endif %}
+startretries={{ p.startretries | d("3") }}
+startsecs={{ p.startsecs | d("5") }}
+stopwaitsecs={{ p.stopwaitsecs | d("10") }}
+autostart={{ p.autostart | d("true") }}
+autorestart={{ p.autorestart | d("true") }}
+stdout_logfile_maxbytes={{ p.stdout_logfile_maxbytes | d("50MB") }}
+stdout_logfile_backups={{ p.stdout_logfile_backups | d("10") }}
+stderr_logfile_maxbytes={{ p.stderr_logfile_maxbytes | d("50MB") }}
+stderr_logfile_backups={{ p.stderr_logfile_backups | d("10") }}
+stdout_logfile={{ supervisor_log_path }}/{{ p.name }}-stdout.log
+stderr_logfile={{ supervisor_log_path }}/{{ p.name }}-stderr.log
+{% endfor %}

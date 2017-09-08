@@ -1,13 +1,14 @@
 ---
 # author: lework
 
-supervisor_conf: "/etc/supervisor/conf"
-supervisor_run: "/var/run/supervisor"
-supervisor_log: "/var/log/supervisor"
-supervisor_env: ""
-supervisor_program: []
-supervisor_name: ""
-supervisor_bin: "/usr/local/bin/supervisorctl"
+supervisor_conf_path: "/etc/supervisor"
+supervisor_run_path: "/var/run/supervisor"
+supervisor_log_path: "/var/log/supervisor"
 
+supervisor_bin: "/usr/bin/supervisorctl"
+
+supervisor_env: ""
 supervisor_stopsignal: "TERM"
-ansible_python_interpreter: /usr/bin/python2.6
+supervisor_program: []
+# [{ name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }]
+

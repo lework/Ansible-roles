@@ -25,21 +25,22 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	supervisor_conf: "/etc/supervisor/conf"
-	supervisor_run: "/var/run/supervisor"
-	supervisor_log: "/var/log/supervisor"
-	supervisor_env: ""
-	supervisor_program: []
-	supervisor_name: ""
-	supervisor_bin: "/usr/local/bin/supervisorctl"
-    
-	supervisor_stopsignal: "TERM"
-	ansible_python_interpreter: /usr/bin/python2.6
+	supervisor_conf_path: "/etc/supervisor"
+    supervisor_run_path: "/var/run/supervisor"
+    supervisor_log_path: "/var/log/supervisor"
+
+    supervisor_bin: "/usr/bin/supervisorctl"
+
+    supervisor_env: ""
+    supervisor_stopsignal: "TERM"
+    supervisor_program: []
+    # [{ name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }]
 	
 
 ## 依赖
 
 python2.7
+pip
 
 ## github地址
 https://github.com/kuailemy123/Ansible-roles/tree/master/supervisor

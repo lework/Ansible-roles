@@ -1,0 +1,16 @@
+# supervisord service for systemd (CentOS 7.0+)
+#
+[Unit]
+Description=Supervisor daemon
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/supervisord -c {{ supervisor_conf_path }}/supervisord.conf
+ExecStop=/usr/bin/supervisorctl -c {{ supervisor_conf_path }}/supervisord.conf shutdown
+ExecReload=/usr/bin/supervisorctl -c {{supervisor_conf_path }}/supervisord.conf reload
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
