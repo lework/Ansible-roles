@@ -35,6 +35,7 @@
    - ncurses-devel
    - make
    - cmake
+   - autoconf
 
 - name: install | Create mysql group.
   group: name=mysql state=present

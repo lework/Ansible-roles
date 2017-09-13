@@ -47,7 +47,7 @@ python `2.6.6`
 	  -DMYSQL_UNIX_ADDR={{ mysql_sock }}
 	  -DDEFAULT_CHARSET=utf8mb4
 	  -DDEFAULT_COLLATION=utf8mb4_unicode_ci
-	  -DWITH_EXTRA_CHARSETS:STRING=utf8mb4,gbk
+	  -DWITH_EXTRA_CHARSETS:STRING=all
 	  -DWITH_MYISAM_STORAGE_ENGINE=1
 	  -DWITH_INNOBASE_STORAGE_ENGINE=1
 	  -DWITH_MEMORY_STORAGE_ENGINE=1
@@ -66,13 +66,11 @@ python `2.6.6`
 	mysql_auto_increment_offset: ''
 
 	mysql_binlog_format: "STATEMENT"
-
-	ansible_python_interpreter: /usr/bin/python2.6
 	
 
 ## 依赖
 
-gcc
+gcc cmake
 
 ## github地址
 https://github.com/kuailemy123/Ansible-roles/tree/master/mysql
