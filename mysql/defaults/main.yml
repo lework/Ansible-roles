@@ -47,5 +47,3 @@ mysql_replication_role: ''
 mysql_auto_increment_offset: ''
 
 mysql_binlog_format: "STATEMENT"
-
-ansible_python_interpreter: /usr/bin/python2.6
