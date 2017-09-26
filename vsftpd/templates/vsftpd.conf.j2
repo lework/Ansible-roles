@@ -3,7 +3,6 @@ listen_port={{ vsftpd_listen_port }}
 ftp_data_port={{ vsftpd_data_port }}
 connect_from_port_20=YES
 use_localtime=YES
-write_enable=YES
 dirmessage_enable=YES
 xferlog_enable=YES
 xferlog_std_format=YES
@@ -16,6 +15,7 @@ local_umask={{ vsftpd_local_umask | default('022')}}
 {% if not vsftpd_vusers %}
 pam_service_name=vsftpd
 {% endif %}
+write_enable=YES
 userlist_enable=YES
 tcp_wrappers=YES
 
@@ -29,8 +29,8 @@ local_enable=NO
 anonymous_enable=YES
 no_anon_password=YES
 anon_root={{ vsftpd_share_path | default('ftp_share') }}
-anon_world_readable_only=NO
 anon_upload_enable=YES
+anon_world_readable_only=NO
 anon_other_write_enable=YES
 anon_mkdir_write_enable=YES
 anon_umask=022
@@ -38,14 +38,18 @@ anon_umask=022
 anonymous_enable=NO
 local_enable=YES
 chroot_local_user=YES
+allow_writeable_chroot=YES
 {% elif vsftpd_vusers %}
+guest_username=ftp
 anonymous_enable=NO
 local_enable=YES
 guest_enable=YES
-guest_username=ftp
+virtual_use_local_privs=YES
+allow_writeable_chroot=YES
+chroot_local_user=YES
+chroot_list_enable=NO
 pam_service_name=vsftpd.vu
 local_root={{ vsftpd_share_path }}
-virtual_use_local_privs=YES
 user_config_dir={{ vsftpd_userconf }}
 {% endif %}
 

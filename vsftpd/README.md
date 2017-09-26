@@ -14,7 +14,7 @@ vsftpd 是“very secure FTP daemon”的缩写，安全性是它的一个最大
 ## 测试环境
 
 ansible `2.3.0.0`
-os `Centos 6.7 X64`
+os `Centos 6.7 X64`  `Centos 7.2 X64`
 python `2.6.6`
 
 ## 角色变量

@@ -5,7 +5,11 @@
   selinux: state=disabled
 
 - name: configure | Create share directories.
-  file: path={{ vsftpd_share_path }} mode=0755 state=directory
+  file: path={{ vsftpd_share_path }} state=directory
+  when: not vsftpd_local_users and not vsftpd_vusers
+
+- name: configure | Create share upload directories.
+  file: path={{ vsftpd_share_path }}/uploads mode=0755 owner=ftp group=ftp state=directory
   when: not vsftpd_local_users and not vsftpd_vusers
   
 - name: configure | Create ftp local users.
