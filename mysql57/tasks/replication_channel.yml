@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: replication_channel | Check slave replication status.
+  mysql_replication: mode=getslave config_file={{ mysql57_cnf }}
+  ignore_errors: true
+  register: slave
+
+- name: replication_channel | Configure replication(gtid) on the slave.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"change master to master_host='{{ item.master_host }}', master_user='{{ item.master_user }}', master_port={{ item.master_port }}, master_password='{{ item.master_password }}', master_auto_position=1 for channel 'master-{{ item.master_port }}';\""
+  with_items: "{{ mysql57_replication_channel }}"
+  when: >
+    ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
+
+- name: replication_channel | Start replication.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"start slave for channel 'master-{{ item.master_port }}'\\G;\""
+  with_items: "{{ mysql57_replication_channel }}"
+  when: >
+    ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
+
+- name: replication_channel | Check replication status.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"show slave status for channel 'master-{{ item.master_port }}'\\G;\" | grep 'Errno: 0';"
+  with_items: "{{ mysql57_replication_channel }}"
+  changed_when: false
+  any_errors_fatal: true

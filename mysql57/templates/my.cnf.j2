@@ -1,0 +1,202 @@
+[client]
+user        = {{ mysql57_user }}
+{% if mysql57_replication_role %}
+password    = {{ mysql57_password }}
+{% endif %}
+port            = {{ mysql57_port }}
+socket          = {{ mysql57_sock }}
+default-character-set = utf8mb4
+
+[mysqld]
+user            = {{ mysql57_user }}
+port            = {{ mysql57_port }}
+socket          = {{ mysql57_sock }}
+basedir         = {{ mysql57_basedir }}
+datadir         = {{ mysql57_datadir }}
+
+######server####################
+server-id = {{ ansible_date_time.epoch | int | random }}
+log_timestamps = SYSTEM
+back_log = 600
+max_connections = 2000
+max_connect_errors = 3000
+default-storage-engine = InnoDB
+pid-file = {{ mysql57_portdir }}/mysqld.pid
+sql_mode = NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+table_open_cache = 2048
+external-locking = FALSE
+max_allowed_packet = 24M
+ft_min_word_len = 4
+thread_stack = 192K
+key_buffer_size = 32M
+bulk_insert_buffer_size = 64M
+skip-name-resolve = 1
+lower_case_table_names = 1
+auto_increment_increment = {{ mysql57_auto_increment_increment }}
+auto_increment_offset = {{ mysql57_auto_increment_offset }}
+{% if not mysql57_replication_ga %}
+transaction_isolation = REPEATABLE-READ
+{% else %}
+transaction_isolation = READ-COMMITTED
+{% endif %}
+#event_scheduler = ON
+#read_only = 1
+
+######character####################
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+init_connect = 'SET NAMES utf8mb4'
+
+#####Order By/Group By##########
+tmp_table_size = 128M
+read_buffer_size = 2M
+read_rnd_buffer_size = 16M
+sort_buffer_size = 8M
+join_buffer_size = 8M
+thread_cache_size = 100
+max_heap_table_size = 128M
+
+######select####################
+query_cache_type = 1
+query_cache_limit = 2M
+query_cache_size = 512M
+query_cache_min_res_unit=1024
+
+######myisam####################
+myisam_sort_buffer_size = 128M
+myisam_max_sort_file_size = 10G
+myisam_repair_threads = 1
+
+######innodb####################
+innodb_buffer_pool_size = {{ mysql57_innodb_buffer_pool_size }}
+#innodb_data_file_path = ibdata1:10M:autoextend
+innodb_write_io_threads = 8
+innodb_read_io_threads = 8
+#innodb_thread_concurrency = 16
+innodb_max_dirty_pages_pct = 90
+#innodb_lock_wait_timeout = 120
+innodb_file_per_table = 1
+innodb_open_files = 10240
+table_open_cache = 10240
+
+######innodb log################
+innodb_log_buffer_size = 16M
+innodb_log_file_size = 256M
+innodb_log_files_in_group = 8
+innodb_autoextend_increment = 128
+innodb_flush_log_at_trx_commit = 2
+
+######slow log##################
+slow-query-log = on
+slow_query_log_file = {{ mysql57_portdir }}/mysql-slow.log
+long_query_time = 2
+
+######gtid#####################
+{% if mysql57_replication_mode == 'gtid' %}
+gtid_mode = on
+enforce_gtid_consistency = 1
+{% else %}
+#gtid_mode = on
+#enforce_gtid_consistency = 1
+{% endif %}
+
+######repl#####################
+{% if mysql57_replication_channel %}
+sync_binlog = 1
+{% else %}
+#sync_binlog = 1
+{% endif %}
+binlog_format = {{ mysql57_binlog_format }}
+{% if not mysql57_replication_ga %}
+#
+{%- endif -%}
+binlog_checksum = NONE
+binlog-ignore-db = sys
+binlog-ignore-db = mysql
+binlog-ignore-db = information_schema
+binlog-ignore-db = performance_schema
+binlog_cache_size = 10M
+max_binlog_size = 900M
+max_binlog_cache_size = 50M
+max_relay_log_size = 900M
+log_slave_updates = 1
+skip_slave_start = 1
+replicate-ignore-db = sys
+replicate-ignore-db = mysql
+replicate-ignore-db = information_schema
+replicate-ignore-db = performance_schema
+log-bin = {{ mysql57_portdir }}/mysql-bin
+{% if mysql57_replication_role == 'slave' or mysql57_replication_ga %}
+relay-log = {{ mysql57_portdir }}/relay-bin
+{% else %}
+#relay-log = {{ mysql57_portdir }}/relay-bin
+{% endif %}
+{% if mysql57_replication_channel %}
+slave-skip-errors = 1050,1051
+slave-parallel-type = LOGICAL_CLOCK
+slave-parallel-workers = 4
+master_info_repository = TABLE
+relay_log_info_repository = TABLE
+relay_log_recovery = 1
+{% else %}
+#slave-skip-errors = 1032,1062,1050,1051
+#slave-parallel-type = LOGICAL_CLOCK
+#slave-parallel-workers = 4
+#relay_log_recovery = 1
+{% if mysql57_replication_ga %}
+master_info_repository = TABLE
+relay_log_info_repository = TABLE
+{% else %}
+#master_info_repository = TABLE
+#relay_log_info_repository = TABLE
+{%endif%}
+{% endif %}
+expire_logs_days = 10
+
+######gtid#####################
+{% if mysql57_replication_ga %}
+transaction_write_set_extraction = XXHASH64 
+loose-group_replication_group_name = {{ mysql57_group_replication_group_name }}
+loose-group_replication_start_on_boot = {{ mysql57_group_replication_start_on_boot }}
+loose-group_replication_local_address = "{{ mysql57_group_recation_local_address }}"
+loose-group_replication_group_seeds = "{{ mysql57_group_replication_group_seeds }}"    
+loose-group_replication_ip_whitelist = "127.0.0.1/8,{{ ansible_default_ipv4.network }}/24"
+loose-group_replication_bootstrap_group = off
+{% if not mysql57_replication_ga_single %}
+loose-group_replication_single_primary_mode = off
+loose-group_replication_enforce_update_everywhere_checks = on
+{% endif %}
+{% else %}
+#transaction_write_set_extraction = XXHASH64 
+#loose-group_replication_group_name = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+#loose-group_replication_start_on_boot = off
+#loose-group_replication_local_address = "127.0.0.1:24901" 
+#loose-group_replication_group_seeds = "127.0.0.1:24901,127.0.0.1:24902,127.0.0.1:24903"    
+#loose-group_replication_bootstrap_group = off
+#loose-group_replication_single_primary_mode = off
+#loose-group_replication_enforce_update_everywhere_checks = on
+{% endif %}
+
+
+[mysqldump]
+quick
+max_allowed_packet = 24M
+
+[mysql]
+no-auto-rehash
+default-character-set = utf8mb4
+
+[myisamchk]
+key_buffer_size = 512M
+sort_buffer_size = 512M
+read_buffer = 8M
+write_buffer = 8M
+
+[mysqlhotcopy]
+interactive-timeout
+
+[mysqld_safe]
+open-files-limit = 8192
+log-error = {{ mysql57_portdir }}/mysql_{{ mysql57_port }}_error.log
+pid-file = {{ mysql57_portdir }}/mysqld.pid

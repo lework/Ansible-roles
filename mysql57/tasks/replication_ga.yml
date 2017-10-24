@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: replication_ga | Change hostname.
+  hostname: "name={{ ipnames.get(ansible_default_ipv4.address)}}"
+  when: ipnames is defined 
+
+- name: replication_ga | Add hostname and ip to /etc/hosts.
+  lineinfile: "dest=/etc/hosts line='{{ item.key }} {{ item.value }}'"
+  with_dict: "{{ ipnames }}"
+  when: ipnames is defined 
+
+- name: replication_ga | Configure replication(gtid) on the slave.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"change master to master_user='{{ mysql57_replication_user.name }}', master_password='{{ mysql57_replication_user.password }}' for channel 'group_replication_recovery';\""
+
+- name: replication_ga | Install plugin group_replication.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"install plugin group_replication soname 'group_replication.so';\""
+
+- name: replication_ga | Start group_replication.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"set global group_replication_bootstrap_group=on;start group_replication;set global group_replication_bootstrap_group=off;\""
+  when: mysql57_replication_ga_first
+
+- name: replication_ga | Start group_replication and join group.
+  shell: "{{ mysql57_basedir }}/bin/mysql -P{{ mysql57_port }} -S{{ mysql57_sock }} -e \"set global group_replication_allow_local_disjoint_gtids_join=on;start group_replication;\""
+  when: not mysql57_replication_ga_first

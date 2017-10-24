@@ -1,0 +1,28 @@
+---
+# author: lework
+
+- name: Configure | Create Mysql Directory.
+  file: path={{ item }} state=directory owner=mysql group=mysql
+  with_items:
+    - "{{ mysql57_portdir }}"
+    - "{{ mysql57_datadir }}"
+    
+- name: Configure | Create Mysql log file.
+  file: path={{ mysql57_portdir }}/mysql_{{ mysql57_port }}_error.log state=touch owner=mysql group=mysql
+
+- name: Configure | Initialize character set utf8mb4.
+  template: src=Index.xml.j2 dest=/usr/share/mysql/charsets/Index.xml backup=yes
+
+- name: Configure | Create Mysql configuration file.
+  template: src=my.cnf.j2 dest={{ mysql57_cnf }} owner=mysql group=mysql
+
+- name: Configure | Mysql initialize db.
+  shell: "{{ mysql57_basedir }}/bin/mysqld --user=mysql --basedir={{ mysql57_basedir }} --datadir={{ mysql57_datadir }} --initialize-insecure" 
+  args:
+   creates: "{{ mysql57_datadir }}/ibdata1"
+
+- name: Configure | Mysql Directory owner.
+  file: path={{ mysql57_portdir }} recurse=yes owner=mysql group=mysql
+
+- name: Configure | Create Mysql start shell.
+  template: src=mysql.sh.j2 dest=/etc/rc.d/init.d/{{ mysql57_servicename }} mode=755

@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- set_fact: mysql57_file_path={{ software_files_path }}/{{ mysql57_bin_file }}
+  when: not mysql57_install_from_source
+ 
+- include: install.yml
+- include: configure.yml
+- include: service.yml
+- include: replication.yml
+  when: mysql57_replication_role != '' and mysql57_replication_channel == {}
+- include: replication_channel.yml
+  when: mysql57_replication_channel and mysql57_replication_role == 'slave'
+- include: replication_ga.yml
+  when: mysql57_replication_ga and mysql57_replication_mode == 'gtid'

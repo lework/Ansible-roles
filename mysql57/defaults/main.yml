@@ -1,0 +1,70 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+mysql57_version: "5.7.20"
+
+mysql57_file: "mysql-boost-{{ mysql57_version }}.tar.gz"
+mysql57_bin_file: "mysql-boost-{{ mysql57_version }}-bin.tar.gz"
+mysql57_file_path: "{{ software_files_path }}/{{ mysql57_file }}"
+mysql57_file_url: "https://cdn.mysql.com/Downloads/MySQL-5.7/{{ mysql57_file }}"
+mysql57_dirname: "mysql-{{ mysql57_version }}"
+
+mysql57_port: "3306"
+mysql57_user: "root"
+mysql57_password: "123456"
+mysql57_datahome: "/mysql_data"
+mysql57_basedir: "{{ software_install_path }}/mysql-{{ mysql57_version }}"
+mysql57_portdir: "{{ mysql57_datahome }}/{{ mysql57_port }}"
+mysql57_datadir: "{{ mysql57_portdir }}/data"
+mysql57_cnf : "{{ mysql57_portdir }}/my.cnf"
+mysql57_sock : "{{ mysql57_portdir }}/mysql.sock"
+mysql57_servicename : "mysql{{ mysql57_port }}"
+
+mysql57_install_from_source: false
+mysql57_source_configure_command: >
+  /usr/bin/cmake -DCMAKE_INSTALL_PREFIX={{ mysql57_basedir }}
+  -DMYSQL_DATADIR={{ mysql57_datadir }}
+  -DSYSCONFDIR={{ mysql57_portdir }}
+  -DMYSQL_USER=mysql
+  -DMYSQL_TCP_PORT={{ mysql57_port }}
+  -DWITH_MYISAM_STORAGE_ENGINE=1
+  -DWITH_INNOBASE_STORAGE_ENGINE=1
+  -DWITH_ARCHIVE_STORAGE_ENGINE=1
+  -DWITH_MEMORY_STORAGE_ENGINE=1
+  -DWITH_PARTITION_STORAGE_ENGINE=1
+  -DWITH_INNODB_MEMCACHED=1
+  -DMYSQL_UNIX_ADDR={{ mysql57_sock }}
+  -DWITH_SSL=system
+  -DWITH_ZLIB=system
+  -DENABLED_LOCAL_INFILE=1
+  -DENABLE_DOWNLOADS=1
+  -DWITH_READLINE=1
+  -DENABLED_LOCAL_INFILE=1
+  -DEXTRA_CHARSETS=all
+  -DDEFAULT_CHARSET=utf8mb4
+  -DDEFAULT_COLLATION=utf8mb4_general_ci
+  -DWITH_BOOST=boost
+
+mysql57_innodb_buffer_pool_size: "512M"
+mysql57_replication_user: {name: 'rep', password: '123456'}
+mysql57_replication_master: "127.0.0.1"
+mysql57_replication_master_port: "3306"
+mysql57_replication_role: ""
+mysql57_auto_increment_offset: "1"
+mysql57_auto_increment_increment: "1"
+
+mysql57_replication_mode: "gtid"
+mysql57_binlog_format: "ROW"
+
+mysql57_replication_channel: {}
+
+mysql57_replication_ga: false
+mysql57_replication_ga_first: false
+mysql57_replication_ga_single: false
+mysql57_group_replication_start_on_boot: "off"
+mysql57_group_replication_group_name: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+mysql57_group_recation_local_address: "127.0.0.1:24901"
+mysql57_group_replication_group_seeds: "127.0.0.1:24901,127.0.0.1:24902,127.0.0.1:24903"

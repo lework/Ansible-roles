@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: service | Check Mysql running status.
+  stat: path={{ mysql57_sock }}
+  register: mysql_run_result
+
+- block:
+  - name: service | Start Mysql service.
+    systemd: state=started name={{ mysql57_servicename }} enabled=true
+    ignore_errors: true
+    
+  - name: service | Wait for Mysql start.
+    wait_for: port={{ mysql57_port }} delay=10
+
+  - name: service | Configure root remote connection.
+    shell: "{{ mysql57_basedir }}/bin/mysql --no-defaults -u{{ mysql57_user }} -S {{ mysql57_sock }} -e \"delete from mysql.user where User='root';grant all privileges on *.* to root@'%' identified by '{{ mysql57_password }}' with grant option;flush privileges;\""
+  when: not mysql_run_result.stat.exists
