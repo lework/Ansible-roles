@@ -36,6 +36,7 @@
    - make
    - cmake
    - autoconf
+   - libaio-devel
    - redhat-lsb-core
 
 - name: install | Create Mysql group.
