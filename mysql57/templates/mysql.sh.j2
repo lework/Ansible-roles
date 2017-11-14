@@ -172,9 +172,8 @@ case "$mode" in
     ;;
 
   'restart')
-    mysql_stop
-    sleep 3
-    mysql_start
+     $0 stop
+     $0 start
     ;;
 
   'reload'|'force-reload')
