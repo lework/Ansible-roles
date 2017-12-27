@@ -8,8 +8,9 @@
 
 ## 测试环境
 
-ansible `2.2.1.0`
+ansible `2.4.2.0`
 os `Centos 6.7 X64`
+python `2.7.5`
 
 ## 角色变量
 	ssh_keys_host
@@ -27,7 +28,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/ssh-keys
 	  roles:
 	   - ssh-keys
 	
-	实现指定主机免密码登录其他主机
+	实现指定主机(ssh_keys_host)免密码登录其他主机
     - hosts: node1 node2 node3
 	  roles:
 	   - { role: ssh-keys, ssh_keys_host: '192.168.77.129' }

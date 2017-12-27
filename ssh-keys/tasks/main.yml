@@ -6,12 +6,18 @@
   args:
     creates: ~/.ssh/id_rsa
 
-- name: fetch all public ssh keys.
+- name: Fetch all public ssh keys.
   shell: cat ~/.ssh/id_rsa.pub
   register: ssh_keys
   when: ((ssh_keys_host is defined and ansible_default_ipv4.address == ssh_keys_host) or (ssh_keys_host is undefined))
 
-- name: Ensure run host  is in the known_hosts file.
+- name: Make sure the running hostname exists in /etc/hosts.
+  lineinfile: "path=/etc/hosts line='{{ansible_default_ipv4.address}} {{ ansible_hostname }}'"
+  delegate_to: "{{ item }}"
+  with_items:
+   - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
+
+- name: Make sure that the running host exists in ~/.ssh/known_hosts.
   shell: "ssh-keyscan -t rsa {{ ansible_hostname }},{{ansible_default_ipv4.address}} >> ~/.ssh/known_hosts" 
   delegate_to: "{{ item }}"
   with_items:
@@ -27,7 +33,7 @@
    - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
   when: ssh_keys_host is undefined
 
-- name: Deploy keys on all servers.
+- name: "Deploy keys on all servers, but manger host is {{ ssh_keys_host |d('') }}."
   authorized_key: 
     user: "root" 
     key: "{{ ssh_keys.stdout }}" 
