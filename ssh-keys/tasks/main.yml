@@ -25,20 +25,18 @@
 
 - name: Deploy keys on all servers.
   authorized_key: 
-    user: "root" 
-    key: "{{ ssh_keys.stdout }}" 
+    user: "{{ ansible_user_id }}"
+    key: "{{ hostvars[item].ssh_keys.stdout }}"
     state: present
-  delegate_to: "{{ item }}"
   with_items:
    - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
   when: ssh_keys_host is undefined
 
 - name: "Deploy keys on all servers, but manger host is {{ ssh_keys_host |d('') }}."
   authorized_key: 
-    user: "root" 
-    key: "{{ ssh_keys.stdout }}" 
+    user: "{{ ansible_user_id }}"
+    key: "{{ hostvars[item].ssh_keys.stdout }}"
     state: present
-  delegate_to: "{{ item }}"
   with_items:
    - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
   when: ssh_keys_host is defined and ansible_default_ipv4.address == ssh_keys_host
