@@ -28,25 +28,25 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	superset_bin: "/usr/local/bin/superset"
-	superset_user: "superset"
-	superset_db: "superset"
-	superset_app: "superset"
-	superset_username: "admin"
-	superset_firstname: "admin"
-	superset_lastname: "admin"
-	superset_email: "admin@example.com"
-	superset_password: "123456"
-	mysql_host: ""
-	mysql_port: ""
-	mysql_user: ""
-	mysql_password: ""
-	create_db: true
-	superset_port: 8080
+    superset_bin: "/usr/local/bin/superset"
+    superset_user: "superset"
+    superset_db: "superset"
+    superset_app: "superset"
+    superset_username: "admin"
+    superset_firstname: "admin"
+    superset_lastname: "admin"
+    superset_email: "admin@example.com"
+    superset_password: "123456"
+    mysql_host: ""
+    mysql_port: ""
+    mysql_user: ""
+    mysql_password: ""
+    create_db: true
+    superset_port: 8080
 
-	env: "HOME=/home/{{ superset_user }}"
-	ansible_python_interpreter: /usr/bin/python2.6
-	
+    env: "HOME=/home/{{ superset_user }}"
+    ansible_python_interpreter: /usr/bin/python2.6
+    
 
 ## 依赖
 python2.7
@@ -58,21 +58,21 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/superset
 ## Example Playbook
 
     - hosts: node1
-	  vars:
-		superset_home: '/superset'
-		mysql_host: 192.168.77.128
-		mysql_port: 3306
-		mysql_user: root
-		mysql_password: 123456
-		supervisor_name: superset
-		supervisor_program: 
-		  - { name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }
-	  roles:
-	   - { role: python2.7 }
-	   - { role: superset }
-	   - { role: supervisor }
-	   
-	   
+      vars:
+        superset_home: '/superset'
+        mysql_host: 192.168.77.128
+        mysql_port: 3306
+        mysql_user: root
+        mysql_password: 123456
+        supervisor_name: superset
+        supervisor_program: 
+          - { name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }
+      roles:
+       - { role: python2.7 }
+       - { role: superset }
+       - { role: supervisor }
+       
+       
 ## 管理
 
 使用supervisor启动superset

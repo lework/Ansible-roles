@@ -21,41 +21,41 @@ os `Centos 6.7 X64`
 python `2.6.6`
 
 ## 角色变量
-	samba_packages:
-	  - samba-common
-	  - samba
-	  - samba-client
-	  - cifs-utils
-	  - libselinux-python
-	  
-	samba_services:
-	  - smb
-	  - nmb
-	  
-	samba_workgroup: 'WORKGROUP'
-	samba_server_string: 'Fileserver %m'
-	samba_netbios_name: "{{ ansible_hostname | d() }}"
-	samba_log_size: 50000
-	samba_log_file: '/var/log/samba/log'
-	samba_interfaces: []
-	samba_security: 'user'
-	samba_passdb_backend: 'tdbsam'
-	samba_map_to_guest: 'bad user'
-	samba_guest_account: 'nobody'
-	samba_load_printers: false
-	samba_load_homes: false
-	samba_full_audit: true
-	samba_shares_path: '/samba_shares'
-	samba_users: []
-	# samba_users:
-	#  - name: alice
-	#    password: ecila
-	samba_shares: 
-	  - name: default
-		comment: 'default share'
-		guest_ok: yes
-		directory_mode: 777
-		recycle: true
+    samba_packages:
+      - samba-common
+      - samba
+      - samba-client
+      - cifs-utils
+      - libselinux-python
+      
+    samba_services:
+      - smb
+      - nmb
+      
+    samba_workgroup: 'WORKGROUP'
+    samba_server_string: 'Fileserver %m'
+    samba_netbios_name: "{{ ansible_hostname | d() }}"
+    samba_log_size: 50000
+    samba_log_file: '/var/log/samba/log'
+    samba_interfaces: []
+    samba_security: 'user'
+    samba_passdb_backend: 'tdbsam'
+    samba_map_to_guest: 'bad user'
+    samba_guest_account: 'nobody'
+    samba_load_printers: false
+    samba_load_homes: false
+    samba_full_audit: true
+    samba_shares_path: '/samba_shares'
+    samba_users: []
+    # samba_users:
+    #  - name: alice
+    #    password: ecila
+    samba_shares: 
+      - name: default
+        comment: 'default share'
+        guest_ok: yes
+        directory_mode: 777
+        recycle: true
 
 
 ## 依赖
@@ -65,25 +65,25 @@ None
 https://github.com/kuailemy123/Ansible-roles/tree/master/samba
 
 ## Example Playbook
-	# 默认配置，匿名访问/samba_shares目录
-	- hosts: node1
-	  roles:
-	  - role: samba
-	
-	# 定义访问用户和共享目录
-	- hosts: node1
-	  vars:
-	   - samba_users:
-		  - name: alice
-			password: 123
-	   - samba_shares:
-		  - name: customize_share
-			comment: 'customize share'
-			path: /customize_share
-			valid_users: alice
-			owner: alice
-	  roles: 
-	   - samba
+    # 默认配置，匿名访问/samba_shares目录
+    - hosts: node1
+      roles:
+      - role: samba
+    
+    # 定义访问用户和共享目录
+    - hosts: node1
+      vars:
+       - samba_users:
+          - name: alice
+            password: 123
+       - samba_shares:
+          - name: customize_share
+            comment: 'customize share'
+            path: /customize_share
+            valid_users: alice
+            owner: alice
+      roles: 
+       - samba
 
 ## 端口
 

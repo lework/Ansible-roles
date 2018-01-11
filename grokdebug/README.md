@@ -53,7 +53,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/grokdebug
 
     - hosts: node1
       roles:
-		- { role: ruby, ruby_version: 2.1.7, ruby_install_from_source: true}
+        - { role: ruby, ruby_version: 2.1.7, ruby_install_from_source: true}
         - grokdebug
 		
 ## 使用

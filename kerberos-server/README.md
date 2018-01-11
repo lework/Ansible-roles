@@ -22,15 +22,15 @@ Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为�
 - python `2.6.6`
 
 ## 角色变量
-	kerberos_realm_name: EXAMPLE.COM                           # Kerberos realms
-	kerberos_kdc_port: 88                                      # kdc监听的端口
-	kerberos_master_db_pass: 123456                            # kerberos 数据库的密码
-	kerberos_kadmin_pass: 123456                               # kerberos admin用户的密码
-	kerberos_kadmin_user: root                                 # kerberos admin用户名
-	kerberos_users: []										   # 要添加的 kerberos 用户信息
-	# kerberos_users: [{user: 'user1', pass: 'pass1'},]
-	
-	ansible_python_interpreter: /usr/bin/python2.6
+    kerberos_realm_name: EXAMPLE.COM                           # Kerberos realms
+    kerberos_kdc_port: 88                                      # kdc监听的端口
+    kerberos_master_db_pass: 123456                            # kerberos 数据库的密码
+    kerberos_kadmin_pass: 123456                               # kerberos admin用户的密码
+    kerberos_kadmin_user: root                                 # kerberos admin用户名
+    kerberos_users: []                                           # 要添加的 kerberos 用户信息
+    # kerberos_users: [{user: 'user1', pass: 'pass1'},]
+    
+    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 None
@@ -40,16 +40,16 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/kerberos-server
 
 ## Example Playbook
 
-	- hosts: node1
-	  vars:
-	   kerberos_realm_name: "KERBEROSTEST.COM"
-	   kerberos_kadmin_user: "root"
-	   kerberos_kadmin_pass: "foobar"
-	   kerberos_users:
-		 - { user: 'user1', pass: 'pass1'}
-	   
-	  roles:
-	   - kerberos-server
+    - hosts: node1
+      vars:
+        kerberos_realm_name: "KERBEROSTEST.COM"
+        kerberos_kadmin_user: "root"
+        kerberos_kadmin_pass: "foobar"
+        kerberos_users:
+         - { user: 'user1', pass: 'pass1'}
+       
+      roles:
+        - kerberos-server
 
 
 
@@ -58,7 +58,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/kerberos-server
 krb5kdc：`88`
 
 kadmind：`749` `464`
-		
+        
 ## 使用
 
 登录kdc admin server

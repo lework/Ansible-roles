@@ -50,24 +50,24 @@ jdk 1.8
 https://github.com/kuailemy123/Ansible-roles/tree/master/nexus
 
 ## Example Playbook
-	#默认安装nexus
+    #默认安装nexus
     - hosts: node1
       vars:
-      - java_version: "1.8"
+        - java_version: "1.8"
       
       roles:
-      - java
-      - nexus
+        - java
+        - nexus
       
     # 指定端口
     - hosts: node1
       vars:
-      - java_version: "1.8"
-      - nexus_port: 28081
+        - java_version: "1.8"
+        - nexus_port: 28081
       
       roles:
-      - java
-      - nexus
+        - java
+        - nexus
       
 ## 使用
 

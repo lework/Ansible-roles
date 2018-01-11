@@ -49,18 +49,18 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/airflow
 ## Example Playbook
 
     - hosts: node1
-	  vars:
-		airflow_home: '/airflow'
-		mysql_host: 192.168.77.128
-		mysql_port: 3306
-		mysql_user: root
-		mysql_password: 123456
-		supervisor_name: airflow
-		airflow_port: 8081
-		supervisor_program: 
-		  - { name: 'webserver', command: '/usr/local/bin/airflow webserver', user: 'airflow' }
-		  - { name: 'scheduler', command: '/usr/local/bin/airflow scheduler', user: 'airflow' }
-	  roles:
-	   - { role: python2.7 }
-	   - { role: airflow }
-	   - { role: supervisor }
+      vars:
+        airflow_home: '/airflow'
+        mysql_host: 192.168.77.128
+        mysql_port: 3306
+        mysql_user: root
+        mysql_password: 123456
+        supervisor_name: airflow
+        airflow_port: 8081
+        supervisor_program: 
+          - { name: 'webserver', command: '/usr/local/bin/airflow webserver', user: 'airflow' }
+          - { name: 'scheduler', command: '/usr/local/bin/airflow scheduler', user: 'airflow' }
+      roles:
+        - { role: python2.7 }
+        - { role: airflow }
+        - { role: supervisor }

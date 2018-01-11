@@ -13,16 +13,16 @@ os `Centos 6.7 X64`
 python `2.6.6`
 
 ## 角色变量
-	iptables_allowed_tcp_ports: ''
-	iptables_allowed_udp_ports: ''
-	iptables_deny_tcp_ports: ''
-	iptables_deny_udp_ports: ''
-	iptables_forwarded_tcp_ports: ''
-	iptables_forwarded_udp_ports: ''
-	iptables_additional_rules: ''
-	iptables_action: 'insert'
-	iptables_state: 'present'
-	
+    iptables_allowed_tcp_ports: ''
+    iptables_allowed_udp_ports: ''
+    iptables_deny_tcp_ports: ''
+    iptables_deny_udp_ports: ''
+    iptables_forwarded_tcp_ports: ''
+    iptables_forwarded_udp_ports: ''
+    iptables_additional_rules: ''
+    iptables_action: 'insert'
+    iptables_state: 'present'
+    
 ## 依赖
 
 没有
@@ -36,7 +36,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/iptables
     - hosts: server
       roles:
         - { role: iptables, iptables_allowed_tcp_ports: [ "22", "80"]}
-		
+        
     - hosts: server
       roles:
         - { role: iptables, iptables_allowed_tcp_ports: [ "22", "80"], iptables_state: 'absent'}
@@ -44,10 +44,10 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/iptables
     - hosts: server
       roles:
         - { role: iptables, iptables_forwarded_tcp_ports: [{ src: "80", dest: "8080" }, { src: "11", dest: "1111" }]}
-		
+        
     - hosts: server
       roles:
-        - { role: iptables, iptables_additional_rules: "iptables -A INPUT -j DROP", iptables_action: "append"}	
+        - { role: iptables, iptables_additional_rules: "iptables -A INPUT -j DROP", iptables_action: "append"}    
 
 ## 使用
 

@@ -18,48 +18,48 @@ os `Centos 6.7 X64`  `Centos 7.2 X64`
 python `2.6.6`
 
 ## 角色变量
-	vsftpd_packages:
-	  - vsftpd
-	  - libsemanage-python
-	  - libselinux-python
-	  - pam
-	  - db4-utils
-	  
-	vsftpd_listen_port: 21
-	vsftpd_data_port: 20
-	vsftpd_pasv_min_port: 30000
-	vsftpd_pasv_max_port: 31000
+    vsftpd_packages:
+      - vsftpd
+      - libsemanage-python
+      - libselinux-python
+      - pam
+      - db4-utils
+      
+    vsftpd_listen_port: 21
+    vsftpd_data_port: 20
+    vsftpd_pasv_min_port: 30000
+    vsftpd_pasv_max_port: 31000
 
-	vsftpd_local_umask: '022'
-	vsftpd_share_path: '/ftp_share'
-	vsftpd_banner: "Welcome to Ftp Server!"
-	vsftpd_syslog_enable: false
+    vsftpd_local_umask: '022'
+    vsftpd_share_path: '/ftp_share'
+    vsftpd_banner: "Welcome to Ftp Server!"
+    vsftpd_syslog_enable: false
 
-	vsftpd_log_file: '/var/log/vsftpd.log'
-	vsftpd_xferlog_file: '/var/log/xferlog'
+    vsftpd_log_file: '/var/log/vsftpd.log'
+    vsftpd_xferlog_file: '/var/log/xferlog'
 
-	vsftpd_options: ""
-	# vsftpd_options: |
-	#   max_per_ip: 5
-	#   max_clients: 100
-	vsftpd_anon: true
-	vsftpd_local_users: []
-	# vsftpd_users:
-	#  - name: alice
-	#    password: "ecila"
-	#    home: /ftp_alice
+    vsftpd_options: ""
+    # vsftpd_options: |
+    #   max_per_ip: 5
+    #   max_clients: 100
+    vsftpd_anon: true
+    vsftpd_local_users: []
+    # vsftpd_users:
+    #  - name: alice
+    #    password: "ecila"
+    #    home: /ftp_alice
 
-	vsftpd_vusers: []
-	# vsftpd_vusers:
-	#  - name: alice
-	#    password: ecila
-	#    local_root: '/alice_share'
-	#    conf: |
-	#      local_umask=011
+    vsftpd_vusers: []
+    # vsftpd_vusers:
+    #  - name: alice
+    #    password: ecila
+    #    local_root: '/alice_share'
+    #    conf: |
+    #      local_umask=011
 
-	vsftpd_userfile: "/etc/vsftpd/vuser"
-	vsftpd_userdb: "/etc/vsftpd/vuser.db"
-	vsftpd_userconf: "/etc/vsftpd/vuser_conf"
+    vsftpd_userfile: "/etc/vsftpd/vuser"
+    vsftpd_userdb: "/etc/vsftpd/vuser.db"
+    vsftpd_userconf: "/etc/vsftpd/vuser_conf"
 
 
 ## 依赖
@@ -73,7 +73,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/vsftpd
     - hosts: node1
       roles:
         - role: vsftpd
-	
+    
     # 本地用户登录
     - hosts: node1
       vars:
@@ -85,7 +85,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/vsftpd
           password: "123"
       roles:
         - vsftpd
-	   
+       
     # 虚拟用户登录
     - hosts: node1
       vars:

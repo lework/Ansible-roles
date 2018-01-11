@@ -18,35 +18,35 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	rabbitmq_version: "3.6.9"
+    rabbitmq_version: "3.6.9"
 
-	rabbitmq_file: "rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
-	rabbitmq_file_path: "{{ software_files_path }}/{{ rabbitmq_file }}"
-	rabbitmq_file_url: "https://www.rabbitmq.com/releases/rabbitmq-server/v{{ rabbitmq_version }}/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
+    rabbitmq_file: "rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
+    rabbitmq_file_path: "{{ software_files_path }}/{{ rabbitmq_file }}"
+    rabbitmq_file_url: "https://www.rabbitmq.com/releases/rabbitmq-server/v{{ rabbitmq_version }}/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
 
-	rabbitmq_user: rabbitmq
-	rabbitmq_nodename: rabbit
-	rabbitmq_bindip: 0.0.0.0
-	rabbitmq_nodeport: 5672
-	rabbitmq_logdir: /var/log/rabbitmq
-	rabbitmq_mnesiadir: /rabbitmq_data/mnesia
-	rabbitmq_enabled: true
+    rabbitmq_user: rabbitmq
+    rabbitmq_nodename: rabbit
+    rabbitmq_bindip: 0.0.0.0
+    rabbitmq_nodeport: 5672
+    rabbitmq_logdir: /var/log/rabbitmq
+    rabbitmq_mnesiadir: /rabbitmq_data/mnesia
+    rabbitmq_enabled: true
 
-	rabbitmq_plugins: []
-	#rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
+    rabbitmq_plugins: []
+    #rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
 
-	rabbitmq_server_users: []
-	#rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
-	rabbitmq_vhost: "/"
-	rabbitmq_vhost_permission : "'.*' '.*' '.*'"
-	rabbitmq_cluster: false
-	rabbitmq_policy: "all '^.*' '{\"ha-mode\": \"all\"}'"
-	rabbitmq_cluster_ram: false
+    rabbitmq_server_users: []
+    #rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
+    rabbitmq_vhost: "/"
+    rabbitmq_vhost_permission : "'.*' '.*' '.*'"
+    rabbitmq_cluster: false
+    rabbitmq_policy: "all '^.*' '{\"ha-mode\": \"all\"}'"
+    rabbitmq_cluster_ram: false
 
-	ansible_python_interpreter: /usr/bin/python2.6
+    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 
@@ -54,24 +54,24 @@ os `Centos 6.7 X64`
 https://github.com/kuailemy123/Ansible-roles/tree/master/rabbitmq
 
 ## Example Playbook
-	安装rabbitmq
-	- hosts: node1
-	  vars:
-	   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
-	   - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
-	  roles:
-	   - erlang
-	   - rabbitmq
-	   
-	安装rabbitmq集群，采用镜像策略
-	- hosts: node1 node2 node3
-	  vars:
-	   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
-	   - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
-	   - 
-	  roles:
-	   - erlang
-	   - rabbitmq
+    安装rabbitmq
+    - hosts: node1
+      vars:
+       - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
+       - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
+      roles:
+       - erlang
+       - rabbitmq
+       
+    安装rabbitmq集群，采用镜像策略
+    - hosts: node1 node2 node3
+      vars:
+       - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
+       - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
+       - 
+      roles:
+       - erlang
+       - rabbitmq
 
 ## 使用
 

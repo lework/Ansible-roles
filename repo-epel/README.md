@@ -15,12 +15,12 @@ os `Centos 6.7 X64`
 
 角色默认变量都放在 `defaults/main.yml`文件中:
 
-	epel_source_url: "http://mirrors.ustc.edu.cn"
-	epel_repo_url: "{{ epel_source_url }}/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
-	epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
-	epel_repofile_path: "/etc/yum.repos.d/epel.repo"
-	epel_testing_repofile_path: "/etc/yum.repos.d/epel-testing.repo"
-	change_epel: 'True'
+    epel_source_url: "http://mirrors.ustc.edu.cn"
+    epel_repo_url: "{{ epel_source_url }}/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+    epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+    epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+    epel_testing_repofile_path: "/etc/yum.repos.d/epel-testing.repo"
+    change_epel: 'True'
 
 
 ## 依赖
@@ -35,6 +35,6 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/repo-epel
     - hosts: servers
       roles:
         - repo-epel
-	- host： servers
-	  roles:
-	    - {role: repo-epel, epel_source_url: "https://mirrors.tuna.tsinghua.edu.cn" }
+    - host： servers
+      roles:
+        - {role: repo-epel, epel_source_url: "https://mirrors.tuna.tsinghua.edu.cn" }

@@ -121,62 +121,62 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/tengine
 
 ## Example Playbook
 
-	默认安装tengine
-	- hosts: node1
-	  roles:
-	   - tengine
+    默认安装tengine
+    - hosts: node1
+      roles:
+       - tengine
 
-	反向代理
-	- hosts: node1
-	  vars:
-	   - tengine_vhosts:
-			- listen: 80
-			  locations:
-				- name: /
-				  proxy_pass: http://192.168.77.135:8080
-				  proxy_set_headers:
-					Host: $host
-					X-Real-IP: $remote_addr
-					X-Forwarded-For: $proxy_add_x_forwarded_for
-	  roles:
-	   - tengine
+    反向代理
+    - hosts: node1
+      vars:
+       - tengine_vhosts:
+            - listen: 80
+              locations:
+                - name: /
+                  proxy_pass: http://192.168.77.135:8080
+                  proxy_set_headers:
+                    Host: $host
+                    X-Real-IP: $remote_addr
+                    X-Forwarded-For: $proxy_add_x_forwarded_for
+      roles:
+       - tengine
 
-	反向代理缓存,采用扩展选项
-	- hosts: node1
-	  vars:
-	   - tengine_proxy_cache_path: /data/nginx/cache levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=5g
-	   - tengine_vhosts:
-			- listen: 80
-			  extra_parameters: |
-						location / {
-							proxy_pass   http://192.168.77.135:8080;
-							proxy_set_header Host $host;
-							proxy_set_header X-Real-IP $remote_addr;
-							proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-							proxy_cache STATIC;
-							proxy_cache_valid 200 1d;
-							proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;
-						}
-	  roles:
-	   - tengine
+    反向代理缓存,采用扩展选项
+    - hosts: node1
+      vars:
+       - tengine_proxy_cache_path: /data/nginx/cache levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=5g
+       - tengine_vhosts:
+            - listen: 80
+              extra_parameters: |
+                        location / {
+                            proxy_pass   http://192.168.77.135:8080;
+                            proxy_set_header Host $host;
+                            proxy_set_header X-Real-IP $remote_addr;
+                            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                            proxy_cache STATIC;
+                            proxy_cache_valid 200 1d;
+                            proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;
+                        }
+      roles:
+       - tengine
 
-	反向负载均衡
-	- hosts: node1
-	  vars:
-	   - tengine_upstreams:
-		  - name: upstremtest
-			servers:
-			  - 127.0.0.1:8000 weight=3 max_fails=2 fail_timeout=2
-			  - 127.0.0.1:8001
-			  - 127.0.0.1:8002
-			  - 127.0.0.1:8003 backup
-	   - tengine_vhosts:
-			- listen: 80
-			  locations:
-			   - name: /
-				 proxy_pass: http://upstremtest
-	  roles:
-	   - tengine
+    反向负载均衡
+    - hosts: node1
+      vars:
+       - tengine_upstreams:
+          - name: upstremtest
+            servers:
+              - 127.0.0.1:8000 weight=3 max_fails=2 fail_timeout=2
+              - 127.0.0.1:8001
+              - 127.0.0.1:8002
+              - 127.0.0.1:8003 backup
+       - tengine_vhosts:
+            - listen: 80
+              locations:
+               - name: /
+                 proxy_pass: http://upstremtest
+      roles:
+       - tengine
 
 
 ## 使用

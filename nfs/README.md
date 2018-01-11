@@ -19,8 +19,8 @@ os `Centos 6.7 X64`
 python `2.6.6`
 
 ## 角色变量
-	nfs_exports: 
-		- /nfs_data *(rw,all_squash,async)
+    nfs_exports: 
+        - /nfs_data *(rw,all_squash,async)
 
 ## 依赖
 rpcbind
@@ -30,14 +30,14 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/nfs
 
 ## Example Playbook
 
-	- hosts: node1
-	  vars:
-	   - nfs_exports: 
-		   - /nfs_data *(rw,all_squash,async)
-		   - /nfs_data2 *(rw,all_squash,async)
-		   - /nfs_data3 *(rw,all_squash,async)
-	  roles:
-	  - role: nfs
+    - hosts: node1
+      vars:
+        - nfs_exports: 
+           - /nfs_data *(rw,all_squash,async)
+           - /nfs_data2 *(rw,all_squash,async)
+           - /nfs_data3 *(rw,all_squash,async)
+      roles:
+        - role: nfs
 
 ## 端口
 

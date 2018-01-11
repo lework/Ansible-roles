@@ -1,84 +1,84 @@
 # Ansible Role: zabbix-agent
 
-°²×°zabbix¿Í»§¶Ë
+å®‰è£…zabbixå®¢æˆ·ç«¯
 
-## ½éÉÜ
-zabbix£¨ÒôÍ¬ z?bix£©ÊÇÒ»¸ö»ùÓÚWEB½çÃæµÄÌá¹©·Ö²¼Ê½ÏµÍ³¼àÊÓÒÔ¼°ÍøÂç¼àÊÓ¹¦ÄÜµÄÆóÒµ¼¶µÄ¿ªÔ´½â¾ö·½°¸¡£
-zabbix agentĞèÒª°²×°ÔÚ±»¼àÊÓµÄÄ¿±ê·şÎñÆ÷ÉÏ£¬ËüÖ÷ÒªÍê³É¶ÔÓ²¼şĞÅÏ¢»òÓë²Ù×÷ÏµÍ³ÓĞ¹ØµÄÄÚ´æ£¬CPUµÈĞÅÏ¢µÄÊÕ¼¯¡£zabbix agent¿ÉÒÔÔËĞĞÔÚLinux,Solaris,HP-UX,AIX,Free BSD,Open BSD, OS X, Tru64/OSF1, Windows NT4.0, Windows (2000/2003/XP/Vista)µÈÏµÍ³Ö®ÉÏ¡£
+## ä»‹ç»
+zabbixï¼ˆéŸ³åŒ z?bixï¼‰æ˜¯ä¸€ä¸ªåŸºäºWEBç•Œé¢çš„æä¾›åˆ†å¸ƒå¼ç³»ç»Ÿç›‘è§†ä»¥åŠç½‘ç»œç›‘è§†åŠŸèƒ½çš„ä¼ä¸šçº§çš„å¼€æºè§£å†³æ–¹æ¡ˆã€‚
+zabbix agentéœ€è¦å®‰è£…åœ¨è¢«ç›‘è§†çš„ç›®æ ‡æœåŠ¡å™¨ä¸Šï¼Œå®ƒä¸»è¦å®Œæˆå¯¹ç¡¬ä»¶ä¿¡æ¯æˆ–ä¸æ“ä½œç³»ç»Ÿæœ‰å…³çš„å†…å­˜ï¼ŒCPUç­‰ä¿¡æ¯çš„æ”¶é›†ã€‚zabbix agentå¯ä»¥è¿è¡Œåœ¨Linux,Solaris,HP-UX,AIX,Free BSD,Open BSD, OS X, Tru64/OSF1, Windows NT4.0, Windows (2000/2003/XP/Vista)ç­‰ç³»ç»Ÿä¹‹ä¸Šã€‚
 
-¹Ù·½µØÖ·£º https://www.zabbix.com
-¹Ù·½ÎÄµµµØÖ·£ºhttps://www.zabbix.com/documentation/3.2/manual
+å®˜æ–¹åœ°å€ï¼š https://www.zabbix.com
+å®˜æ–¹æ–‡æ¡£åœ°å€ï¼šhttps://www.zabbix.com/documentation/3.2/manual
 
-## ÒªÇó
+## è¦æ±‚
 
-´Ë½ÇÉ«½öÔÚRHEL¼°ÆäÑÜÉú²úÆ·ÉÏÔËĞĞ¡£
+æ­¤è§’è‰²ä»…åœ¨RHELåŠå…¶è¡ç”Ÿäº§å“ä¸Šè¿è¡Œã€‚
 
-## ²âÊÔ»·¾³
+## æµ‹è¯•ç¯å¢ƒ
 
 ansible `2.3.0.0`
 os `Centos 6.7 X64`
 python `2.6.6`
 
-## ½ÇÉ«±äÁ¿
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+## è§’è‰²å˜é‡
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	zabbix_agent_version: "3.2.6"
+    zabbix_agent_version: "3.2.6"
 
-	zabbix_agent_file: "zabbix-{{ zabbix_agent_version }}.tar.gz"
-	zabbix_agent_file_path: "{{ software_files_path }}/{{ zabbix_agent_file }}"
-	zabbix_agent_file_url: "https://jaist.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
+    zabbix_agent_file: "zabbix-{{ zabbix_agent_version }}.tar.gz"
+    zabbix_agent_file_path: "{{ software_files_path }}/{{ zabbix_agent_file }}"
+    zabbix_agent_file_url: "https://jaist.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
 
-	zabbix_agent_repo_url: "http://repo.zabbix.com/zabbix/3.2/rhel/6/x86_64/zabbix-release-3.2-1.el6.noarch.rpm"
-	zabbix_agent_packages:
-	  - "zabbix-agent-{{ zabbix_agent_version }}-1.el6"
+    zabbix_agent_repo_url: "http://repo.zabbix.com/zabbix/3.2/rhel/6/x86_64/zabbix-release-3.2-1.el6.noarch.rpm"
+    zabbix_agent_packages:
+      - "zabbix-agent-{{ zabbix_agent_version }}-1.el6"
 
-	zabbix_agent_user: zabbix
-	zabbix_agent_group: zabbix
+    zabbix_agent_user: zabbix
+    zabbix_agent_group: zabbix
 
-	zabbix_agent_install_from_source: false
+    zabbix_agent_install_from_source: false
 
-	zabbix_agent_source_dir: "/tmp/{{ zabbix_agent_file | replace('.tar.gz','') }}"
-	zabbix_agent_source_configure_command: >
-	  ./configure
-	  --prefix={{ software_install_path }}/zabbix-{{ zabbix_agent_version }}
-	  --enable-agent
+    zabbix_agent_source_dir: "/tmp/{{ zabbix_agent_file | replace('.tar.gz','') }}"
+    zabbix_agent_source_configure_command: >
+      ./configure
+      --prefix={{ software_install_path }}/zabbix-{{ zabbix_agent_version }}
+      --enable-agent
 
-	zabbix_agent_conf_path: "/etc/zabbix" 
-	zabbix_agent_logs_path: "/var/log/zabbix"
+    zabbix_agent_conf_path: "/etc/zabbix" 
+    zabbix_agent_logs_path: "/var/log/zabbix"
 
-	zabbix_agent_hostname: "{{ ansible_hostname | d() }}"
-	zabbix_agent_server_host: "127.0.0.1"
+    zabbix_agent_hostname: "{{ ansible_hostname | d() }}"
+    zabbix_agent_server_host: "127.0.0.1"
 
-## ÒÀÀµ
+## ä¾èµ–
 
 None
 
-## githubµØÖ·
+## githubåœ°å€
 https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-agent
 
 ## Example Playbook
-	---
-	# Ô´Âë°²×°
-	- hosts: node2
-	  roles:
-	   - { role: zabbix-agent, zabbix_agent_install_from_source: true, zabbix_agent_server_host: "192.168.77.130" }
-	   
-	# rpm°ü°²×°
+    ---
+    # æºç å®‰è£…
+    - hosts: node2
+      roles:
+       - { role: zabbix-agent, zabbix_agent_install_from_source: true, zabbix_agent_server_host: "192.168.77.130" }
+       
+    # rpmåŒ…å®‰è£…
     - hosts: node3
-	  roles:
-	   - { role: zabbix-agent, zabbix_agent_server_host: "192.168.77.130" }
+      roles:
+       - { role: zabbix-agent, zabbix_agent_server_host: "192.168.77.130" }
 
 
-## Ê¹ÓÃ
+## ä½¿ç”¨
 
 ```
 ~]# /etc/init.d/zabbix-agent 
 Usage: /etc/init.d/zabbix-agent {start|stop|status|restart|help}
 
-	start		- start zabbix_agentd
-	stop		- stop zabbix_agentd
-	status		- show current status of zabbix_agentd
-	restart		- restart zabbix_agentd if running by sending a SIGHUP or start if not running
-	help		- this screen
+    start        - start zabbix_agentd
+    stop        - stop zabbix_agentd
+    status        - show current status of zabbix_agentd
+    restart        - restart zabbix_agentd if running by sending a SIGHUP or start if not running
+    help        - this screen
 ```

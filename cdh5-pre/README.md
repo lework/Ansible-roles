@@ -42,11 +42,10 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/cdh5-pre
 ## Example Playbook
 
     - hosts: cdh5-all
-	  vars:
-	   - ipnames:
-		  '192.168.77.129': 'master'
-		  '192.168.77.130': 'node1'
-		  '192.168.77.131': 'node2'
-
-	  roles:
-	   - { role: cdh5-pre }
+      vars:
+        - ipnames:
+            '192.168.77.129': 'master'
+            '192.168.77.130': 'node1'
+            '192.168.77.131': 'node2'
+      roles:
+        - { role: cdh5-pre }

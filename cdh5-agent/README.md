@@ -38,11 +38,11 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/cdh5-agent
 
 ## Example Playbook
 
-	- hosts: cdh5-agent
-	  vars:
-	   - cdh5_server_host: '192.168.77.129'
-	  roles:
-	   - { role: cdh5-agent }
+    - hosts: cdh5-agent
+      vars:
+        - cdh5_server_host: '192.168.77.129'
+      roles:
+        - { role: cdh5-agent }
 	   
 ## 使用
 

@@ -25,7 +25,7 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	supervisor_conf_path: "/etc/supervisor"
+    supervisor_conf_path: "/etc/supervisor"
     supervisor_run_path: "/var/run/supervisor"
     supervisor_log_path: "/var/log/supervisor"
 
@@ -35,7 +35,7 @@ os `Centos 6.7 X64`
     supervisor_stopsignal: "TERM"
     supervisor_program: []
     # [{ name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }]
-	
+    
 
 ## 依赖
 
@@ -48,11 +48,11 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/supervisor
 ## Example Playbook
 
     - hosts: node1
-	  vars:
-		supervisor_name: superset
-		supervisor_program: 
-		  - { name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }
-	  roles:
-	   - { role: python2.7 }
-	   - { role: supervisor }
-	
+      vars:
+        supervisor_name: superset
+        supervisor_program: 
+          - { name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }
+      roles:
+       - { role: python2.7 }
+       - { role: supervisor }
+    

@@ -18,47 +18,47 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	redis_version: "3.0.5"
+    redis_version: "3.0.5"
 
-	redis_file: "redis-{{ redis_version }}.tar.gz"
-	redis_file_path: "{{ software_files_path }}/{{ redis_file }}"
-	redis_file_url: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
+    redis_file: "redis-{{ redis_version }}.tar.gz"
+    redis_file_path: "{{ software_files_path }}/{{ redis_file }}"
+    redis_file_url: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
 
-	redis_data_path: "/redis_data"
-	redis_port: 6379
-	redis_daemon: "redis{{ redis_port }}"
-	redis_dir_path: "{{ redis_data_path }}/{{redis_port}}"
+    redis_data_path: "/redis_data"
+    redis_port: 6379
+    redis_daemon: "redis{{ redis_port }}"
+    redis_dir_path: "{{ redis_data_path }}/{{redis_port}}"
 
-	redis_timeout: 0
-	redis_user: redis
+    redis_timeout: 0
+    redis_user: redis
 
-	redis_loglevel: "notice"
-	redis_logfile: "{{ redis_dir_path }}/redis-server.log"
-	redis_pidfile: "{{ redis_dir_path }}/redis.pid"
+    redis_loglevel: "notice"
+    redis_logfile: "{{ redis_dir_path }}/redis-server.log"
+    redis_pidfile: "{{ redis_dir_path }}/redis.pid"
 
-	redis_databases: 16
+    redis_databases: 16
 
-	redis_rdbcompression: "yes"
-	redis_dbfilename: dump.rdb
-	redis_dbdir: "{{ redis_dir_path }}/data"
+    redis_rdbcompression: "yes"
+    redis_dbfilename: dump.rdb
+    redis_dbdir: "{{ redis_dir_path }}/data"
 
-	redis_maxmemory: "1000mb"
+    redis_maxmemory: "1000mb"
 
-	redis_requirepass: ''
-	redis_slave: false
-	redis_cluster: false
-	redis_cluster_replicas: ''
-	redis_masterauth: ''
-	redis_master_host: ''
-	redis_master_port: ''
+    redis_requirepass: ''
+    redis_slave: false
+    redis_cluster: false
+    redis_cluster_replicas: ''
+    redis_masterauth: ''
+    redis_master_host: ''
+    redis_master_port: ''
 
-	redis_sentinel_port: ''
-	redis_sentinel_quorum: '2'
-	redis_sentinel_daemon: "redis-sentinel{{ redis_sentinel_port | default('') }}"
-	
+    redis_sentinel_port: ''
+    redis_sentinel_quorum: '2'
+    redis_sentinel_daemon: "redis-sentinel{{ redis_sentinel_port | default('') }}"
+    
 
 ## 依赖
 
@@ -69,40 +69,40 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
 
 ## Example Playbook
 
-	单实例安装
-	- hosts: node1
+    单实例安装
+    - hosts: node1
       roles:
-	    - { role: redis }
-		
-	主从配置
-	- hosts: node1
-	  vars:
-	   - redis_master_host: '192.168.77.129'
-	   - redis_master_port: '6380'
+        - { role: redis }
+        
+    主从配置
+    - hosts: node1
+      vars:
+       - redis_master_host: '192.168.77.129'
+       - redis_master_port: '6380'
       roles:
-	    - { role: redis, redis_port: 6380}
-		- { role: redis, redis_port: 6381, redis_slave: true}
-		- { role: redis, redis_port: 6382, redis_slave: true}
-		
-	哨兵模式
-	- hosts: node1
-	  vars:
-	   - redis_master_host: '192.168.77.129'
-	   - redis_master_port: '6383'
-	  roles:
-	   - { role: redis, redis_port: 6383, redis_sentinel_port: 26383}
-	   - { role: redis, redis_port: 6384, redis_sentinel_port: 26384, redis_slave: true}
-	   - { role: redis, redis_port: 6385, redis_sentinel_port: 26385, redis_slave: true}
+        - { role: redis, redis_port: 6380}
+        - { role: redis, redis_port: 6381, redis_slave: true}
+        - { role: redis, redis_port: 6382, redis_slave: true}
+        
+    哨兵模式
+    - hosts: node1
+      vars:
+       - redis_master_host: '192.168.77.129'
+       - redis_master_port: '6383'
+      roles:
+       - { role: redis, redis_port: 6383, redis_sentinel_port: 26383}
+       - { role: redis, redis_port: 6384, redis_sentinel_port: 26384, redis_slave: true}
+       - { role: redis, redis_port: 6385, redis_sentinel_port: 26385, redis_slave: true}
 
 
      集群模式
-	 - hosts: node1
-	   vars:
-		- redis_cluster: true
-	   roles:
-	    - { role: redis, redis_port: 6481}
-		- { role: redis, redis_port: 6482}
-		- { role: redis, redis_port: 6483}
-		- { role: redis, redis_port: 6484}
-		- { role: redis, redis_port: 6485}
-		- { role: redis, redis_port: 6486, redis_cluster_replicas: '1 192.168.77.129:6481 192.168.77.129:6482 192.168.77.129:6483 192.168.77.129:6484 192.168.77.129:6485 192.168.77.129:6486'}
+     - hosts: node1
+       vars:
+        - redis_cluster: true
+       roles:
+        - { role: redis, redis_port: 6481}
+        - { role: redis, redis_port: 6482}
+        - { role: redis, redis_port: 6483}
+        - { role: redis, redis_port: 6484}
+        - { role: redis, redis_port: 6485}
+        - { role: redis, redis_port: 6486, redis_cluster_replicas: '1 192.168.77.129:6481 192.168.77.129:6482 192.168.77.129:6483 192.168.77.129:6484 192.168.77.129:6485 192.168.77.129:6486'}

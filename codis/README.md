@@ -100,65 +100,63 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/codis
 
 	部署集群
 	IP		主机名		部署程序
-	192.168.77.129		node1	zookeeper codis-group codis-proxy sentinel codis-dashboard codis-fe codis-ha
-	192.168.77.130		node2	zookeeper codis-group codis-proxy sentinel
-	192.168.77.131	    node3	zookeeper codis-group codis-proxy sentinel
+	192.168.77.129    node1	zookeeper codis-group codis-proxy sentinel codis-dashboard codis-fe codis-ha
+	192.168.77.130    node2	zookeeper codis-group codis-proxy sentinel
+	192.168.77.131    node3	zookeeper codis-group codis-proxy sentinel
 	 
-	- hosts: 192.168.77.129 192.168.77.130 192.168.77.131
-	  vars:
-	   - codis_version: "3.1.5"
-	   - zookeeper_hosts:
-		  - {'host': 192.168.77.129, 'id': 1}
-		  - {'host': 192.168.77.130, 'id': 2}
-		  - {'host': 192.168.77.131, 'id': 3}
+    - hosts: 192.168.77.129 192.168.77.130 192.168.77.131
+      vars:
+        - codis_version: "3.1.5"
+        - zookeeper_hosts:
+          - {'host': 192.168.77.129, 'id': 1}
+          - {'host': 192.168.77.130, 'id': 2}
+          - {'host': 192.168.77.131, 'id': 3}
+      roles:
+        - { role: zookeeper }
+        - { role: codis, codis_server: true, codis_server_port: 6379, codis_server_sentinel_port: 26379}
+        - { role: codis, install: false, codis_server: true, codis_server_port: 6380, codis_server_sentinel_port: 26380 }
+        - { role: codis, install: false, codis_proxy: true }
 
-	  roles:
-	   - { role: zookeeper }
-	   - { role: codis, codis_server: true, codis_server_port: 6379, codis_server_sentinel_port: 26379}
-	   - { role: codis, install: false, codis_server: true, codis_server_port: 6380, codis_server_sentinel_port: 26380 }
-	   - { role: codis, install: false, codis_proxy: true }
-
-	- hosts: 192.168.77.129
-	  vars:
-	   - zookeeper_hosts:
-		  - {'host': 192.168.77.129, 'id': 1}
-		  - {'host': 192.168.77.130, 'id': 2}
-		  - {'host': 192.168.77.131, 'id': 3}
-	   - codis_dashboard_addr: 192.168.77.129:18080
-	   - codis_groups: [1,2,3] 
-	   - codis_group_master_server:
-		  - {'gid': 1, 'addr': '192.168.77.129:6379'}
-		  - {'gid': 2, 'addr': '192.168.77.130:6379'}
-		  - {'gid': 3, 'addr': '192.168.77.131:6379'}
-	   - codis_group_slave_server:
-		  - {'gid': 1, 'addr': '192.168.77.129:6380'}
-		  - {'gid': 2, 'addr': '192.168.77.130:6380'}
-		  - {'gid': 3, 'addr': '192.168.77.131:6380'}
-	   - codis_proxy_addrs:
-		  - 192.168.77.129:11080
-		  - 192.168.77.130:11080
-		  - 192.168.77.131:11080
-	   - codis_server_sentinel_addr:
-		  - 192.168.77.129:26379
-		  - 192.168.77.129:26380
-		  - 192.168.77.130:26379
-		  - 192.168.77.130:26380
-		  - 192.168.77.131:26379
-		  - 192.168.77.131:26380
-	  roles:
-	   - { role: codis, install: false, codis_dashboard: true }
-	   - { role: codis, install: false, codis_fe: true }
-	   - { role: codis, install: false, codis_admin: true }
-	   - { role: codis, install: false, codis_ha: true }
+    - hosts: 192.168.77.129
+      vars:
+        - zookeeper_hosts:
+          - {'host': 192.168.77.129, 'id': 1}
+          - {'host': 192.168.77.130, 'id': 2}
+          - {'host': 192.168.77.131, 'id': 3}
+        - codis_dashboard_addr: 192.168.77.129:18080
+        - codis_groups: [1,2,3] 
+        - codis_group_master_server:
+          - {'gid': 1, 'addr': '192.168.77.129:6379'}
+          - {'gid': 2, 'addr': '192.168.77.130:6379'}
+          - {'gid': 3, 'addr': '192.168.77.131:6379'}
+        - codis_group_slave_server:
+          - {'gid': 1, 'addr': '192.168.77.129:6380'}
+          - {'gid': 2, 'addr': '192.168.77.130:6380'}
+          - {'gid': 3, 'addr': '192.168.77.131:6380'}
+        - codis_proxy_addrs:
+          - 192.168.77.129:11080
+          - 192.168.77.130:11080
+          - 192.168.77.131:11080
+        - codis_server_sentinel_addr:
+          - 192.168.77.129:26379
+          - 192.168.77.129:26380
+          - 192.168.77.130:26379
+          - 192.168.77.130:26380
+          - 192.168.77.131:26379
+          - 192.168.77.131:26380
+      roles:
+        - { role: codis, install: false, codis_dashboard: true }
+        - { role: codis, install: false, codis_fe: true }
+        - { role: codis, install: false, codis_admin: true }
+        - { role: codis, install: false, codis_ha: true }
 	
 	安装sentinel
-
-	- hosts: 192.168.77.129
-	  vars:
-	   - codis_server_master_host: 192.168.77.129
-	   - codis_server_master_port: 6379
-	   - codis_server_sentinel_addr: 
-		  - 192.168.77.129：26381
-	  roles:
-	   - { role: codis, install: false, codis_server_sentinel_port: 26381}
-	   - { role: codis, install: false, codis_admin: true }
+    - hosts: 192.168.77.129
+      vars:
+        - codis_server_master_host: 192.168.77.129
+        - codis_server_master_port: 6379
+        - codis_server_sentinel_addr: 
+          - 192.168.77.129：26381
+      roles:
+        - { role: codis, install: false, codis_server_sentinel_port: 26381}
+        - { role: codis, install: false, codis_admin: true }

@@ -42,6 +42,6 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/erlang
       roles:
         - erlang
 	
-	- hosts: node1
+    - hosts: node1
       roles:
         - { role: erlang, erlang_version: '19.3' }

@@ -19,18 +19,18 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	hadoop_standalone_version: "2.7.3"
+    hadoop_standalone_version: "2.7.3"
 
-	hadoop_standalone_file: "hadoop-{{ hadoop_standalone_version }}.tar.gz"
-	hadoop_standalone_file_path: "{{ software_files_path }}/{{ hadoop_standalone_file }}"
-	hadoop_standalone_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common/hadoop-{{ hadoop_standalone_version }}/{{ hadoop_standalone_file }}"
+    hadoop_standalone_file: "hadoop-{{ hadoop_standalone_version }}.tar.gz"
+    hadoop_standalone_file_path: "{{ software_files_path }}/{{ hadoop_standalone_file }}"
+    hadoop_standalone_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common/hadoop-{{ hadoop_standalone_version }}/{{ hadoop_standalone_file }}"
 
-	hadoop_standalone_user: "hadoop"
+    hadoop_standalone_user: "hadoop"
 
-	hadoop_standalone_home: "{{ software_install_path }}/hadoop-{{ hadoop_standalone_version }}"
+    hadoop_standalone_home: "{{ software_install_path }}/hadoop-{{ hadoop_standalone_version }}"
 
 ## 依赖
 
@@ -41,6 +41,6 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/hadoop-standalone
 
 ## Example Playbook
 
-	- hosts: node1
-	  roles:
-		- { role: hadoop-standalone }
+    - hosts: node1
+      roles:
+        - { role: hadoop-standalone }

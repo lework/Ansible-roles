@@ -13,7 +13,7 @@ os `Centos 6.7 X64`
 python `2.6.6`
 
 ## 角色变量
-	# 发布的代码文件，包含绝对路径，如:/tmp/test.war
+    # 发布的代码文件，包含绝对路径，如:/tmp/test.war
     deploy_file: ""
 
     # tomcat服务的端口
@@ -55,11 +55,11 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/deploy-tomcat
 ## Example Playbook
 
     # 发布代码
-	- hosts: node1
-	  roles:
-	  - role: { role: deploy-tomcat, deploy_port: 8071, deploy_file：/root/tomcat_*_test.war }
+    - hosts: node1
+      roles:
+        - role: { role: deploy-tomcat, deploy_port: 8071, deploy_file：/root/tomcat_*_test.war }
       
     # 回滚代码
-	- hosts: node1
-	  roles:
-	  - role: { role: deploy-tomcat, deploy_rollback: true }
+    - hosts: node1
+      roles:
+        - role: { role: deploy-tomcat, deploy_rollback: true }

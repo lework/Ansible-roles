@@ -18,20 +18,20 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	rsync_user: "rsync"
-	rsync_logdir: "/var/log/rsyncd"
-	rsync_conf: "/etc/rsyncd.conf"
+    rsync_user: "rsync"
+    rsync_logdir: "/var/log/rsyncd"
+    rsync_conf: "/etc/rsyncd.conf"
 
-	rsync_authusers: [] # ["test:123456"]
-	rsync_passfile: "/etc/rsyncd.password"
+    rsync_authusers: [] # ["test:123456"]
+    rsync_passfile: "/etc/rsyncd.password"
 
-	rsync_port: 873
-	rsync_maxconn: 200
-	rsync_timeout: 300
-	rsync_chroot: no
-	rsync_shares: {}
+    rsync_port: 873
+    rsync_maxconn: 200
+    rsync_timeout: 300
+    rsync_chroot: no
+    rsync_shares: {}
 
-	ansible_python_interpreter: /usr/bin/python2.6
+    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 
@@ -41,22 +41,22 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/rsync
 
 ## Example Playbook
 
-	- hosts: node1
-	  roles:
-	  - role: rsync
-		rsync_authusers: ["t1:123456","t2:1234567"]
-		rsync_shares:
-			- name: data1
-			  comment: Public data1
-			  path: /data/1
-			  authuser: t1
-			  passfile: /etc/rsyncd.password
-			  readonly: false
-			  list: false
-			  excludes: ["test.txt","*.h"]
-			- name: data2
-			  comment: Public data2
-			  path: /data/2
+    - hosts: node1
+      roles:
+      - role: rsync
+        rsync_authusers: ["t1:123456","t2:1234567"]
+        rsync_shares:
+            - name: data1
+              comment: Public data1
+              path: /data/1
+              authuser: t1
+              passfile: /etc/rsyncd.password
+              readonly: false
+              list: false
+              excludes: ["test.txt","*.h"]
+            - name: data2
+              comment: Public data2
+              path: /data/2
 
 ## 使用
 启动 rsync --daemon --config=/etc/rsyncd.conf

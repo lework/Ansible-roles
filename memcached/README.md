@@ -18,26 +18,26 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	memcached_version: "1.4.33"
+    memcached_version: "1.4.33"
 
-	memcached_file: "memcached-{{ memcached_version }}.tar.gz"
-	memcached_file_path: "{{ software_files_path }}/{{ memcached_file }}"
-	memcached_file_url: "http://memcached.org/files/memcached-{{ memcached_version }}.tar.gz"
+    memcached_file: "memcached-{{ memcached_version }}.tar.gz"
+    memcached_file_path: "{{ software_files_path }}/{{ memcached_file }}"
+    memcached_file_url: "http://memcached.org/files/memcached-{{ memcached_version }}.tar.gz"
 
-	memcached_listen_ip: 0.0.0.0
-	memcached_daemon: "memcached{{ memcached_port | default('') }}"
+    memcached_listen_ip: 0.0.0.0
+    memcached_daemon: "memcached{{ memcached_port | default('') }}"
 
-	memcached_cachesize: 64
-	memcached_maxconn: 1024
+    memcached_cachesize: 64
+    memcached_maxconn: 1024
 
-	memcached_log_file: /var/log/memcached{{ memcached_port | default('') }}.log
-	memcached_log_verbosity: "-vv"
-	memcached_options: "-l {{ memcached_listen_ip }} {{ memcached_log_verbosity }} 2>> {{ memcached_log_file }}"
-	
-	ansible_python_interpreter: /usr/bin/python2.6
+    memcached_log_file: /var/log/memcached{{ memcached_port | default('') }}.log
+    memcached_log_verbosity: "-vv"
+    memcached_options: "-l {{ memcached_listen_ip }} {{ memcached_log_verbosity }} 2>> {{ memcached_log_file }}"
+    
+    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 
@@ -48,12 +48,12 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/memcached
 
 ## Example Playbook
 
-	安装memcached，默认端口11211
-	- hosts: node1
-	  roles:
-	   - { role: memcached }
+    安装memcached，默认端口11211
+    - hosts: node1
+      roles:
+        - { role: memcached }
 
-	指定端口
-	- hosts: node1
-	  roles:
-	   - { role: memcached, memcached_port: 11222 }
+    指定端口
+    - hosts: node1
+      roles:
+        - { role: memcached, memcached_port: 11222 }

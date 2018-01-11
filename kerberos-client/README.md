@@ -22,18 +22,18 @@ Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为�
 - python `2.6.6`
 
 ## 角色变量
-	kerberos_realm_name: EXAMPLE.COM                           # Kerberos realms
-	kerberos_kdc_hostname: kerberos                    		   # kerberos server 主机名
-	kerberos_kdc_ipaddress: 127.0.0.1                    	   # kerberos server 主机地址
-	kerberos_admin_hostname: "{{ kerberos_kdc_hostname }}"     # kerneros administration server 主机名
-	kerberos_admin_hostname: "{{ kerberos_kdc_ipaddress }}"    # kerneros administration server 主机地址
-	kerberos_dns_lookup_realm: "false"                         # 是否通过dns查询realm
-	kerberos_dns_lookup_kdc: "false"                           # 是否通过dns查询kdc
-	kerberos_ticket_lifetime: "24h"                            # 凭证生效的时限
-	kerberos_renew_lifetime: "7d"                              # 凭证最长可以被延期的时限
-	kerberos_forwardable: "true"                               # 获取凭证
+    kerberos_realm_name: EXAMPLE.COM                           # Kerberos realms
+    kerberos_kdc_hostname: kerberos                               # kerberos server 主机名
+    kerberos_kdc_ipaddress: 127.0.0.1                           # kerberos server 主机地址
+    kerberos_admin_hostname: "{{ kerberos_kdc_hostname }}"     # kerneros administration server 主机名
+    kerberos_admin_hostname: "{{ kerberos_kdc_ipaddress }}"    # kerneros administration server 主机地址
+    kerberos_dns_lookup_realm: "false"                         # 是否通过dns查询realm
+    kerberos_dns_lookup_kdc: "false"                           # 是否通过dns查询kdc
+    kerberos_ticket_lifetime: "24h"                            # 凭证生效的时限
+    kerberos_renew_lifetime: "7d"                              # 凭证最长可以被延期的时限
+    kerberos_forwardable: "true"                               # 获取凭证
 
-	ansible_python_interpreter: /usr/bin/python2.6
+    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 None
@@ -43,15 +43,15 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/kerberos-client
 
 ## Example Playbook
 
-	- hosts: node2
-	  vars:
-		kerberos_realm_name: "KERBEROSTEST.COM"
-		kerberos_kdc_hostname: "node1"
-		kerberos_kdc_ipaddress: "192.168.77.129"
-	  roles:
-	   - kerberos-client
+    - hosts: node2
+      vars:
+        kerberos_realm_name: "KERBEROSTEST.COM"
+        kerberos_kdc_hostname: "node1"
+        kerberos_kdc_ipaddress: "192.168.77.129"
+      roles:
+        - kerberos-client
 
-		
+        
 ## 使用
 
 登录kdc admin Server

@@ -75,14 +75,14 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/cdh5-server
 ## Example Playbook
 
     - hosts: cdh5-server
-	  vars:
-	   - mysql_host: 192.168.77.129
-	   - mysql_user: root
-	   - mysql_password: 123456
-	   - mysql_binlog_format: 'MiXED'
-	  roles: 
-	   - { role: mysql }
-	   - { role: cdh5-server }
+      vars:
+        - mysql_host: 192.168.77.129
+        - mysql_user: root
+        - mysql_password: 123456
+        - mysql_binlog_format: 'MiXED'
+      roles: 
+        - { role: mysql }
+        - { role: cdh5-server }
 
 ## 使用
 

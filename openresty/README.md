@@ -96,10 +96,10 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/openresty
 
 ## Example Playbook
 
-	#默认安装openresty
-	- hosts: node1
-	  roles:
-	   - openresty
+    #默认安装openresty
+    - hosts: node1
+      roles:
+       - openresty
        
     #测试lua脚本
     - hosts: node1
@@ -115,7 +115,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/openresty
       roles:
        - openresty
 
-	#反向代理
+    #反向代理
     - hosts: node1
       vars:
       - openresty_vhosts:
@@ -127,13 +127,13 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/openresty
               Host: $host
               X-Real-IP: $remote_addr
               X-Forwarded-For: $proxy_add_x_forwarded_for
-	  roles:
-	   - openresty
+      roles:
+       - openresty
 
-	#反向代理缓存,采用扩展选项
-	- hosts: node1
-	  vars:
-	  - openresty_proxy_cache_path: /data/openresty/cache levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=5g
+    #反向代理缓存,采用扩展选项
+    - hosts: node1
+      vars:
+      - openresty_proxy_cache_path: /data/openresty/cache levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=5g
       - openresty_vhosts:
         - listen: 80
           extra_parameters: |
@@ -146,41 +146,41 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/openresty
                 proxy_cache_valid 200 1d;
                 proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;
             }
-	  roles:
-	   - openresty
+      roles:
+       - openresty
 
-	#反向负载均衡
-	- hosts: node1
-	  vars:
-	  - openresty_upstreams:
+    #反向负载均衡
+    - hosts: node1
+      vars:
+      - openresty_upstreams:
         - name: upstremtest
           servers:
           - 127.0.0.1:8000 weight=3 max_fails=2 fail_timeout=2
           - 127.0.0.1:8001
           - 127.0.0.1:8002
           - 127.0.0.1:8003 backup
-	  - openresty_vhosts:
+      - openresty_vhosts:
         - listen: 80
           locations:
           - name: /
             proxy_pass: http://upstremtest
-	  roles:
-	   - openresty
+      roles:
+       - openresty
 
-	#tcp 端口反向代理
-	- hosts: node1
-	  vars:
-	  - openresty_stream: true
-	  - openresty_upstreams:
+    #tcp 端口反向代理
+    - hosts: node1
+      vars:
+      - openresty_stream: true
+      - openresty_upstreams:
         - name: upstremtest
           servers:
           - 127.0.0.1:3306 weight=3 max_fails=2 fail_timeout=2
           - 127.0.0.1:3307
-	  - openresty_vhosts:
-	    - listen: 23306
-	      proxy_pass: upstremtest
-	  roles:
-	   - openresty
+      - openresty_vhosts:
+        - listen: 23306
+          proxy_pass: upstremtest
+      roles:
+       - openresty
        
        
 ## 使用

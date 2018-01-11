@@ -24,7 +24,7 @@ ansible `2.3.0.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
+    software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
     lua_version: "5.3.4"
@@ -60,8 +60,8 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/lua
       roles:
         - lua
         
-	# 安装指定版本的lua
-	- hosts: node1
+    # 安装指定版本的lua
+    - hosts: node1
       roles:
         - { role: lua, lua_version: '5.3.3' }
     

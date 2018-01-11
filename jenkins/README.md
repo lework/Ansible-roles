@@ -18,59 +18,59 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
+    software_files_path: "/opt/software"
 
-	jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
-	jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
-	jenkins_pkg_url: https://pkg.jenkins.io/redhat
+    jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
+    jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
+    jenkins_pkg_url: https://pkg.jenkins.io/redhat
 
-	# jenkins_version: 2.46
+    # jenkins_version: 2.46
 
-	jenkins_home: /var/lib/jenkins
-	jenkins_hostname: localhost
-	jenkins_http_port: 8080
-	jenkins_jar_location: "{{ software_files_path }}/jenkins-cli.jar"
-	jenkins_url_prefix: ""
-	jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
+    jenkins_home: /var/lib/jenkins
+    jenkins_hostname: localhost
+    jenkins_http_port: 8080
+    jenkins_jar_location: "{{ software_files_path }}/jenkins-cli.jar"
+    jenkins_url_prefix: ""
+    jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
 
-	jenkins_admin_username: admin
-	jenkins_admin_password: admin
+    jenkins_admin_username: admin
+    jenkins_admin_password: admin
 
-	jenkins_init_file: /etc/sysconfig/jenkins
-	jenkins_init_changes:
-	  - option: "JENKINS_ARGS"
-		value: "--prefix={{ jenkins_url_prefix }}"
-	  - option: "JENKINS_JAVA_OPTIONS"
-		value: "{{ jenkins_java_options }}"
-		
-	jenkins_plugins_recommended:    
-	  - ant
-	  - msbuild
-	  - gradle
-	  - maven-plugin
-	  - nodejs
-	  - antisamy-markup-formatter
-	  - build-timeout
-	  - cloudbees-folder
-	  - credentials-binding
-	  - email-ext
-	  - git
-	  - subversion
-	  - ldap
-	  - mailer
-	  - matrix-auth
-	  - pam-auth
-	  - pipeline-stage-view
-	  - ssh-slaves
-	  - publish-over-ssh
-	  - windows-slaves
-	  - timestamper
-	  - workflow-aggregator
-	  - ws-cleanup
-	  
-	jenkins_plugins_extra: []
+    jenkins_init_file: /etc/sysconfig/jenkins
+    jenkins_init_changes:
+      - option: "JENKINS_ARGS"
+        value: "--prefix={{ jenkins_url_prefix }}"
+      - option: "JENKINS_JAVA_OPTIONS"
+        value: "{{ jenkins_java_options }}"
+        
+    jenkins_plugins_recommended:    
+      - ant
+      - msbuild
+      - gradle
+      - maven-plugin
+      - nodejs
+      - antisamy-markup-formatter
+      - build-timeout
+      - cloudbees-folder
+      - credentials-binding
+      - email-ext
+      - git
+      - subversion
+      - ldap
+      - mailer
+      - matrix-auth
+      - pam-auth
+      - pipeline-stage-view
+      - ssh-slaves
+      - publish-over-ssh
+      - windows-slaves
+      - timestamper
+      - workflow-aggregator
+      - ws-cleanup
+      
+    jenkins_plugins_extra: []
 
-	ansible_python_interpreter: /usr/bin/python2.6
+    ansible_python_interpreter: /usr/bin/python2.6
 
 
 ## 依赖
@@ -80,20 +80,20 @@ Java (2.53以上版本需要1.8+)
 https://github.com/kuailemy123/Ansible-roles/tree/master/jenkins
 
 ## Example Playbook
-	- hosts: node1
-	  roles:
-		- jenkins
-		
-	- hosts: node1
-	  vars：
-	   - jenkins_version: 2.46
-	   - jenkins_http_port： 8888
-	   - jenkins_plugins_extra：
-	       - display-console-output
-		   - ansible
-	  roles:
-		- jenkins
-		
+    - hosts: node1
+      roles:
+        - jenkins
+        
+    - hosts: node1
+      vars：
+       - jenkins_version: 2.46
+       - jenkins_http_port： 8888
+       - jenkins_plugins_extra：
+           - display-console-output
+           - ansible
+      roles:
+        - jenkins
+        
 ## 使用
 service jenkins
 Usage: /etc/init.d/jenkins {start|stop|status|try-restart|restart|force-reload|reload|probe}

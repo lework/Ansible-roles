@@ -23,7 +23,7 @@ os `Centos 7.2 X64`
 python `2.7.5`
 
 ## 角色变量
-	software_files_path: "/opt/software"
+    software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
     mysql57_version: "5.7.20"
@@ -90,7 +90,7 @@ python `2.7.5`
     mysql57_group_replication_group_name: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     mysql57_group_recation_local_address: "127.0.0.1:24901"
     mysql57_group_replication_group_seeds: "127.0.0.1:24901,127.0.0.1:24902,127.0.0.1:24903"
-	
+    
 
 ## 依赖
 
@@ -101,7 +101,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/mysql57
 
 ## Example Playbook
 
-	默认安装, 使用bin文件(已编译好的mysql),文件/opt/software/mysql-boost-5.7.20-bin.tar.gz)：
+    默认安装, 使用bin文件(已编译好的mysql),文件/opt/software/mysql-boost-5.7.20-bin.tar.gz)：
     - hosts: node2
       roles:
       - mysql57

@@ -19,44 +19,44 @@ ansible `2.2.1.0`
 os `Centos 6.7 X64`
 
 ## 角色变量
-	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
+    software_files_path: "/opt/software"
+    software_install_path: "/usr/local"
 
-	etcd_version: "3.1.3"
+    etcd_version: "3.1.3"
 
-	etcd_file: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
-	etcd_file_path: "{{ software_files_path }}/{{ etcd_file }}"
-	etcd_file_url: "https://github.com/coreos/etcd/releases/download/etcd-v{{ etcd_version }}/{{ etcd_file }}"
+    etcd_file: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    etcd_file_path: "{{ software_files_path }}/{{ etcd_file }}"
+    etcd_file_url: "https://github.com/coreos/etcd/releases/download/etcd-v{{ etcd_version }}/{{ etcd_file }}"
 
-	etcd_port: 2379
-	etcd_peer_port: 2380
-	etcd_home: "/etcd_data"
-	etcd_datadir: "{{ etcd_home }}/{% if etcd_port != 2379 %}{{ etcd_port }}/{% endif %}data"
-	etcd_wardir: "{{ etcd_home }}/{% if etcd_port != 2379 %}{{ etcd_port }}/{% endif %}war"
+    etcd_port: 2379
+    etcd_peer_port: 2380
+    etcd_home: "/etcd_data"
+    etcd_datadir: "{{ etcd_home }}/{% if etcd_port != 2379 %}{{ etcd_port }}/{% endif %}data"
+    etcd_wardir: "{{ etcd_home }}/{% if etcd_port != 2379 %}{{ etcd_port }}/{% endif %}war"
 
-	etcd_name: "infra0"
-	etcd_initial_advertise_peer_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_peer_port }}"
-	etcd_listen_peer_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_peer_port }}"
-	etcd_listen_client_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_port }},http://127.0.0.1:{{ etcd_port }}"
-	etcd_advertise_client_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_port }}"
+    etcd_name: "infra0"
+    etcd_initial_advertise_peer_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_peer_port }}"
+    etcd_listen_peer_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_peer_port }}"
+    etcd_listen_client_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_port }},http://127.0.0.1:{{ etcd_port }}"
+    etcd_advertise_client_urls: "http://{{ ansible_default_ipv4.address }}:{{ etcd_port }}"
 
-	etcd_trusted_ca_file: false
-	etcd_cert_file: false
-	etcd_key_file: false
-	etcd_peer_trusted_ca_file: false
-	etcd_peer_cert_file: false
-	etcd_peer_key_file: false
+    etcd_trusted_ca_file: false
+    etcd_cert_file: false
+    etcd_key_file: false
+    etcd_peer_trusted_ca_file: false
+    etcd_peer_cert_file: false
+    etcd_peer_key_file: false
 
-	etcd_auto_tls: false
+    etcd_auto_tls: false
 
-	etcd_discovery: false
-	etcd_initial_cluster: false
-	etcd_initial_cluster_token: "etcd_cluster_1"
+    etcd_discovery: false
+    etcd_initial_cluster: false
+    etcd_initial_cluster_token: "etcd_cluster_1"
 
-	etcd_proxy: false
+    etcd_proxy: false
 
-	etcd_force_new_cluster: false
-	etcd_debug: false
+    etcd_force_new_cluster: false
+    etcd_debug: false
 
 ## 依赖
 
@@ -67,57 +67,57 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/etcd
 
 ## Example Playbook
 
-	安装etcd，默认端口2379：
-	- hosts: node1
-	  roles:
-	   - { role: etcd }
+    安装etcd，默认端口2379：
+    - hosts: node1
+      roles:
+       - { role: etcd }
 
-	单机伪集群安装：
+    单机伪集群安装：
 
-	- hosts: node1
-	  vars:
-	   - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.129:2480,infra2=http://192.168.77.129:2580"
-	  roles:
-		- { role: etcd, etcd_name: "infra0", etcd_port: 2379, etcd_peer_port: 2380}
-		- { role: etcd, etcd_name: "infra1", etcd_port: 2479, etcd_peer_port: 2480}
-		- { role: etcd, etcd_name: "infra2", etcd_port: 2579, etcd_peer_port: 2580}
+    - hosts: node1
+      vars:
+       - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.129:2480,infra2=http://192.168.77.129:2580"
+      roles:
+       - { role: etcd, etcd_name: "infra0", etcd_port: 2379, etcd_peer_port: 2380}
+       - { role: etcd, etcd_name: "infra1", etcd_port: 2479, etcd_peer_port: 2480}
+       - { role: etcd, etcd_name: "infra2", etcd_port: 2579, etcd_peer_port: 2580}
 
 
-	分布式安装：
-	端口默认
-	- hosts: 192.168.77.129 192.168.77.130 192.168.77.131
-	  vars:
-	   - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.130:2380,infra2=http://192.168.77.131:2380"
-	   - supervisor_name: etcd
-	   - supervisor_program:
-		 - { name: 'etcd', command: '/usr/local/bin/etcd --config-file /etcd_data/data/etcd.conf' }
+    分布式安装：
+    端口默认
+    - hosts: 192.168.77.129 192.168.77.130 192.168.77.131
+      vars:
+       - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.130:2380,infra2=http://192.168.77.131:2380"
+       - supervisor_name: etcd
+       - supervisor_program:
+         - { name: 'etcd', command: '/usr/local/bin/etcd --config-file /etcd_data/data/etcd.conf' }
 
-	  roles:
-	   - { role: etcd, etcd_name: "infra0" }
-	   - { role: python2.7 }
-	   - { role: supervisor }
+      roles:
+       - { role: etcd, etcd_name: "infra0" }
+       - { role: python2.7 }
+       - { role: supervisor }
 
-	- hosts: 192.168.77.130
-	  vars:
-	   - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.130:2380,infra2=http://192.168.77.131:2380"
-	   - supervisor_name: etcd
-	   - supervisor_program:
-		 - { name: 'etcd', command: '/usr/local/bin/etcd --config-file /etcd_data/data/etcd.conf' }
-	  roles:
-	   - { role: etcd, etcd_name: "infra1" }
-	   - { role: python2.7 }
-	   - { role: supervisor }	   
-	   
-	- hosts: 192.168.77.131
-	  vars:
-	   - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.130:2380,infra2=http://192.168.77.131:2380"
-	   - supervisor_name: etcd
-	   - supervisor_program:
-		 - { name: 'etcd', command: '/usr/local/bin/etcd --config-file /etcd_data/data/etcd.conf' }
-	  roles:
-	   - { role: etcd, etcd_name: "infra2" }
-	   - { role: python2.7 }
-	   - { role: supervisor }
+    - hosts: 192.168.77.130
+      vars:
+       - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.130:2380,infra2=http://192.168.77.131:2380"
+       - supervisor_name: etcd
+       - supervisor_program:
+         - { name: 'etcd', command: '/usr/local/bin/etcd --config-file /etcd_data/data/etcd.conf' }
+      roles:
+       - { role: etcd, etcd_name: "infra1" }
+       - { role: python2.7 }
+       - { role: supervisor }       
+       
+    - hosts: 192.168.77.131
+      vars:
+       - etcd_initial_cluster: "infra0=http://192.168.77.129:2380,infra1=http://192.168.77.130:2380,infra2=http://192.168.77.131:2380"
+       - supervisor_name: etcd
+       - supervisor_program:
+         - { name: 'etcd', command: '/usr/local/bin/etcd --config-file /etcd_data/data/etcd.conf' }
+      roles:
+       - { role: etcd, etcd_name: "infra2" }
+       - { role: python2.7 }
+       - { role: supervisor }
 
 ## 使用
 
