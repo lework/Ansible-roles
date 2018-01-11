@@ -69,39 +69,38 @@ None
 https://github.com/kuailemy123/Ansible-roles/tree/master/vsftpd
 
 ## Example Playbook
-	# 默认配置，匿名登录
-	- hosts: node1
-	  roles:
-	  - role: vsftpd
+    # 默认配置，匿名登录
+    - hosts: node1
+      roles:
+        - role: vsftpd
 	
-	# 本地用户登录
-	- hosts: node1
-	  vars:
-	   - vsftpd_local_users:
-		  - name: alice
-			password: "123"
-			home: /ftp_alice
-		  - name: lili
-			password: "123"
-	  roles:
-	   - vsftpd
+    # 本地用户登录
+    - hosts: node1
+      vars:
+        - vsftpd_local_users:
+        - name: alice
+          password: "123"
+          home: /ftp_alice
+        - name: lili
+          password: "123"
+      roles:
+        - vsftpd
 	   
-	# 虚拟用户登录
-	- hosts: node1
-	  vars:
-	   - vsftpd_share_path: '/ftp_vuser_share'
-	   - vsftpd_vusers: 
-		  - name: test1
-			password: 123
-		  - name: test2
-			password: 123
-			local_root: '/ftp_test2_home'
-			conf: |
-			  local_root=/ftp_test2_home
-			  local_umask=011
-	  roles: 
-	   - vsftpd
-
+    # 虚拟用户登录
+    - hosts: node1
+      vars:
+        - vsftpd_share_path: '/ftp_vuser_share'
+        - vsftpd_vusers: 
+        - name: test1
+          password: 123
+        - name: test2
+          password: 123
+          local_root: '/ftp_test2_home'
+          conf: |
+            local_root=/ftp_test2_home
+            local_umask=011
+      roles: 
+          - vsftpd
 ## 端口
 
 - 21
