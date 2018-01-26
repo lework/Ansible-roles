@@ -1,0 +1,70 @@
+---
+# author: lework
+
+- name: install_from_source | Check if php local file is already configured.
+  stat: path={{ php_file_path }}
+  connection: local
+  register: php_file_result
+
+- name: install_from_source | Create software files path.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not php_file_result.stat.exists
+
+- name: install_from_source | Download php file.
+  get_url: url={{ php_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not php_file_result.stat.exists
+
+- name: install_from_source | Create php group.
+  group: name={{ php_group }}
+
+- name: install_from_source | Create php user.
+  user: name={{ php_user }} group={{ php_group }} shell=/sbin/nologin createhome=no
+
+- name: install_from_source | Copy php file to agent.
+  unarchive:
+    src: "{{ php_file_path }}"
+    dest: "/tmp/"
+    owner: "{{ php_user }}"
+    group: "{{ php_group }}"
+    creates: "/tmp/{{ php_file | replace('.tar.gz','') }}"
+
+- name: install_from_source | Ensure dependencies for building from source are installed.
+  package: "name={{ item }} state=installed"
+  with_items: "{{ php_packages }}"
+  
+- name: install_from_source | Build configure script.
+  shell: >
+    ./buildconf --force
+    chdir=/tmp/{{ php_file | replace('.tar.gz','') }}
+
+- name: install_from_source | Run configure script.
+  shell: >
+    {{ php_source_configure_command }}
+    chdir=/tmp/{{ php_file | replace('.tar.gz','') }}
+
+- name: install_from_source | Make and install PHP.
+  shell: >
+    make && make install
+    chdir=/tmp/{{ php_file | replace('.tar.gz','') }}
+    
+- name: install_from_source | Ensure php executable is symlinked into a standard path.
+  file:
+    src: "{{ php_install_path }}/bin/php"
+    dest: /usr/bin/php
+    state: link
+
+- name: install_from_source | Ensure php-fpm executable is symlinked into a standard path.
+  file:
+    src: "{{ php_install_path }}/sbin/php-fpm"
+    dest: "/usr/sbin/php-fpm"
+    state: link
+  when: "'--enable-fpm' in php_source_configure_command"
+  
+- name: install_from_source | Ensure php-fpm init script is installed.
+  template:
+    src: fpm-init.j2
+    dest: "/etc/init.d/php-fpm"
+    mode: 0755
+  when: "'--enable-fpm' in php_source_configure_command"

@@ -1,0 +1,63 @@
+---
+# author: lework
+
+- name: configure | Ensure configuration directories exist.
+  file:
+    path: "{{ item }}"
+    state: directory
+    follow: true
+  with_flattened:
+    - "{{ php_conf_paths }}"
+    - "{{ php_extension_conf_paths }}"
+    - "{{ php_fpm_conf_path }}"
+    - "{{ php_fpm_pool_conf_path }}"
+
+- name: configure | Place PHP configuration file in place.
+  template:
+    src: php.ini.j2
+    dest: "{{ php_conf_paths }}/php.ini"
+    owner: root
+    group: root
+    mode: 0644
+    
+- name: configure | Ensure the default fpm configuration file exists.
+  template:
+    src: php-fpm.conf.j2
+    dest: "{{ php_conf_paths }}/php-fpm.conf"
+    
+- name: configure | Ensure the default pool exists.
+  template:
+    src: www.conf.j2
+    dest: "{{ php_fpm_pool_conf_path }}/www.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: no
+  when: php_enable_php_fpm
+
+- name: configure | Ensure OpCache config file is present.
+  template:
+    src: opcache.ini.j2
+    dest: "{{ php_extension_conf_paths }}/opcache.ini"
+    owner: root
+    group: root
+    force: yes
+    mode: 0644
+  when: php_opcache_enable
+  
+- name: configure | Ensure APCu config file is present.
+  template:
+    src: apcu.ini.j2
+    dest: "{{ php_extension_conf_paths }}/apcu.ini"
+    owner: root
+    group: root
+    force: yes
+    mode: 0644
+  when: php_enable_apcu
+  
+- name: configure | Ensure php-fpm is started and enabled at boot (if configured).
+  service:
+    name: php-fpm
+    state: started
+    enabled: yes
+  when: php_enable_php_fpm

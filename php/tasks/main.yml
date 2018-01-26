@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- import_tasks: define.yml
+
+- import_tasks: install.yml
+
+- import_tasks: configure.yml

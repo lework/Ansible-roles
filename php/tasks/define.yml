@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- name: define | Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: define | Define php_packages.
+  set_fact:
+    php_packages: "{{ _php_packages | list }}"
+  when: php_packages is not defined
+
+- name: define | Define php_rpm.
+  set_fact:
+    php_rpm: "{{ _php_rpm | list }}"
+  when: php_rpm is not defined

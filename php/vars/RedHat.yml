@@ -1,0 +1,41 @@
+---
+# author: lework
+
+_php_packages:
+  - autoconf
+  - automake
+  - libtool
+  - bison
+  - make
+  - pkgconfig
+  - curl-devel
+  - recode-devel
+  - aspell-devel
+  - libxml2-devel
+  - libmcrypt-devel 
+  - t1lib-devel
+  - libXpm-devel
+  - libpng-devel
+  - libjpeg-turbo-devel
+  - bzip2-devel
+  - openssl-devel
+  - freetype-devel
+  - libicu-devel
+  - mariadb-devel
+  - gmp-devel
+  
+_php_rpm:
+  - php71w
+  - php71w-fpm
+  - php71w-cli
+  - php71w-common
+  - php71w-gd
+  - php71w-mysql
+  - php71w-bcmath
+  - php71w-mbstring
+  - php71w-xml
+  - php71w-ldap
+  - php71w-pdo
+  - php71w-mcrypt
+  - php71w-opcache
+  - php71w-pecl-apcu

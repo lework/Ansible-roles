@@ -1,0 +1,31 @@
+---
+# author: lework
+
+- name: install_apcu | Check if apcu local file is already configured.
+  stat: path={{ php_apcu_file_path }}
+  connection: local
+  register: php_apcu_file_result
+
+- name: install_apcu | Download apcu file.
+  get_url: url={{ php_apcu_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not php_apcu_file_result.stat.exists
+
+- name: install_apcu | Copy apcu file to agent.
+  unarchive:
+    src: "{{ php_apcu_file_path }}"
+    dest: "/tmp/"
+    creates: "/tmp/{{ php_apcu_file | replace('.tar.gz','') }}"
+
+- name: install_apcu | Run phpize. 
+  shell: "{{ php_install_path }}/bin/phpize chdir=/tmp/{{ php_apcu_file | replace('.tar.gz','') }}"
+
+- name: install_apcu | Run configure script.
+  shell: >
+    {{ php_apcu_configure_command }}
+    chdir=/tmp/{{ php_apcu_file | replace('.tar.gz','') }}
+
+- name: install_apcu | Make and install APCu.
+  shell: >
+    make && make install
+    chdir=/tmp/{{ php_apcu_file | replace('.tar.gz','') }}

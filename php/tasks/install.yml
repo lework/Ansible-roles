@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: install | Check if PHP is installed.
+  command: which php
+  changed_when: false
+  failed_when: false
+  register: php_installed
+  
+- import_tasks: install_from_rpm.yml
+  when: not php_install_from_source and php_installed.rc != 0
+- import_tasks: install_from_source.yml
+  when: php_install_from_source and php_installed.rc != 0
+
+- import_tasks: install_apcu.yml
+  when: php_install_from_source and php_enable_apcu
