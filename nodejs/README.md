@@ -15,7 +15,7 @@ os `Centos 6.7 X64`
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    nodejs_version: "0.10.36"
+    nodejs_version: "6.12.3"
 
     nodejs_file: "node-v{{ nodejs_version }}-linux-x64.tar.gz"
     nodejs_file_path: "{{ software_files_path }}/{{ nodejs_file }}"
