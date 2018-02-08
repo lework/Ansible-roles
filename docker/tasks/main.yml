@@ -1,0 +1,20 @@
+---
+# author: lework
+
+- name: Ensure docker history packages are removed.
+  yum: "name={{ item }} state=removed"
+  with_items: "{{ docker_old }}"
+
+- name: Ensure docker packages are installed.
+  yum: "name={{ item }} state=installed"
+  with_items: "{{ docker_packages }}"
+   
+- name: Install docker repo.
+  shell: "yum-config-manager --add-repo {{ docker_repo }}"
+
+- name: Ensure docker-ce are installed.
+  yum: "name=docker-ce state=installed update_cache=yes"
+
+- name: Ensure docker is started and enabled at boot.
+  systemd: name=docker state=started enabled=yes
+  when: docker_start

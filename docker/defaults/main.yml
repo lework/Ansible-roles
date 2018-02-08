@@ -1,0 +1,17 @@
+---
+# author: lework
+
+docker_repo: "https://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo"
+
+docker_old:
+  - docker
+  - docker-common
+  - docker-selinux
+  - docker-engine
+
+docker_packages:
+  - lvm2
+  - yum-utils
+  - device-mapper-persistent-data
+  
+docker_start: true
