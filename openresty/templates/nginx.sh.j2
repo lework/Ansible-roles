@@ -24,7 +24,7 @@ prog=$(basename $nginx)
 
 sysconfig="/etc/sysconfig/$prog"
 lockfile="/var/lock/subsys/nginx"
-pidfile="/var/run/${prog}.pid"
+pidfile="{{ openresty_pidfile }}"
 
 NGINX_CONF_FILE="{{ openresty_conf_file_path }}"
 

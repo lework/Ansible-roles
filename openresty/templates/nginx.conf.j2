@@ -20,11 +20,36 @@ http {
 
     client_max_body_size {{ openresty_client_max_body_size }};
 
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
+    log_format  main  '{ "@timestamp": "$time_iso8601", '
+                         '"clientRealIp": "$remote_addr", '
+                         '"scheme": "$scheme", '
+                         '"method": "$request_method", '
+                         '"host": "$host", '
+                         '"url": "$request_uri", '
+                         '"size": $body_bytes_sent, '
+                         '"referrer": "$http_referer", '
+                         '"agent": "$http_user_agent", '
+                         '"request_body": "$request_body",'
+                         '"upstream_addr": "$upstream_addr", '
+                         '"request_time": $request_time, '
+                         '"upstream_connect_time": "$upstream_connect_time", '
+                         '"upstream_response_time": "$upstream_response_time", '
+                         '"upstream_status": "$upstream_status", '
+                         '"status": "$status"} ';
 
     access_log  {{ openresty_access_log }};
+    
+    server_names_hash_bucket_size 256;
+    large_client_header_buffers 4 16k;
+    client_header_buffer_size 4k;
+    client_body_buffer_size 128k;
+    client_max_body_size 100m;
+    client_header_timeout 2m;
+    client_body_timeout 2m;
+    send_timeout 2m;
+
+    open_file_cache max=65535 inactive=60s;
+    open_file_cache_valid 80s;
 
     sendfile        {{ openresty_sendfile }};
     tcp_nopush      {{ openresty_tcp_nopush }};
@@ -41,6 +66,26 @@ http {
     gzip_types text/html text/plain text/css text/javascript application/json application/javascript application/x-javascript application/xml;
     gzip_vary on;
 {% endif %}
+
+    proxy_buffers 4 128k;
+    proxy_buffer_size 128k;
+    proxy_busy_buffers_size 128k;
+    proxy_temp_file_write_size 128k;
+    proxy_max_temp_file_size 256m;
+    proxy_send_timeout 120;
+    proxy_read_timeout 120;
+    proxy_connect_timeout 120;
+    #proxy_next_upstream error timeout invalid_header http_500 http_503 http_404;
+    
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    
+    server_tokens off;
+    more_clear_headers 'Server';
+    proxy_hide_header X-Application-Context;
+
 {% if openresty_proxy_cache_path %}
     proxy_cache_path {{ openresty_proxy_cache_path }};
 {% endif %}
