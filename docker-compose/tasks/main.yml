@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: Check if docker-compose file is already.
+  stat: path={{ docker_exec_path }}
+  register: docker_compose_result
+
+- name: Install docker-compose.
+  get_url: url={{ docker_compose_url }} dest={{ docker_exec_path }} validate_certs=no mode=0755
+  when: not docker_compose_result.stat.exists
+  
+- name: docker-compose version.
+  command: docker-compose -version
+  register: version_result
+  changed_when: false
+  ignore_errors: True
+
+- debug: var=version_result.stdout

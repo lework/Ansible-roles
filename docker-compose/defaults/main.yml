@@ -1,0 +1,8 @@
+---
+# author: lework
+
+docker_compose_version: "1.19.0"
+
+docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+
+docker_exec_path: "/usr/local/bin/docker-compose"
