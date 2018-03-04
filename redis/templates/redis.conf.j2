@@ -18,8 +18,11 @@ repl-diskless-sync no
 repl-diskless-sync-delay 5
 repl-disable-tcp-nodelay no
 slave-priority 100
-{% if redis_requirepass %}
+{% if redis_requirepass and redis_cluster_requirepass == '' %}
 requirepass {{ redis_requirepass }}
+{% endif %}
+{% if redis_cluster and redis_requirepass %}
+masterauth {{ redis_requirepass }}
 {% endif %}
 
 {% if redis_slave %}
@@ -34,7 +37,7 @@ cluster-migration-barrier 1
 cluster-require-full-coverage no
 {% endif %}
 
-{% if redis_masterauth  %}
+{% if redis_masterauth %}
 masterauth {{ redis_masterauth }}
 {% endif %}
 

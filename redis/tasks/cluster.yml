@@ -1,12 +1,25 @@
 ---
 # author: lework
 
-- name: Install redis gems.
-  gem: name=redis state=present
+- name: cluster | Install ruby.
+  package: name=ruby state=present
+  
+- name: cluster | Install redis gems.
+  gem: name=redis state=present version=3.0.0 user_install=no
 
-- name: Del yes or no the option. 
-  shell: "/bin/sed -i '1006s/^/# /' {{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb"
+- name: cluster | Del yes or no the option. 
+  lineinfile:
+    regexp: '        yes_or_die \"Can I set the above configuration\?\"'
+    line: '        #yes_or_die "Can I set the above configuration?"'
+    path: "{{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb"
 
-- name: Create cluster.
+- name: cluster | set redis password.
+  lineinfile:
+    regexp: "      :password => nil,"
+    line: "      :password => \"{{ redis_requirepass }}\","
+    path: "/usr/local/share/gems/gems/redis-3.0.0/lib/redis/client.rb"
+  when: redis_requirepass != ''
+
+- name: cluster | Create cluster.
   shell: "{{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb create --replicas {{ redis_cluster_replicas }}"
   when: redis_cluster_replicas !=''

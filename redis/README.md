@@ -77,7 +77,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
     主从配置
     - hosts: node1
       vars:
-       - redis_master_host: '192.168.77.129'
+       - redis_master_host: '127.0.0.1'
        - redis_master_port: '6380'
       roles:
         - { role: redis, redis_port: 6380}
@@ -87,7 +87,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
     哨兵模式
     - hosts: node1
       vars:
-       - redis_master_host: '192.168.77.129'
+       - redis_master_host: '127.0.0.1'
        - redis_master_port: '6383'
       roles:
        - { role: redis, redis_port: 6383, redis_sentinel_port: 26383}
@@ -99,10 +99,11 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
      - hosts: node1
        vars:
         - redis_cluster: true
+        - redis_requirepass: '123456'
        roles:
         - { role: redis, redis_port: 6481}
         - { role: redis, redis_port: 6482}
         - { role: redis, redis_port: 6483}
         - { role: redis, redis_port: 6484}
         - { role: redis, redis_port: 6485}
-        - { role: redis, redis_port: 6486, redis_cluster_replicas: '1 192.168.77.129:6481 192.168.77.129:6482 192.168.77.129:6483 192.168.77.129:6484 192.168.77.129:6485 192.168.77.129:6486'}
+        - { role: redis, redis_port: 6486, redis_cluster_replicas: '1 127.0.0.1:6481 127.0.0.1:6482 127.0.0.1:6483 127.0.0.1:6484 127.0.0.1:6485 127.0.0.1:6486'}

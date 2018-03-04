@@ -1,7 +1,7 @@
 ---
 # author: lework
 
-- name: Ensure Redis sentinel is configured.
+- name: sentinel | Ensure Redis sentinel is configured.
   template:
     src: redis-sentinel.conf.j2
     dest: "{{ redis_dir_path }}/sentinel.conf"
@@ -9,14 +9,14 @@
     owner: "{{ redis_user }}"
     group: "{{ redis_user }}"
 
-- name: Ensure Redis sentinel daemon shell is configured.
+- name: sentinel | Ensure Redis sentinel daemon shell is configured.
   template:
     src: redis-sentinel.sh.j2
     dest: "/etc/rc.d/init.d/{{ redis_sentinel_daemon }}"
     mode: 0755
 
-- name: Add redis sentinel services.
+- name: sentinel | Add redis sentinel services.
   shell: "chkconfig --add {{ redis_sentinel_daemon }}  && chkconfig {{ redis_sentinel_daemon }} on"
 
-- name: Ensure Redis sentinel is running and enabled on boot.
+- name: sentinel | Ensure Redis sentinel is running and enabled on boot.
   service: "name={{ redis_sentinel_daemon }} state=started enabled=yes"
