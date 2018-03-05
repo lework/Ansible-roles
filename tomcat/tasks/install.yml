@@ -6,7 +6,7 @@
   connection: local
   register: tomcat_file_result
 
-- name: install | Create software files path.
+- name: install | Create software files directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not tomcat_file_result.stat.exists
@@ -39,7 +39,7 @@
     creates: "/tmp/apache-tomcat-{{ tomcat_version }}/bin/startup.sh"
 
 - name: install | Move tomcat dir.
-  shell: "mv /tmp/apache-tomcat-{{ tomcat_version }} {{ tomcat_work_path }} removes=/tmp/apache-tomcat-{{ tomcat_version }}  creates={{ tomcat_work_path }}"
+  shell: "mv /tmp/apache-tomcat-{{ tomcat_version }} {{ tomcat_work_path }} removes=/tmp/apache-tomcat-{{ tomcat_version }} creates={{ tomcat_work_path }}"
 
 - name: install | Check if jsvc is already configured.
   stat: path="{{ tomcat_work_path }}/bin/jsvc"
@@ -50,18 +50,17 @@
     unarchive:
       src: "{{ tomcat_work_path }}/bin/commons-daemon-native.tar.gz"
       dest: "{{ tomcat_work_path }}/bin/"
-      creates: "{{ tomcat_work_path }}/bin/commons-daemon-1.0.15-native-src"
+      creates: "{{ tomcat_daemon_native_path }}"
       copy: no
 
   - name: install | Build commons daemon.
-    shell: "./configure && make chdir={{ tomcat_work_path }}/bin/commons-daemon-1.0.15-native-src/unix"
+    shell: "./configure && make chdir={{ tomcat_daemon_native_path }}/unix"
     environment:
       - JAVA_HOME: "{{ java_home }}"
 
   - name: install | Copy jsvc To bin directory.
-    copy: "src={{ tomcat_work_path }}/bin/commons-daemon-1.0.15-native-src/unix/jsvc dest={{ tomcat_work_path }}/bin/ mode=0755 remote_src=True"
+    copy: "src={{ tomcat_daemon_native_path }}/unix/jsvc dest={{ tomcat_work_path }}/bin/ mode=0755 remote_src=True"
   when: not tomcat_jsvc_result.stat.exists
-
 
 - name: install | The directory belongs to tomcat.
   file: "path={{ tomcat_work_path }} owner={{ tomcat_user }} group={{ tomcat_user }} recurse=yes state=directory"

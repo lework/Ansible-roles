@@ -27,8 +27,13 @@
      CATALINA_OPTS='{{ tomcat_catalina_opts }}'
      TOMCAT_USER={{ tomcat_user }}
     
-- name: "configure | Ensure {{ tomcat_services_name }} is started and enabled on boot."
+- name: "configure | Ensure {{ tomcat_services_name }} is running for centos6."
   service: "name={{ tomcat_services_name }} state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: "configure | Ensure {{ tomcat_services_name }} is running for centos7."
+  systemd: "name={{ tomcat_services_name }} state=started enabled=true"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
   
 - name: "configure | Wait {{ tomcat_catalina_port }} port is opening."
   wait_for: port={{ tomcat_catalina_port }}

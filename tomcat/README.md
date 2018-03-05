@@ -8,17 +8,20 @@
 
 ## 测试环境
 
-ansible `2.2.1.0`
-os `Centos 6.7 X64`
+ansible `2.4.2.0`
+
+os `Centos 7.2 X64`
+
+python `2.7.5`
 
 ## 角色变量
     
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.7.0_75') }}"
+    java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.7.0_80') }}"
 
-    tomcat_version: "7.0.75"
+    tomcat_version: "7.0.85"
     tomcat_file: "apache-tomcat-{{ tomcat_version }}.tar.gz"
     tomcat_path: "{{ software_install_path }}/apache-tomcat-{{ tomcat_version }}"
     tomcat_file_path: "{{ software_files_path }}/{{ tomcat_file }}"
@@ -39,9 +42,8 @@ os `Centos 6.7 X64`
     tomcat_services_name: "tomcat{% if tomcat_catalina_port != 8080 %}{{ tomcat_catalina_port }}{% endif %}"
 
     tomcat_work_path: "{{ software_install_path }}/{{ tomcat_services_name }}"
+    tomcat_daemon_native_path: "{{ tomcat_work_path }}/bin/commons-daemon-1.1.0-native-src"
     tomcat_catalina_opts: "-server -Xms1024m -Xmx1024m -XX:PermSize=256M -XX:MaxNewSize=256m -XX:MaxPermSize=256m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.awt.headless=true"
-
-    ansible_python_interpreter: /usr/bin/python2.6
 
     
 ## 依赖
@@ -67,15 +69,16 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/tomcat
     - hosts: node1
       vars:
        - java_version: "1.8"
-       - tomcat_version: "8.5.14"
+       - tomcat_version: "8.5.28"
       roles:
        - java
        - tomcat
-       
+
 ## 使用
 
-service tomcat
+`centos 6`
 ```
+service tomcat
 Usage: tomcat ( commands ... )
 commands:
   run               Start Tomcat without detaching from console
@@ -83,4 +86,10 @@ commands:
   stop              Stop Tomcat
   version           What version of commons daemon and Tomcat
                     are you running?
+```
+`centos 7` 
+```
+systemctl start tomcat
+systemctl status tomcat
+systemctl stop tomcat
 ```

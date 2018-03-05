@@ -3,8 +3,8 @@
 
 - name: Include tomcat8 variables.
   include_vars: tomcat8.yml
-  when: tomcat_version | search('8.')
+  when: tomcat_version | regex_search("^8\.")
   
-- include: install.yml
-- include: configure.yml
-- include: logrotate.yml
+- import_tasks: install.yml
+- import_tasks: configure.yml
+- import_tasks: logrotate.yml
