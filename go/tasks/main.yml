@@ -1,0 +1,37 @@
+---
+# author: lework
+
+- name: Check if go local file is already configured.
+  stat: path={{ go_file_path }}
+  connection: local
+  register: go_file_result
+
+- name: Create software files path directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not go_file_result.stat.exists
+  
+- name: Download go file.
+  get_url: url={{ go_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not go_file_result.stat.exists
+ 
+- name: Copy go file to agent.
+  unarchive:
+    src: "{{ go_file_path }}"
+    dest: "{{ software_install_path }}/"
+    creates: "{{ software_install_path }}/go"
+
+- name: Config environment variable.
+  lineinfile: dest=/etc/profile line='{{ item }}'
+  with_items:
+    - 'export GOROOT={{ software_install_path }}/go'
+    - 'export PATH=$PATH:$GOROOT/bin'
+
+- name: Go version.
+  command: "{{ software_install_path }}/go/bin/go version"
+  register: result
+  changed_when: false
+  ignore_errors: True
+
+- debug: var=result.stdout

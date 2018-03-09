@@ -1,0 +1,10 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+go_version: "1.10"
+go_file: "go{{ go_version }}.linux-amd64.tar.gz"
+go_file_path: "{{ software_files_path }}/{{ go_file }}"
+go_file_url: "https://studygolang.com/dl/golang/{{ go_file }}"
