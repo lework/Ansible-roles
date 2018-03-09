@@ -13,7 +13,7 @@ os `Centos 6.7 X64`
 python `2.7.5`
 
 ## 角色变量
-    ssh_keys_host
+    ssh_keys_host  设置指定主机的ip地址
 
 ## 依赖
 
