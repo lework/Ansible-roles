@@ -51,6 +51,9 @@ os `Centos 6.7 X64`
     redis_slave: false
     redis_cluster: false
     redis_cluster_replicas: ''
+    # redis_cluster_replicas: '1 127.0.0.1:6481 127.0.0.1:6482 127.0.0.1:6483 127.0.0.1:6484 127.0.0.1:6485 127.0.0.1:6486'
+    #  --replicas  1  表示 自动为每一个master节点分配一个slave节点    上面有6个节点，程序会按照一定规则生成 3个master（主）3个slave(从) 
+    
     redis_masterauth: ''
     redis_master_host: ''
     redis_master_port: ''
@@ -62,7 +65,7 @@ os `Centos 6.7 X64`
 
 ## 依赖
 
-java
+java ruby
 
 ## github地址
 https://github.com/kuailemy123/Ansible-roles/tree/master/redis
@@ -95,7 +98,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
        - { role: redis, redis_port: 6385, redis_sentinel_port: 26385, redis_slave: true}
 
 
-     集群模式
+     伪集群模式
      - hosts: node1
        vars:
         - redis_cluster: true
@@ -107,3 +110,28 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
         - { role: redis, redis_port: 6484}
         - { role: redis, redis_port: 6485}
         - { role: redis, redis_port: 6486, redis_cluster_replicas: '1 127.0.0.1:6481 127.0.0.1:6482 127.0.0.1:6483 127.0.0.1:6484 127.0.0.1:6485 127.0.0.1:6486'}
+
+    集群分布式模式
+     - hosts: node1
+       vars:
+        - redis_cluster: true
+        - redis_requirepass: 'yD1C123p821Qq'
+       roles:
+        - { role: redis, redis_port: 7000}
+        - { role: redis, redis_port: 7003}
+
+     - hosts: node2
+       vars:
+        - redis_cluster: true
+        - redis_requirepass: 'yD1C123p821Qq'
+       roles:
+        - { role: redis, redis_port: 7001}
+        - { role: redis, redis_port: 7004}
+
+     - hosts: node3
+       vars:
+        - redis_cluster: true
+        - redis_requirepass: 'yD1C123p821Qq'
+       roles:
+        - { role: redis, redis_port: 7002}
+        - { role: redis, redis_port: 7005, redis_cluster_replicas: '1 172.19.204.246:7000 172.19.204.245:7001 172.19.204.244:7002 172.19.204.246:7003 172.19.204.245:7004 172.19.204.244:7005'}

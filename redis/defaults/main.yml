@@ -34,6 +34,8 @@ redis_requirepass: ''
 redis_slave: false
 redis_cluster: false
 redis_cluster_replicas: ''
+# redis_cluster_replicas: '1 127.0.0.1:6481 127.0.0.1:6482 127.0.0.1:6483 127.0.0.1:6484 127.0.0.1:6485 127.0.0.1:6486'
+# 1 表示 自动为每一个master节点分配一个slave节点, 上面有6个节点,程序会按照一定规则生成 3个master(主)3个slave(从)
 redis_masterauth: ''
 redis_master_host: ''
 redis_master_port: ''
