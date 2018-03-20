@@ -31,6 +31,7 @@
     - gcc-c++
     - libtool
     - make
+    - libcap-devel
     
 - name: install | Copy tomcat file to agent.
   unarchive:
