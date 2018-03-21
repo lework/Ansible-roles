@@ -16,7 +16,7 @@ MySQL是一个关系型数据库管理系统，由瑞典MySQL AB 公司开发，
 
 ## 测试环境
 
-ansible `2.3.2.0`
+ansible `2.4.2.0`
 
 os `Centos 7.2 X64`
 
