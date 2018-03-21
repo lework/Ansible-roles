@@ -4,7 +4,7 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-redis_version: "3.0.5"
+redis_version: "3.2.11"
 
 redis_file: "redis-{{ redis_version }}.tar.gz"
 redis_file_path: "{{ software_files_path }}/{{ redis_file }}"

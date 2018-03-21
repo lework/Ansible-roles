@@ -14,23 +14,26 @@ redis（Remote Dictionary Server）是一个key-value存储系统。和Memcached
 
 ## 测试环境
 
-ansible `2.2.1.0`
-os `Centos 6.7 X64`
+ansible `2.4.2.0`
+
+os `Centos 7.2 X64`
+
+python `2.7.5`
 
 ## 角色变量
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    redis_version: "3.0.5"
+    redis_version: "3.2.11"
 
     redis_file: "redis-{{ redis_version }}.tar.gz"
     redis_file_path: "{{ software_files_path }}/{{ redis_file }}"
     redis_file_url: "http://download.redis.io/releases/redis-{{ redis_version }}.tar.gz"
 
     redis_data_path: "/redis_data"
-    redis_port: 6379
-    redis_daemon: "redis{{ redis_port }}"
-    redis_dir_path: "{{ redis_data_path }}/{{redis_port}}"
+    # redis_port: 6379
+    redis_daemon: "redis{{ redis_port | default('') }}"
+    redis_dir_path: "{{ redis_data_path }}/{{redis_port | default('6379')}}"
 
     redis_timeout: 0
     redis_user: redis
@@ -52,8 +55,7 @@ os `Centos 6.7 X64`
     redis_cluster: false
     redis_cluster_replicas: ''
     # redis_cluster_replicas: '1 127.0.0.1:6481 127.0.0.1:6482 127.0.0.1:6483 127.0.0.1:6484 127.0.0.1:6485 127.0.0.1:6486'
-    #  --replicas  1  表示 自动为每一个master节点分配一个slave节点    上面有6个节点，程序会按照一定规则生成 3个master（主）3个slave(从) 
-    
+    # 1 表示 自动为每一个master节点分配一个slave节点, 上面有6个节点,程序会按照一定规则生成 3个master(主)3个slave(从)
     redis_masterauth: ''
     redis_master_host: ''
     redis_master_port: ''
@@ -115,7 +117,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
      - hosts: node1
        vars:
         - redis_cluster: true
-        - redis_requirepass: 'yD1C123p821Qq'
+        - redis_requirepass: '123456'
        roles:
         - { role: redis, redis_port: 7000}
         - { role: redis, redis_port: 7003}
@@ -123,7 +125,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
      - hosts: node2
        vars:
         - redis_cluster: true
-        - redis_requirepass: 'yD1C123p821Qq'
+        - redis_requirepass: '123456'
        roles:
         - { role: redis, redis_port: 7001}
         - { role: redis, redis_port: 7004}
@@ -131,7 +133,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/redis
      - hosts: node3
        vars:
         - redis_cluster: true
-        - redis_requirepass: 'yD1C123p821Qq'
+        - redis_requirepass: '123456'
        roles:
         - { role: redis, redis_port: 7002}
         - { role: redis, redis_port: 7005, redis_cluster_replicas: '1 172.19.204.246:7000 172.19.204.245:7001 172.19.204.244:7002 172.19.204.246:7003 172.19.204.245:7004 172.19.204.244:7005'}

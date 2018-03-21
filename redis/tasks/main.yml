@@ -1,9 +1,9 @@
 ---
 # author: lework
 
-- include: install.yml
-- include: configure.yml 
-- include: sentinel.yml
+- import_tasks: install.yml
+- import_tasks: configure.yml 
+- import_tasks: sentinel.yml
   when: redis_sentinel_port !='' and redis_master_host !='' and redis_master_port !=''
-- include: cluster.yml
+- import_tasks: cluster.yml
   when: redis_cluster and redis_cluster_replicas != ''

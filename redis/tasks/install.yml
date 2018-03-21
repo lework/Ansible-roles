@@ -6,7 +6,7 @@
   connection: local
   register: redis_file_result
 
-- name: install | Create software files .
+- name: install | Create software files path.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not redis_file_result.stat.exists

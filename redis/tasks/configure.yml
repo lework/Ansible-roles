@@ -7,7 +7,7 @@
 - name: configure | Create redis user.
   user: name={{ redis_user }} group={{ redis_user }} shell=/sbin/nologin
 
-- name: configure | Create redis db Directory
+- name: configure | Create redis db Directory.
   file: path={{ redis_dbdir }} state=directory owner={{ redis_user }} group={{ redis_user }}
 
 - name: configure | Ensure Redis is configured.
@@ -18,7 +18,7 @@
     owner: "{{ redis_user }}"
     group: "{{ redis_user }}"
 
-- name: configure | Ensure Redis daemon shell  is configured.
+- name: configure | Ensure Redis daemon shell is configured.
   template:
     src: redis.sh.j2
     dest: "/etc/rc.d/init.d/{{ redis_daemon }}"

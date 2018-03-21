@@ -3,7 +3,10 @@
 
 - name: cluster | Install ruby.
   package: name=ruby state=present
-  
+
+- name: cluster | Uninstall old redis gems.
+  gem: name=redis state=absent
+
 - name: cluster | Install redis gems.
   gem: name=redis state=present version=3.0.0 user_install=no
 
@@ -13,7 +16,7 @@
     line: '        #yes_or_die "Can I set the above configuration?"'
     path: "{{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb"
 
-- name: cluster | set redis password.
+- name: cluster | Set redis ruby client password.
   lineinfile:
     regexp: "      :password => nil,"
     line: "      :password => \"{{ redis_requirepass }}\","

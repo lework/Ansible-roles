@@ -1,5 +1,6 @@
 daemonize yes
 pidfile {{ redis_pidfile }}
+bind 0.0.0.0
 port {{ redis_port | default('6379')}}
 tcp-backlog 511
 timeout {{ redis_timeout }}
