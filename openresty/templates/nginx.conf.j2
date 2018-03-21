@@ -16,10 +16,6 @@ http {
     include       {{ openresty_mime_file_path }};
     default_type  application/octet-stream;
 
-    server_names_hash_bucket_size {{ openresty_server_names_hash_bucket_size }};
-
-    client_max_body_size {{ openresty_client_max_body_size }};
-
     log_format  main  '{ "@timestamp": "$time_iso8601", '
                          '"clientRealIp": "$remote_addr", '
                          '"scheme": "$scheme", '
@@ -39,7 +35,7 @@ http {
 
     access_log  {{ openresty_access_log }};
     
-    server_names_hash_bucket_size 256;
+    server_names_hash_bucket_size {{ openresty_server_names_hash_bucket_size }};
     large_client_header_buffers 4 16k;
     client_header_buffer_size 4k;
     client_body_buffer_size 128k;

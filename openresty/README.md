@@ -16,7 +16,7 @@ OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集
 
 ansible主机
 
-    ansible: `2.3.1.0`
+    ansible: `2.4.2.0`
     os: `Centos 7.2 X64`
     python: `2.7.5`
 
@@ -28,7 +28,7 @@ ansible管理主机
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    openresty_version: "1.11.2.3"
+    openresty_version: "1.13.6.1"
 
     openresty_file: "openresty-{{ openresty_version }}.tar.gz"
     openresty_file_path: "{{ software_files_path }}/{{ openresty_file }}"

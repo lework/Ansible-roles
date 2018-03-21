@@ -1,6 +1,6 @@
 ---
 # author: lework
 
-- include: install.yml
-- include: configure.yml 
-- include: logrotate.yml
+- import_tasks: install.yml
+- import_tasks: configure.yml 
+- import_tasks: logrotate.yml
