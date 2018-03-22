@@ -19,7 +19,7 @@ repl-diskless-sync no
 repl-diskless-sync-delay 5
 repl-disable-tcp-nodelay no
 slave-priority 100
-{% if redis_requirepass and redis_cluster_requirepass == '' %}
+{% if redis_requirepass %}
 requirepass {{ redis_requirepass }}
 {% endif %}
 {% if redis_cluster and redis_requirepass %}
