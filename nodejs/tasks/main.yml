@@ -55,5 +55,5 @@
     registry: "{{ npm_registry }}"
     state: present
   with_items: "{{ nodejs_npm_global_packages }}"
-    environment:
+  environment:
     PATH: "{{ software_install_path }}/nodejs/bin/:$PATH"
