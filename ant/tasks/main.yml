@@ -11,7 +11,7 @@
   connection: local
   register: ivy_file_result
   
-- name: Create software files path.
+- name: Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not ant_file_result.stat.exists
@@ -20,7 +20,10 @@
   get_url: url={{ ant_file_url }} dest={{ software_files_path }}
   connection: local
   when: not ant_file_result.stat.exists
-
+  
+- name: Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+  
 - name: Download ivy file.
   get_url: url={{ ivy_file_url }} dest={{ software_files_path }}
   connection: local

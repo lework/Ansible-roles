@@ -21,7 +21,6 @@ python `2.6.6`
 
 ## 角色变量
 	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
 
 	grafana_version: "4.4.1"
 	grafana_package_url: "https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana-{{ grafana_version }}-1.x86_64.rpm"

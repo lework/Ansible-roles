@@ -13,7 +13,8 @@ sersync_file_url: "https://storage.googleapis.com/google-code-archive-downloads/
 sersync_xfs: "false"
 sersync_exclude: [] # ["*.ini","*.txt"]
 sersync_logpath: /var/log/sersync
-sersync_conf: /usr/local/sersync/conf
+sersync_home: "{{ software_install_path }}/sersync"
+sersync_conf: "{{ sersync_home }}/conf"
 
 sersync_watch: "" # /data/
 sersync_rsync: {} # {"ip":192.168.77.130, "port":873, "name":data1, "user":t1, "pass":123456,"params":"-artuz"}
@@ -34,4 +35,3 @@ sersync_inotify_modify: false
 
 sersync_crontab: false
 sersync_schedule: 600
-ansible_python_interpreter: /usr/bin/python2.6

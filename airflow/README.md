@@ -36,7 +36,6 @@ os `Centos 6.7 X64`
 	airflow_port: 8080
 
 	env: "HOME=/home/{{ airflow_user }},AIRFLOW_HOME={{ airflow_home }},TMPDIR={{ airflow_tmpdir }}"
-	ansible_python_interpreter: /usr/bin/python2.6
 	
 
 ## 依赖

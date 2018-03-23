@@ -16,6 +16,9 @@
   connection: local
   when: not lua_file_result.stat.exists
 
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
 - name: install_lua | Copy lua file to agent.
   unarchive:
     src: "{{ lua_file_path }}"

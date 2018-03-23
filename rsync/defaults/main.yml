@@ -13,5 +13,3 @@ rsync_maxconn: 200
 rsync_timeout: 300
 rsync_chroot: no
 rsync_shares: {}
-
-ansible_python_interpreter: /usr/bin/python2.6

@@ -30,7 +30,8 @@ os `Centos 6.7 X64`
     sersync_xfs: "false"
     sersync_exclude: [] # ["*.ini","*.txt"]
     sersync_logpath: /var/log/sersync
-    sersync_conf: /usr/local/sersync/conf
+    sersync_home: "{{ software_install_path }}/sersync"
+    sersync_conf: "{{ sersync_home }}/conf"
 
     sersync_watch: "" # /data/
     sersync_rsync: {} # {"ip":192.168.77.130, "port":873, "name":data1, "user":t1, "pass":123456,"params":"-artuz"}
@@ -51,7 +52,6 @@ os `Centos 6.7 X64`
 
     sersync_crontab: false
     sersync_schedule: 600
-    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 

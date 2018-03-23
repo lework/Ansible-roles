@@ -28,7 +28,7 @@
     - libgdbm-dev
   when: ansible_os_family == 'Debian'
 
-- name: Create software files.
+- name: Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
 
@@ -36,7 +36,10 @@
   stat: path={{ ruby_file_path }}
   connection: local
   register: ruby_file_result
-  
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
 - name: Download ruby.
   get_url:
     url: "{{ ruby_download_url }}"

@@ -70,8 +70,6 @@ os `Centos 6.7 X64`
       
     jenkins_plugins_extra: []
 
-    ansible_python_interpreter: /usr/bin/python2.6
-
 
 ## 依赖
 Java (2.53以上版本需要1.8+)

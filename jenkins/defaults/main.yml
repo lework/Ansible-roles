@@ -52,5 +52,3 @@ jenkins_plugins_recommended:
   - ws-cleanup
   
 jenkins_plugins_extra: []
-
-ansible_python_interpreter: /usr/bin/python2.6

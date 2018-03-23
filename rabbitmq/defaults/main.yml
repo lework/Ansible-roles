@@ -29,5 +29,3 @@ rabbitmq_vhost_permission : "'.*' '.*' '.*'"
 rabbitmq_cluster: false
 rabbitmq_policy: "all '^.*' '{\"ha-mode\": \"all\"}'"
 rabbitmq_cluster_ram: false
-
-ansible_python_interpreter: /usr/bin/python2.6

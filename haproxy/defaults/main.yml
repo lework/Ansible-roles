@@ -84,5 +84,3 @@ haproxy_stats_auth: "admin:admin"
 haproxy_stats_realm: "Haproxy\ Statistics"
 haproxy_stats_allow_src: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
 haproxy_stats_uri: "/admin?status"
-
-ansible_python_interpreter: /usr/bin/python2.6

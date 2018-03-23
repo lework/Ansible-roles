@@ -30,7 +30,6 @@ python `2.6.6`
 	jdbc_jar_file: "mysql-connector-java-{{ jdbc_version}}/mysql-connector-java-{{ jdbc_version }}-bin.jar"
 	jdbc_file_url: "http://101.96.10.44/dev.mysql.com/get/Downloads/Connector-J/{{ jdbc_file }}"
 
-	ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 

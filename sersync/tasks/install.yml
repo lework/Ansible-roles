@@ -6,7 +6,7 @@
   connection: local
   register: sersync_file_result
 
-- name: install | Create software files.
+- name: install | Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not sersync_file_result.stat.exists
@@ -15,6 +15,9 @@
   get_url: url={{ sersync_file_url }} validate_certs=no dest={{ software_files_path }}
   connection: local
   when: not sersync_file_result.stat.exists
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
 
 - name: install | Install rsync.
   yum: name=rsync state=present
@@ -28,14 +31,14 @@
 - name: install | Create sersync directory.
   file: "path={{ item }} state=directory"
   with_items:
-    - "/usr/local/sersync/bin"
+    - "{{ sersync_home }}/bin"
     - "{{ sersync_conf }}"
     - "{{ sersync_logpath }}"
     - "{{ sersync_watch }}"
 
 - name: install | Copy sersync bin file to /user/local/sersync/bin.
-  copy: remote_src=True src=/tmp/GNU-Linux-x86/sersync2 dest=/usr/local/sersync/bin/sersync mode=755
+  copy: "remote_src=True src=/tmp/GNU-Linux-x86/sersync2 dest={{ sersync_home }}/bin/sersync mode=755"
   
 - name: install | Set environment variable.
-  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/sersync/bin/:$PATH'
+  lineinfile: dest=/etc/profile line='export PATH={{ sersync_home }}/bin/:$PATH'
 

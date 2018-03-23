@@ -31,8 +31,6 @@ os `Centos 6.7 X64`
     rsync_chroot: no
     rsync_shares: {}
 
-    ansible_python_interpreter: /usr/bin/python2.6
-
 ## 依赖
 
 

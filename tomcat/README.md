@@ -62,8 +62,8 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/tomcat
 
     - hosts: node1
       roles:
-       - { role: tomcat, tomcat_catalina_port: 8081}
-       - { role: tomcat, tomcat_catalina_port: 8082}
+       - { role: tomcat, tomcat_catalina_port: 8081, tomcat_server_port: 8005}
+       - { role: tomcat, tomcat_catalina_port: 8082, tomcat_server_port: 8006}
        
     安装tomcat8
     - hosts: node1

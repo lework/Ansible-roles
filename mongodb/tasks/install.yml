@@ -16,6 +16,9 @@
   connection: local
   when: not mongodb_file_result.stat.exists
 
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
 - name: Copy mongodb file to agent.
   unarchive:
     src: "{{ mongodb_file_path }}"

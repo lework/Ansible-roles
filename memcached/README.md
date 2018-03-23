@@ -37,7 +37,6 @@ os `Centos 6.7 X64`
     memcached_log_verbosity: "-vv"
     memcached_options: "-l {{ memcached_listen_ip }} {{ memcached_log_verbosity }} 2>> {{ memcached_log_file }}"
     
-    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 

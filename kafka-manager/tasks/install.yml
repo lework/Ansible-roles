@@ -6,6 +6,9 @@
   connection: local
   register: kafka_manager_build_file_result
 
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
 - name: "install | Create {{ kafka_manager_user }} group."
   group: name={{ kafka_manager_user }}
 

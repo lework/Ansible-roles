@@ -14,7 +14,6 @@ python `2.6.6`
 
 ## 角色变量
 	software_files_path: "/opt/software"
-	software_install_path: "/usr/local"
 
 	cdh5_version: "5.11.0"
 	cdh5_rpms_url: "http://archive.cloudera.com/cm5/redhat/6/x86_64/cm/{{ cdh5_version }}/RPMS/x86_64"
@@ -27,7 +26,6 @@ python `2.6.6`
 
 	cdh5_server_host: 'localhost'
 
-	ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 

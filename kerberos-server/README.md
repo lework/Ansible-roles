@@ -30,7 +30,6 @@ Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为�
     kerberos_users: []                                           # 要添加的 kerberos 用户信息
     # kerberos_users: [{user: 'user1', pass: 'pass1'},]
     
-    ansible_python_interpreter: /usr/bin/python2.6
 
 ## 依赖
 None

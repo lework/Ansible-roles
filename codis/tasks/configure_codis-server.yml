@@ -1,25 +1,25 @@
 ---
 # author: lework
 
-- name: Set vm.overcommit_memory to 1 in /etc/sysctl.conf.
+- name: configure_server | Set vm.overcommit_memory to 1 in /etc/sysctl.conf.
   sysctl:
    name: vm.overcommit_memory
    value: 1
    state: present
 
-- name: Shutdown transparent_hugepage.
+- name: configure_server | Shutdown transparent_hugepage.
   shell: echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
-- name: Set transparent_hugepage is never to /etc/rc.local.
+- name: configure_server | Set transparent_hugepage is never to /etc/rc.local.
   lineinfile: dest=/etc/rc.local line='echo never > /sys/kernel/mm/transparent_hugepage/enabled'
 
-- name: Create codis-server path.
+- name: configure_server | Create codis-server path.
   file: path={{ item }} state=directory owner=codis group=codis
   with_items:
     - "{{ codis_server_data_path }}"
     - "{{ codis_server_logs_path }}"
 
-- name: Ensure codis-server is configured.
+- name: configure_server | Ensure codis-server is configured.
   template:
     src: codis-server.conf.j2
     dest: "{{ codis_conf_path }}/codis-server_{{ codis_server_port }}.conf"
@@ -27,14 +27,14 @@
     owner: codis
     group: codis
 
-- name: Ensure codis-server daemon shell is configured.
+- name: configure_server | Ensure codis-server daemon shell is configured.
   template:
     src: codis-server.sh.j2
     dest: "/etc/rc.d/init.d/{{ codis_server_daemon }}"
     mode: 0755
 
-- name: Add codis-server services.
+- name: configure_server | Add codis-server services.
   shell: "chkconfig --add {{ codis_server_daemon }}  && chkconfig {{ codis_server_daemon }} on"
 
-- name: Ensure codis-server is running and enabled on boot.
+- name: configure_server | Ensure codis-server is running and enabled on boot.
   service: "name={{ codis_server_daemon }} state=started enabled=yes"

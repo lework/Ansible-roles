@@ -16,6 +16,9 @@
   connection: local
   when: not mysql57_file_result.stat.exists and mysql57_install_from_source
 
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+  
 - name: install | Not found Mysql bin file.
   fail: msg={{ mysql57_file_path }}
   when: not mysql57_file_result.stat.exists and not mysql57_install_from_source

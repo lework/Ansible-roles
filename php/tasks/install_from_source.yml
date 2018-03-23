@@ -6,7 +6,7 @@
   connection: local
   register: php_file_result
 
-- name: install_from_source | Create software files path.
+- name: install_from_source | Create software file directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not php_file_result.stat.exists
@@ -15,6 +15,9 @@
   get_url: url={{ php_file_url }} dest={{ software_files_path }} validate_certs=no
   connection: local
   when: not php_file_result.stat.exists
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
 
 - name: install_from_source | Create php group.
   group: name={{ php_group }}

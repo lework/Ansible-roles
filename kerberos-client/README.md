@@ -33,8 +33,6 @@ Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为�
     kerberos_renew_lifetime: "7d"                              # 凭证最长可以被延期的时限
     kerberos_forwardable: "true"                               # 获取凭证
 
-    ansible_python_interpreter: /usr/bin/python2.6
-
 ## 依赖
 None
 

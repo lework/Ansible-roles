@@ -6,7 +6,7 @@
   connection: local
   register: cm_daemons_file_result
   
-- name: Create software files.
+- name: Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not cm_daemons_file_result.stat.exists
@@ -25,7 +25,10 @@
   get_url: url={{ cdh5_cm_agent_url }} dest={{ software_files_path }}
   connection: local
   when: not cm_agent_file_result.stat.exists
-
+  
+- name: Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+  
 - name: Create cdh5 software dir.
   file: dest={{ software_files_path }}/cdh5 state=directory
 

@@ -6,23 +6,26 @@
   connection: local
   register: mycat_file_result
   
-- name: Create software files.
+- name: Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not mycat_file_result.stat.exists
 
-- name: Download mycat file
+- name: Download mycat file.
   get_url: url={{ mycat_file_url }} dest={{ software_files_path }}
   connection: local
   when: not mycat_file_result.stat.exists
 
-- name: Copy mycat file to agent
+- name: Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: Copy mycat file to agent.
   unarchive:
     src: "{{ mycat_file_path }}"
     dest: "{{ software_install_path }}"
     creates: "{{ software_install_path }}/mycat"
 
-- name: Config environment variable
+- name: Config environment variable.
   lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/mycat/bin/:$PATH'
   run_once: yes
 

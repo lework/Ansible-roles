@@ -9,5 +9,3 @@ kerberos_kadmin_user: root
 
 kerberos_users: []
 # kerberos_users: [{user: 'user1', pass: 'pass1'},]
-
-ansible_python_interpreter: /usr/bin/python2.6

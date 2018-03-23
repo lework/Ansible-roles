@@ -6,7 +6,7 @@
   connection: local
   register: zabbix_agent_file_result
 
-- name: install_source | Create software files path.
+- name: install_source | Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not zabbix_agent_file_result.stat.exists
@@ -15,6 +15,9 @@
   get_url: url={{ zabbix_agent_file_url }} dest={{ software_files_path }} validate_certs=no
   connection: local
   when: not zabbix_agent_file_result.stat.exists
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
 
 - name: install_source | Create zabbix_agent group.
   group: name={{ zabbix_agent_group }}

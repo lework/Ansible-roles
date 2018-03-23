@@ -103,8 +103,6 @@ os `Centos 6.7 X64`
     haproxy_stats_allow_src: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
     haproxy_stats_uri: "/admin?status"
 
-    ansible_python_interpreter: /usr/bin/python2.6
-
 ## 依赖
 
 没有

@@ -6,7 +6,7 @@
   connection: local
   register: erlang_file_result
 
-- name: Create software files path.
+- name: Create software files directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not erlang_file_result.stat.exists

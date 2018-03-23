@@ -6,7 +6,7 @@
   connection: local
   register: hadoop_standalone_file_result
 
-- name: install | Create software files.
+- name: install | Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not hadoop_standalone_file_result.stat.exists
@@ -15,6 +15,9 @@
   get_url: url={{ hadoop_standalone_file_url }} dest={{ software_files_path }}
   connection: local
   when: not hadoop_standalone_file_result.stat.exists
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
 
 - name: install | Copy hadoop file to agent.
   unarchive:

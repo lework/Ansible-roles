@@ -20,7 +20,6 @@ os `Centos 6.7 X64`
 
 ## 角色变量
     software_files_path: "/opt/software"
-    software_install_path: "/usr/local"
 
     consul_version: "0.7.5"
 

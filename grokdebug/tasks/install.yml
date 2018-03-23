@@ -10,7 +10,10 @@
 - name: install | Install the required gem package.
   gem: "name={{ item.name }} version={{ item.version }} user_install=no state=present"
   with_items: "{{ grokdebug_gem_package }}"
-    
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
 - name: install | Unzip the grokdebug package.
   unarchive:
     src: "{{ grokdebug_file_url }}"

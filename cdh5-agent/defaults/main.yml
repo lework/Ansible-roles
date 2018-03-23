@@ -14,5 +14,3 @@ cdh5_cm_agent: "cloudera-manager-agent-5.11.0-1.cm5110.p0.101.el6.x86_64.rpm"
 cdh5_cm_agent_url: "{{ cdh5_rpms_url }}/{{ cdh5_cm_agent }}"
 
 cdh5_server_host: 'localhost'
-
-ansible_python_interpreter: /usr/bin/python2.6

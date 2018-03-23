@@ -12,5 +12,3 @@ python_file_url: "http://www.python.org/ftp/python/{{ python_version }}/Python-{
 
 pip_source_url: "https://pypi.tuna.tsinghua.edu.cn/simple"
 change_pip_source: true
-
-ansible_python_interpreter: /usr/bin/python2.6

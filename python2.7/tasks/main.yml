@@ -6,7 +6,7 @@
   connection: local
   register: python_file_result
  
-- name: Create software files .
+- name: Create software directory.
   file: path={{ software_files_path }} state=directory
   connection: local
   when: not python_file_result.stat.exists
@@ -15,6 +15,9 @@
   get_url: url={{ python_file_url }} dest={{ software_files_path }}
   connection: local
   when: not python_file_result.stat.exists
+
+- name: Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
 
 - name: Check if python remote soft link is already configured.
   stat: path="/usr/local/bin/python2.7"

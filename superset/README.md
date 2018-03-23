@@ -45,7 +45,6 @@ os `Centos 6.7 X64`
     superset_port: 8080
 
     env: "HOME=/home/{{ superset_user }}"
-    ansible_python_interpreter: /usr/bin/python2.6
     
 
 ## 依赖

@@ -46,8 +46,6 @@ os `Centos 6.7 X64`
     rabbitmq_policy: "all '^.*' '{\"ha-mode\": \"all\"}'"
     rabbitmq_cluster_ram: false
 
-    ansible_python_interpreter: /usr/bin/python2.6
-
 ## 依赖
 
 ## github地址
