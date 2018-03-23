@@ -16,7 +16,7 @@
     
 - name: "configure | Add environment variable to /etc/rc.d/init.d/{{ tomcat_services_name }}"
   blockinfile:
-    dest: "/etc/rc.d/init.d/{{ tomcat_services_name }}"
+    path: "/etc/rc.d/init.d/{{ tomcat_services_name }}"
     insertafter: "# resolve links*"
     marker: " "
     block: |
@@ -27,6 +27,13 @@
      CATALINA_OPTS='{{ tomcat_catalina_opts }}'
      TOMCAT_USER={{ tomcat_user }}
 
+     
+- name: "configure | Change jsvc current working directory."
+  lineinfile:
+    path: "/etc/rc.d/init.d/{{ tomcat_services_name }}"
+    insertafter: '-user \$TOMCAT_USER \\'
+    line: '      -cwd $CATALINA_TMP \'
+        
 - name: "configure | Ensure {{ tomcat_services_name }} is running for centos6."
   service: "name={{ tomcat_services_name }} state=started enabled=yes"
   when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
