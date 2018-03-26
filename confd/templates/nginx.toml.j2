@@ -1,0 +1,12 @@
+[template]
+prefix = "{{ nginx_prefix }}"
+src = "{{ nginx_src }}"
+dest = "{{ nginx_dest }}"
+owner = "{{ nginx_owner }}"
+mode = "{{ nginx_mode }}"
+keys = [
+  "{{ nginx_domain_keys }}",
+  "{{ nginx_upstream_keys }}",
+]
+check_cmd = "{{ nginx_check_cmd }}"
+reload_cmd = "{{ nginx_reload_cmd }}"

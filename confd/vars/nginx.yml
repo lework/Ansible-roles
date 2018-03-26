@@ -1,0 +1,11 @@
+---
+
+nginx_prefix: "/nginx_app"
+nginx_src: "nginx.tmpl"
+nginx_dest: "/usr/local/nginx/conf/app.conf"
+nginx_owner: "nginx"
+nginx_mode: "0644"
+nginx_domain_keys: 'domain'
+nginx_upstream_keys: 'upstream'
+nginx_check_cmd: "/usr/local/nginx/sbin/nginx -t"
+nginx_reload_cmd: "/usr/local/nginx/sbin/nginx -s reload"

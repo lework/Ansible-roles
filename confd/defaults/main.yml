@@ -1,0 +1,24 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+confd_version: "0.15.0"
+confd_file: "confd-{{ confd_version }}-linux-amd64"
+confd_path: "{{ software_install_path }}/confd"
+confd_file_path: "{{ software_files_path }}/{{ confd_file }}"
+
+confd_file_url: "https://github.com/kelseyhightower/confd/releases/download/v{{ confd_version }}/{{ confd_file }}"
+
+confd_manager_app: "nginx"
+confd_backend: "etcd"
+confd_backend_node: "http://127.0.0.1:2379"
+
+confd_interval: 3
+
+confd_run_opts: >
+  -interval {{ confd_interval }}
+  -confdir {{ confd_path }}
+  -backend {{ confd_backend}}
+  -node {{ confd_backend_node}}

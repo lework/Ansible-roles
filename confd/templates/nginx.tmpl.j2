@@ -1,0 +1,18 @@
+upstream {% raw %}{{{% endraw %} getv "/{{ nginx_domain_keys }}" {% raw %}}}{% endraw %} {
+{% raw %}{{{% endraw %} range getvs "/{{ nginx_upstream_keys }}/*" {% raw %}}}{% endraw %}
+{% raw %}
+    server {{.}};
+{{ end }}
+{% endraw %}
+}
+
+server {
+    server_name  {% raw %}{{{% endraw %} getv "/{{ nginx_domain_keys }}" {% raw %}}}{% endraw %};
+    location / {
+        proxy_pass        http://{% raw %}{{{% endraw %} getv "/{{ nginx_domain_keys }}" {% raw %}}}{% endraw %};
+        proxy_redirect    off;
+        proxy_set_header  Host             $host;
+        proxy_set_header  X-Real-IP        $remote_addr;
+        proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+   }
+}

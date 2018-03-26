@@ -1,0 +1,31 @@
+---
+# author: lework
+
+- name: install | Check if confd local file is already configured.
+  stat: path={{ confd_file_path }}
+  connection: local
+  register: confd_file_result
+
+- name: install | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not confd_file_result.stat.exists
+  
+- name: install | Download confd file.
+  get_url: url={{ confd_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not confd_file_result.stat.exists
+
+- name: install | Create confd work directory.
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ confd_path }}/bin"
+    - "{{ confd_path }}/logs"
+    - "{{ confd_path }}/conf.d"
+    - "{{ confd_path }}/templates"
+    
+- name: install | Copy confd file to agent.
+  copy:
+    src: "{{ confd_file_path }}"
+    dest: "{{ confd_path }}/bin/confd"
+    mode: "0755"

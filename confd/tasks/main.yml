@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- name: "Include {{ confd_manager_app }} variables."
+  include_vars: "{{ confd_manager_app }}.yml"
+  
+- import_tasks: install.yml
+- import_tasks: configure.yml

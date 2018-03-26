@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- name: configure | Copy template resources.
+  template:
+    src: "{{ confd_manager_app }}.toml.j2"
+    dest: "{{ confd_path }}/conf.d/{{ confd_manager_app }}.toml"
+    
+- name: configure | Copy source template.
+  template:
+    src: "{{ confd_manager_app }}.tmpl.j2"
+    dest: "{{ confd_path }}/templates/{{ confd_manager_app }}.tmpl"
+    
+- name: configure | Copy confd init script.
+  template:
+    src: "confd.init.j2"
+    dest: "/etc/rc.d/init.d/confd"
+    mode: 0755
+    
+- name: "configure | Ensure confd is running for centos6."
+  service: "name=confd state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: "configure | Ensure confd is running for centos7."
+  systemd: "name=confd state=started enabled=true"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
