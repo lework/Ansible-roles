@@ -1,6 +1,28 @@
 ---
 # author: lework
 
+
+- name: configure | Set vm.overcommit_memory to 1 in /etc/sysctl.conf.
+  sysctl:
+   name: vm.overcommit_memory
+   value: 1
+   state: present
+
+- name: configure | TCP backlog setting of 512.
+  shell: echo 512 > /proc/sys/net/core/somaxconn
+  
+- name: configure | Shutdown transparent_hugepage.
+  shell: "echo never > {{ item }}"
+  with_items:
+    - '/sys/kernel/mm/transparent_hugepage/enabled'
+    - '/sys/kernel/mm/transparent_hugepage/defrag'
+
+- name: configure | Set transparent_hugepage is never to /etc/rc.local.
+  lineinfile: dest=/etc/rc.local line='echo never > {{ item }}'
+  with_items:
+    - '/sys/kernel/mm/transparent_hugepage/enabled'
+    - '/sys/kernel/mm/transparent_hugepage/defrag'
+
 - name: configure | Create redis group.
   group: name={{ redis_user }}
 
