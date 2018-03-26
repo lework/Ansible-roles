@@ -20,6 +20,9 @@ lockfile="/var/lock/subsys/redis_{{ redis_port | default('6379') }}"
 start() {
     [ -f $REDIS_CONFIG ] || exit 6
     [ -x $exec ] || exit 5
+    sysctl vm.overcommit_memory=1
+    if test -f /sys/kernel/mm/transparent_hugepage/enabled; then echo never > /sys/kernel/mm/transparent_hugepage/enabled fi 
+    if test -f /sys/kernel/mm/transparent_hugepage/defrag; then echo never > /sys/kernel/mm/transparent_hugepage/defrag fi
     echo -n $"Starting $name: "
     daemon --user ${REDIS_USER-redis} "$exec $REDIS_CONFIG"
     retval=$?
