@@ -2,13 +2,37 @@
 # author: lework
 
 - name: configure | Create etcd Directory.
-  file: path={{ item }} state=directory
+  file: path={{ item }} state=directory owner={{ etcd_user }} group={{ etcd_user }}
   with_items:
    - "{{ etcd_datadir }}"
    - "{{ etcd_wardir }}"
+   - "{{ etcd_confdir }}"
 
 - name: configure | Setup etcd.conf file.
   template:
-    dest: "{{ etcd_datadir }}/etcd.conf"
+    dest: "{{ etcd_confdir }}/etcd.conf"
     mode: 0644
     src: etcd.conf.j2
+    owner: "{{ etcd_user }}"
+    group: "{{ etcd_user }}"
+
+- block: 
+  - name: configure | Setup systemd etcd service.
+    template:
+      dest: "/usr/lib/systemd/system/{{ etcd_service_name }}.service"
+      mode: 0644
+      src: etcd.service.j2
+      
+  - name: "configure | Ensure {{ etcd_service_name }} is running for centos7."
+    systemd: "name={{ etcd_service_name }} state=started enabled=true"
+    ignore_errors: true
+    
+  - name: "configure | Wait {{ etcd_port }} port is opening."
+    wait_for: port={{ etcd_port }}
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+- name: configure | Change the initial cluster state to already exist.
+  replace:
+    path: "{{ etcd_confdir }}/etcd.conf"
+    regexp: "initial-cluster-state: 'new'"
+    replace: "initial-cluster-state: 'existing'"

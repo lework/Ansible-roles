@@ -32,19 +32,12 @@
 - name: install | Create etcd dir soft link.
   file: "src={{ software_install_path }}/etcd-v{{ etcd_version }}-linux-amd64 dest={{ software_install_path }}/etcd state=link"
   when: not etcd_soft_link_result.stat.exists
+  
+- name: install | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/etcd:$PATH'
+  
+- name: install | Create etcd group.
+  group: name={{ etcd_user }}
 
-- name: install | Check if /usr/local/bin/etcd is already configured.
-  stat: path=/usr/local/bin/etcd
-  register: etcd_etcd_link_result
-
-- name: install | Create etcd link.
-  file: "src={{ software_install_path }}/etcd/etcd dest=/usr/local/bin/etcd state=link"
-  when: not etcd_etcd_link_result.stat.exists
-
-- name: install | Check if /usr/local/bin/etcdctl is already configured.
-  stat: path="/usr/local/bin/etcdctl"
-  register: etcd_etcdctl_link_result
-
-- name: install | Create etcd link.
-  file: "src={{ software_install_path }}/etcd/etcdctl dest=/usr/local/bin/etcdctl state=link"
-  when: not etcd_etcdctl_link_result.stat.exists
+- name: install | Create etcd user.
+  user: name={{ etcd_user }} group={{ etcd_user }} shell=/sbin/nologin

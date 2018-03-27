@@ -1,5 +1,5 @@
 ---
 # author: lework
 
-- include: install.yml
-- include: configure.yml
+- import_tasks: install.yml
+- import_tasks: configure.yml
