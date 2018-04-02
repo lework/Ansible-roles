@@ -6,7 +6,10 @@
   with_items:
     - "{{ mysql_portdir }}"
     - "{{ mysql_datadir }}"
-
+    
+- name: Configure | Create Mysql log file.
+  file: path={{ mysql_portdir }}/mysql_{{ mysql_port }}_error.log state=touch owner=mysql group=mysql
+  
 - name: Configure | Initialize character set utf8mb4.
   template: src=Index.xml.j2 dest=/usr/share/mysql/charsets/Index.xml backup=yes
 

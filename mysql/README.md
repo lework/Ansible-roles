@@ -15,19 +15,21 @@ MySQL是一个关系型数据库管理系统，由瑞典MySQL AB 公司开发，
 
 ## 测试环境
 
-ansible `2.3.0.0`
-os `Centos 6.7 X64`
-python `2.6.6`
+ansible `2.4.2.0`
+
+os `Centos 7.2 X64`
+
+python `2.7.5`
 
 ## 角色变量
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    mysql_version: "5.6.10"
+    mysql_version: "5.6.39"
 
     mysql_file: "mysql-{{ mysql_version }}.tar.gz"
     mysql_file_path: "{{ software_files_path }}/{{ mysql_file }}"
-    mysql_file_url: "https://cdn.mysql.com/archives/mysql-5.6/mysql-{{ mysql_version }}.tar.gz"
+    mysql_file_url: "https://cdn.mysql.com/Downloads/MySQL-5.6/mysql-{{ mysql_version }}.tar.gz"
     mysql_dirname: "mysql-{{ mysql_version }}"
 
     mysql_port: "3306"
