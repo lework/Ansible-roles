@@ -2,7 +2,10 @@
 # author: lework
 
 - name: cluster | Install ruby.
-  package: name=ruby state=present
+  package: name={{ item }} state=present
+  with_items:
+    - ruby
+    - rubygems
 
 - name: cluster | Uninstall old redis gems.
   gem: name=redis state=absent
@@ -16,11 +19,16 @@
     line: '        #yes_or_die "Can I set the above configuration?"'
     path: "{{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb"
 
+- name: cluster | Get gem repository path.
+  shell: "gem install --help  | grep '\\-\\-install-dir /' | gawk -F ' /'  '{print $2}'"
+  register: gem_repo_path
+  changed_when: false
+
 - name: cluster | Set redis ruby client password.
   lineinfile:
     regexp: "      :password => nil,"
     line: "      :password => \"{{ redis_requirepass }}\","
-    path: "/usr/local/share/gems/gems/redis-3.0.0/lib/redis/client.rb"
+    path: "/{{ gem_repo_path.stdout }}/gems/redis-3.0.0/lib/redis/client.rb"
   when: redis_requirepass != ''
 
 - name: cluster | Create cluster.
