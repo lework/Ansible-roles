@@ -1,0 +1,13 @@
+---
+# author: lework
+
+
+shipyard_lang: 'cn'
+# (cn, en)
+shipyard_action: 'deploy'
+# (deploy, upgrade, node, remove)
+
+shipyard_port: 8080
+shipyard_proxy_port: 2375
+shipyard_discover: ''
+# etcd://node:4001

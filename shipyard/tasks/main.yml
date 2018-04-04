@@ -1,0 +1,23 @@
+---
+# author: lework
+
+- name: Check for docker starts.
+  stat: /var/run/docker.sock
+  register: docker_stat
+  failed_when: not docker_stat.stat.exists
+
+- name: deploy shipyard.
+  script: "deploy-shipyard-{{ shipyard_lang }}.sh"
+  environment:
+    ACTION: "{{ shipyard_action }}"
+    DISCOVERY: "{{ shipyard_discover }}"
+    PORT: "{{ shipyard_port }}"
+    PROXY_PORT: "{{ shipyard_proxy_port }}"
+
+- name: Wait for shipyard proxy start.
+  wait_for: port={{ shipyard_proxy_port }}
+  when: shipyard_action != 'remove'
+
+- name: Wait for shipyard start.
+  wait_for: port={{ shipyard_port }}
+  when: shipyard_action == 'deploy' and shipyard_action != 'remove'
