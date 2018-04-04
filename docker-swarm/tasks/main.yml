@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: Check for docker starts.
+  stat: path=/var/run/docker.sock
+  register: docker_stat
+  failed_when: not docker_stat.stat.exists
+
+- name: Init swarm.
+  shell: "docker swarm init --advertise-addr {{ swarm_advertise_addr }}"
+  when: swarm_node == 'master'
+
+- name: Get swarm token.
+  shell: docker swarm join-token worker | grep token
+  register: swarm_token_cmd
+  delegate_to: "{{ swarm_master }}"
+  when: swarm_master and swarm_node == 'node'
+
+- name: Join swarm.
+  shell: "{{ swarm_token_cmd.stdout }}"
+  when: swarm_node == 'node' and swarm_token_cmd.stdout
