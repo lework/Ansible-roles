@@ -2,7 +2,7 @@
 # author: lework
 
 - name: Check for docker starts.
-  stat: /var/run/docker.sock
+  stat: path=/var/run/docker.sock
   register: docker_stat
   failed_when: not docker_stat.stat.exists
 
