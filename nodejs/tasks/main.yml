@@ -60,3 +60,13 @@
   with_items: "{{ nodejs_npm_global_packages }}"
   environment:
     PATH: "{{ software_install_path }}/nodejs/bin/:$PATH"
+    
+- name: Create nodejs group.
+  group: name={{ nodejs_user }}
+
+- name: Create nodejs user.
+  user: name={{ nodejs_user }} group={{ nodejs_user }} shell=/sbin/nologin
+
+- name: Create nodjs logs directory.
+  file: path={{ nodejs_log_path }} state=directory owner={{ nodejs_user }} group={{ nodejs_user }}
+  
