@@ -6,7 +6,7 @@
   with_items: "{{ docker_old }}"
 
 - name: Ensure docker packages are installed.
-  yum: "name={{ item }} state=installed"
+  yum: "name={{ item }} state=installed  update_cache=yes"
   with_items: "{{ docker_packages }}"
    
 - name: Install docker repo.
