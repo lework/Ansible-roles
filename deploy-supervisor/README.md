@@ -70,22 +70,22 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/deploy-supervisor
 ## Example Playbook
 
     # 发布代码
-	- hosts: node1
+        - hosts: node1
           vars:
             - deploy_file: /opt/test.jar
             - deploy_service_name: test_spingboot
             - deploy_service_port: 8084
             - deploy_verify_url: "http://node1:8084/"
-	  roles:
-	    - deploy-supervisor
+          roles:
+            - deploy-supervisor
       
     # 回滚代码，只能回滚上一次线上代码，应用于当前发布程序有问题回滚正常版本场景。
-	- hosts: node1
+        - hosts: node1
           vars:
             - deploy_rollback: true
             - deploy_service_file: test.jar
             - deploy_service_name: test_spingboot
             - deploy_service_port: 8084
             - deploy_verify_url: "http://node1:8084/"
-	  roles:
-	    - deploy-supervisor
+          roles:
+            - deploy-supervisor
