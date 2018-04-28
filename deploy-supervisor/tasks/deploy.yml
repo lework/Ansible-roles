@@ -1,0 +1,32 @@
+---
+# author: lework
+
+- name: deloy | 拷贝代码至目标服务器。
+  copy:
+    src: "{{ deploy_file_stats.stdout_lines[0] }}"
+    dest: "{{ deploy_code_online_path }}"
+
+- name: deloy | 关闭服务。
+  supervisorctl:
+    name: "{{ deploy_service_name }}"
+    state: stopped
+    supervisorctl_path: "{{ deploy_service_start_script }}"
+  
+- name: deloy | 等待端口关闭。
+  wait_for: port={{ deploy_service_port }} state=stopped delay={{ deploy_service_port_delay }} timeout={{ deploy_service_port_timeout }}
+  
+- name: deloy | 移动线上代码。
+  shell: "mv {{ deploy_service_workpath }}/{{ deploy_file_stats.stdout_lines[0] | basename }} {{ deploy_code_previous_path }}/"
+  ignore_errors: true
+  
+- name: deloy | 部署最新代码。
+  copy: "src={{ deploy_code_online_path }}/{{ deploy_file_stats.stdout_lines[0] | basename }} dest={{ deploy_service_workpath }} owner={{ deploy_service_user }} remote_src=yes"
+  
+- name: deloy | 启动服务。
+  supervisorctl:
+    name: "{{ deploy_service_name }}"
+    state: started
+    supervisorctl_path: "{{ deploy_service_start_script }}"
+  
+- name: deloy | 等待端口开启。
+  wait_for: port={{ deploy_service_port }} delay={{ deploy_service_port_delay }} timeout={{ deploy_service_port_timeout }}

@@ -1,0 +1,47 @@
+---
+# author: lework
+
+# 发布的代码文件，包含绝对路径，如:/tmp/test.jar
+deploy_file: ""
+
+# supervisor应用的端口
+deploy_service_port: ""
+
+# 等待多少秒检测端口
+deploy_service_port_delay: 1
+
+# 检测端口超时时间
+deploy_service_port_timeout: 90
+
+# supervisor应用的名称
+deploy_service_name: ""
+
+# 服务文件
+deploy_service_file: ""
+
+# 发布服务用户
+deploy_service_user: "spring"
+
+# 发布服务的家目录
+deploy_service_workpath: "/Microservices"
+
+# supervisorctl 管理程序
+deploy_service_start_script: "/usr/bin/supervisorctl"
+
+# 验证url
+deploy_verify_url: ""
+
+# 临时目录
+deploy_file_path: "/packages"
+
+# 上线代码的存储目录
+deploy_code_online_path: "{{ deploy_file_path }}/online"
+
+# 当前代码(也就是上一版本的代码)的存储目录
+deploy_code_previous_path: "{{ deploy_file_path }}/previous"
+
+# 历史代码存储目录
+deploy_code_history_path: "{{ deploy_file_path }}/history"
+
+# 是否回滚
+deploy_rollback: false
