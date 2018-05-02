@@ -15,25 +15,27 @@ zabbix server可以通过SNMP，zabbix agent，ping，端口监视等方法提�
 
 ## 测试环境
 
-ansible `2.3.0.0`
-os `Centos 6.7 X64`
-python `2.6.6`
+ansible `2.5.1`
+
+os `Centos 7.2.1511 X64`
+
+python `2.7.5`
 
 ## 角色变量
+
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    zabbix_server_version: "3.2.6"
+    zabbix_server_version: "3.4.8"
 
     zabbix_server_file: "zabbix-{{ zabbix_server_version }}.tar.gz"
     zabbix_server_file_path: "{{ software_files_path }}/{{ zabbix_server_file }}"
     zabbix_server_file_url: "https://jaist.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_server_version }}/{{ zabbix_server_file }}"
 
-    zabbix_server_repo_url: "http://repo.zabbix.com/zabbix/3.2/rhel/6/x86_64/zabbix-release-3.2-1.el6.noarch.rpm"
     zabbix_server_packages:
-      - "zabbix-server-mysql-{{ zabbix_server_version }}-1.el6"
-      - "zabbix-web-mysql-{{ zabbix_server_version }}-1.el6"
-      - "zabbix-agent-{{ zabbix_server_version }}-1.el6"
+      - "zabbix-server-mysql-{{ zabbix_server_version }}"
+      - "zabbix-web-mysql-{{ zabbix_server_version }}"
+      - "zabbix-agent-{{ zabbix_server_version }}"
 
     zabbix_server_user: zabbix
     zabbix_server_group: zabbix
@@ -67,7 +69,7 @@ python `2.6.6`
 
 ## 依赖
 
-None
+Mysql, Httpd, PHP
 
 ## github地址
 https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-server
@@ -77,66 +79,62 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-server
     源码安装
     ---
     # 配置web服务器和mysql服务器
-    - hosts: node2
+    - hosts: node4
       vars:
-       - zabbix_server_db: zabbix
-       - zabbix_server_db_user: zabbix
-       - zabbix_server_db_password: zabbix
-    
-      roles: 
-       - { role: php, php_install_from_source: true }
-       - mysql
-    
-      # 配置zabbix数据库,如果有可省略此步骤
-      tasks:
-       - name: configure_db | Create zabbix database.
-         shell: mysql -uroot -p123456 -h192.168.77.130 -P3306 -e "{{ item }}"
-         with_items:
-           - "create database {{ zabbix_server_db }} character set utf8 collate utf8_bin;"
-           - "grant all privileges on {{  zabbix_server_db }}.* to '{{ zabbix_server_db_user }}'@'%' identified by '{{ zabbix_server_db_password }}';"
-    
-    # 配置zabbix-server
-    - hosts: node2
-      vars:
-       - zabbix_server_db: zabbix
-       - zabbix_server_db_user: zabbix
-       - zabbix_server_db_password: zabbix
-       - zabbix_server_db_host: 192.168.77.130
-    
+        - zabbix_server_db: zabbix
+        - zabbix_server_db_user: zabbix
+        - zabbix_server_db_password: zabbix
+        - zabbix_server_db_host: 127.0.0.1
       roles:
-       - { role: zabbix-server, zabbix_server_install_from_source: true }
+        - { role: mysql57 , mysql57_password: "123456" }
+        - { role: php, php_httpd_enable: true, php_install_from_source: true }
+
+      tasks:
+        - name: configure_db | Create zabbix database.
+          shell: source /etc/profile; mysql -uroot -p123456 -h192.168.77.133 -P3306 -e "{{ item }}"
+          with_items:
+            - "create database {{ zabbix_server_db }} character set utf8 collate utf8_bin;"
+            - "grant all privileges on {{  zabbix_server_db }}.* to '{{ zabbix_server_db_user }}'@'{{ zabbix_server_db_host }}' identified by '{{ zabbix_server_db_password }}';"
+    # 配置zabbix-server
+    - hosts: node4
+      vars:
+        - zabbix_server_db: zabbix
+        - zabbix_server_db_user: zabbix
+        - zabbix_server_db_password: zabbix
+        - zabbix_server_db_host: 127.0.0.1
+        - zabbix_server_install_from_source: true
+
+      roles:
+        - zabbix-server
     
     rpm方式安装
     ---
     # 配置web服务器和mysql服务器
-    - hosts: node2
+    - hosts: node4
       vars:
-       - zabbix_server_db: zabbix
-       - zabbix_server_db_user: zabbix
-       - zabbix_server_db_password: zabbix
-   
-      roles: 
-       - php
-       - mysql
-   
-      # 配置zabbix数据库,如果有可省略此步骤
-      tasks:
-       - name: configure_db | Create zabbix database.
-         shell: mysql -uroot -p123456 -h192.168.77.130 -P3306 -e "{{ item }}"
-         with_items:
-          - "create database {{ zabbix_server_db }} character set utf8 collate utf8_bin;"
-          - "grant all privileges on {{  zabbix_server_db }}.* to '{{ zabbix_server_db_user }}'@'%' identified by '{{ zabbix_server_db_password }}';"
-   
-    # 配置zabbix-server
-    - hosts: node2
-      vars:
-       - zabbix_server_db: zabbix
-       - zabbix_server_db_user: zabbix
-       - zabbix_server_db_password: zabbix
-       - zabbix_server_db_host: 192.168.77.130
-   
+        - zabbix_server_db: zabbix
+        - zabbix_server_db_user: zabbix
+        - zabbix_server_db_password: zabbix
+        - zabbix_server_db_host: 127.0.0.1
       roles:
-       - zabbix-server
+        - { role: mysql57 , mysql57_password: "123456" }
+
+      tasks:
+        - name: configure_db | Create zabbix database.
+          shell: source /etc/profile; mysql -uroot -p123456 -h192.168.77.133 -P3306 -e "{{ item }}"
+          with_items:
+            - "create database {{ zabbix_server_db }} character set utf8 collate utf8_bin;"
+            - "grant all privileges on {{  zabbix_server_db }}.* to '{{ zabbix_server_db_user }}'@'{{ zabbix_server_db_host }}' identified by '{{ zabbix_server_db_password }}';"
+    # 配置zabbix-server
+    - hosts: node4
+      vars:
+        - zabbix_server_db: zabbix
+        - zabbix_server_db_user: zabbix
+        - zabbix_server_db_password: zabbix
+        - zabbix_server_db_host: 127.0.0.1
+
+      roles:
+        - zabbix-server
    
 ## 使用
 
@@ -144,4 +142,5 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-server
 ~]# /etc/init.d/zabbix-server 
 Usage: /etc/init.d/zabbix-server {start|stop|status|restart|try-restart|force-reload}
 
+systemctl status zabbix-server
 ```

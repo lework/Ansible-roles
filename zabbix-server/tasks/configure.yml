@@ -1,8 +1,8 @@
 ---
 # author: lework
 
-- name: configure | Set hostname.
-  hostname: name={{ zabbix_server_hostanme }}
+#- name: configure | Set hostname.
+#  hostname: "name='{{ zabbix_server_hostanme }}'"
 
 - block:
   - name: configure | Create zabbix logs path.
@@ -21,29 +21,20 @@
      - zabbix_agentd
 
   - name: configure | Create zabbix server mysql from source install.
-    mysql_db: 
-      login_host: "{{ zabbix_server_db_host }}"
-      login_port: "{{ zabbix_server_db_port }}"
-      login_user: "{{ zabbix_server_db_user }}"
-      login_password: "{{ zabbix_server_db_password }}"
-      state: import
-      name: "{{ zabbix_server_db }}"
-      target: "{{ zabbix_server_source_dir }}/database/mysql/{{ item }}"
+    shell: "source /etc/profile;cat {{ zabbix_server_source_dir }}/database/mysql/{{ item }} | mysql -u{{ zabbix_server_db_user }} -p{{ zabbix_server_db_password }} -h{{ zabbix_server_db_host }} -P{{ zabbix_server_db_port }} {{ zabbix_server_db }}"
     with_items:
      - "schema.sql"
      - "images.sql"
      - "data.sql"
+  - name: configure | Set zabbix configuration file in httpd.
+    template:
+      src: zabbix.conf
+      dest: "/etc/httpd/conf.d/zabbix.conf"
+
   when: zabbix_server_install_from_source
  
 - name: configure | Create zabbix server mysql from package install.
-  mysql_db: 
-    login_host: "{{ zabbix_server_db_host }}"
-    login_port: "{{ zabbix_server_db_port }}"
-    login_user: "{{ zabbix_server_db_user }}"
-    login_password: "{{ zabbix_server_db_password }}"
-    state: import
-    name: "{{ zabbix_server_db }}"
-    target: "/usr/share/doc/zabbix-server-mysql-{{ zabbix_server_version }}/create.sql.gz"
+  shell: "source /etc/profile;zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -u{{ zabbix_server_db_user }} -p{{ zabbix_server_db_password }} -h{{ zabbix_server_db_host }} -P{{ zabbix_server_db_port }} {{ zabbix_server_db }}"
   when: not zabbix_server_install_from_source
    
 - name: configure | Setup zabbix server config file.
@@ -53,16 +44,16 @@
    - { r: "DBUser=zabbix", s: "DBUser={{ zabbix_server_db_user }}"}
    - { r: "# DBPassword=", s: "DBPassword={{ zabbix_server_db_password }}"}
    - { r: "# DBHost=localhost", s: "DBHost={{ zabbix_server_db_host }}"}
+   
+- name: configure | Configure zabbix time zone.
+  replace:
+    path: /etc/httpd/conf.d/zabbix.conf
+    regexp: "# php_value date.timezone Europe/Riga"
+    replace: "php_value date.timezone Asia/Shanghai"
+  when: not zabbix_server_install_from_source
 
-- name: configure | fixs zabbix web bugs.
-  lineinfile: 
-    path: "{{ zabbix_server_webroot }}/include/func.inc.php"
-    insertafter: '\$last\ =\ strtolower\(substr\(\$val, -1\)\);'
-    line: '        $val = substr_replace(trim($val), "", -1);'
-  when: zabbix_server_version == '3.2.6'
-    
 - name: configure | Ensure zabbix services is started and enabled on boot.
-  service: "name={{ item }} state=started enabled=yes"
+  service: "name={{ item }} state=restarted enabled=yes"
   with_items:
    - zabbix-server
    - zabbix-agent

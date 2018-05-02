@@ -46,6 +46,8 @@
     - OpenIPMI-devel
     - openssl-devel
     - openldap-devel
+    - libevent-devel
+    - "{{ zabbix_server_webserver }}"
   when: ansible_os_family == 'RedHat'
 
 - name: install_source | Check if zabbix_server init file is already configured.
