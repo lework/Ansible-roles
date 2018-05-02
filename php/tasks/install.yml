@@ -1,6 +1,13 @@
 ---
 # author: lework
 
+- name: install | Install apache httpd.
+  package: name={{ item }}
+  with_items:
+    - httpd
+    - httpd-devel
+  when: php_httpd_enable
+
 - name: install | Check if PHP is installed.
   command: which php
   changed_when: false

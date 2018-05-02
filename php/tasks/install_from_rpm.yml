@@ -5,5 +5,5 @@
   yum: "name={{ php_rpm_url }} state=present"
     
 - name: install_from_rpm | Ensure PHP packages are installed.
-  package: "name={{ item }} state=installed"
+  yum: "name={{ item }} state=installed update_cache=yes"
   with_items: "{{ php_rpm }}"

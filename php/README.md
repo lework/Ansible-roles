@@ -1,6 +1,6 @@
 # Ansible Role: php
 
-安装php7环境, 使用php-fpm管理。
+安装php7环境, 使用php-fpm管理,或者使用httpd.
 
 ## 要求
 
@@ -8,8 +8,10 @@
 
 ## 测试环境
 
-ansible `2.4.2.0`
-os `Centos 7.2 X64`
+ansible `2.5.1`
+
+os `Centos 7.2.1511 X64`
+
 python `2.7.5`
 
 ## 角色变量
@@ -23,10 +25,11 @@ python `2.7.5`
     php_install_path: "{{ software_install_path }}/php-{{ php_version }}"
     php_file_url: "http://cn2.php.net/distributions/{{ php_file }}"
 
-    php_rpm_url: "https://mirror.webtatic.com/yum/el7/webtatic-release.rpm"
+    php_rpm_url: "https://mirror.webtatic.com/yum/el{{ansible_distribution_major_version}}/webtatic-release.rpm"
 
     php_install_from_source: false
 
+    php_httpd_enable: false
     php_user: "apache"
     php_group: "apache"
 
@@ -55,11 +58,13 @@ python `2.7.5`
         --mandir={{ php_install_path }}/php/man
         --with-config-file-path={{ php_conf_paths }}
         --with-config-file-scan-dir={{ php_extension_conf_paths }}
-        --with-mcrypt=/usr/include
+        --with-mcrypt=/usr/include{% if php_httpd_enable %} --with-apxs2=/usr/bin/apxs{% endif %}
         --with-mhash
         --with-openssl
+        --with-mysql-sock=/var/lib/mysql/mysql.sock
         --with-mysqli=shared,mysqlnd
         --with-pdo-mysql=shared,mysqlnd
+        --with-pdo-sqlite
         --with-gd
         --with-curl
         --with-iconv
@@ -93,12 +98,12 @@ python `2.7.5`
         --enable-session
         --enable-opcache
         --enable-fpm
+        --enable-mysqlnd
         --disable-debug
         --disable-rpath
         --disable-fileinfo
         --without-gdbm
         --without-pear
-        
         
     php_enable_php_fpm: true
     php_fpm_listen: "127.0.0.1:9000"
@@ -129,8 +134,8 @@ python `2.7.5`
 
     php_expose_php: "On"
     php_memory_limit: "256M"
-    php_max_execution_time: "60"
-    php_max_input_time: "60"
+    php_max_execution_time: "300"
+    php_max_input_time: "300"
     php_max_input_vars: "1000"
     php_input_nesting_level: "64"
     php_realpath_cache_size: "32K"
@@ -178,6 +183,12 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/php
     - hosts: node1
       roles:
         - { role: php, php_install_from_source: true }
+        
+    使用httpd管理
+    - hosts: node1
+      roles:
+        - { role: php, php_httpd_enable: true }
+      
 
 ## 使用
 
