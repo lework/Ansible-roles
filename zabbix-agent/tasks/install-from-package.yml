@@ -5,5 +5,5 @@
   package: name={{ zabbix_agent_repo_url }}
 
 - name: install_package | Ensure zabbix packages are installed.
-  package: name={{ item }} enablerepo=zabbix-deprecated
+  package: name={{ item }}
   with_items: "{{ zabbix_agent_packages }}"

@@ -15,23 +15,26 @@ zabbix agent需要安装在被监视的目标服务器上，它主要完成对�
 
 ## 测试环境
 
-ansible `2.3.0.0`
-os `Centos 6.7 X64`
-python `2.6.6`
+ansible `2.5.1`
+
+os `Centos 7.2.1511 X64`
+
+python `2.7.5`
+
+supervisor `3.3.4`
 
 ## 角色变量
     software_files_path: "/opt/software"
     software_install_path: "/usr/local"
 
-    zabbix_agent_version: "3.2.6"
+    zabbix_agent_version: "3.4.8"
 
     zabbix_agent_file: "zabbix-{{ zabbix_agent_version }}.tar.gz"
     zabbix_agent_file_path: "{{ software_files_path }}/{{ zabbix_agent_file }}"
-    zabbix_agent_file_url: "https://jaist.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
+    zabbix_agent_file_url: "https://phoenixnap.dl.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/{{ zabbix_agent_version }}/{{ zabbix_agent_file }}"
 
-    zabbix_agent_repo_url: "http://repo.zabbix.com/zabbix/3.2/rhel/6/x86_64/zabbix-release-3.2-1.el6.noarch.rpm"
     zabbix_agent_packages:
-      - "zabbix-agent-{{ zabbix_agent_version }}-1.el6"
+      - "zabbix-agent-{{ zabbix_agent_version }}"
 
     zabbix_agent_user: zabbix
     zabbix_agent_group: zabbix
@@ -52,7 +55,7 @@ python `2.6.6`
 
 ## 依赖
 
-None
+zabbix server
 
 ## github地址
 https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-agent
@@ -81,4 +84,6 @@ Usage: /etc/init.d/zabbix-agent {start|stop|status|restart|help}
     status        - show current status of zabbix_agentd
     restart        - restart zabbix_agentd if running by sending a SIGHUP or start if not running
     help        - this screen
+    
+~]# systemctl status zabbix-agent
 ```
