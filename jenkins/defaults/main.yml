@@ -38,6 +38,7 @@ jenkins_plugins_recommended:
   - credentials-binding
   - email-ext
   - git
+  - git-parameter
   - subversion
   - ldap
   - mailer
@@ -50,5 +51,9 @@ jenkins_plugins_recommended:
   - timestamper
   - workflow-aggregator
   - ws-cleanup
+  - ansicolor
+  - multiple-scms
+  - role-strategy
+  - show-build-parameters
   
 jenkins_plugins_extra: []
