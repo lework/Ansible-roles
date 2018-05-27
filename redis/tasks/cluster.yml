@@ -34,3 +34,10 @@
 - name: cluster | Create cluster.
   shell: "{{ software_install_path }}/redis-{{ redis_version }}/bin/redis-trib.rb create --replicas {{ redis_cluster_replicas }}"
   when: redis_cluster_replicas !=''
+
+- name: cluster | Set redis ruby client is nil.
+  lineinfile:
+    line: "      :password => nil,"
+    regexp: "      :password => \"{{ redis_requirepass }}\","
+    path: "/{{ gem_repo_path.stdout }}/gems/redis-3.0.0/lib/redis/client.rb"
+  when: redis_requirepass != ''
