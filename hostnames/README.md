@@ -27,17 +27,17 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/hostnames
 
 ## Example Playbook
 	
-	# 添加ip和主机名到/etc/hosts
+    # 添加ip和主机名到/etc/hosts
     - hosts: node1
       roles:
         - hostnames
 
-	# 添加指定的ip和主机名到/etc/hosts
+    # 添加指定的ip和主机名到/etc/hosts
     - hosts: node1 node2 node3
       vars:
         - ipnames:
-		  '192.168.77.130': 'node1'
-          '192.168.77.131': 'node2'
-		  '192.168.77.132': 'node3'
+            '192.168.77.130': 'node1'
+            '192.168.77.131': 'node2'
+            '192.168.77.132': 'node3'
       roles:
         - hostnames
