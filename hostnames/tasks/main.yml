@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: Change hostname.
+  hostname: "name={{ ipnames.get(ansible_default_ipv4.address)}}"
+  when: "{{ ipnames.get(ansible_default_ipv4.address)}}"
+  
+- name: "Add ipnames to {{ hostnames_file }}."
+  lineinfile: "dest={{ hostnames_file }} line='{{ item.key }} {{ item.value }}'"
+  with_dict: "{{ ipnames }}"
+  when: ipnames
+
+- name: "Add system ip and system hostname to {{ hostnames_file }}."
+  lineinfile: "dest={{ hostnames_file }} line='{{ item }} {{ ansible_hostname }}'"
+  with_item: "{{ ansible_all_ipv4_addresses }}"
+  when: ansible_all_ipv4_addresses

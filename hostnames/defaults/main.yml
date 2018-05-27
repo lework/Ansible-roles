@@ -1,0 +1,6 @@
+---
+# author: lework
+
+hostnames_file: "/etc/hosts"
+ipnames: []
+# [{'192.168.77.129': 'master'}, {'192.168.77.130': 'node1'}, {'192.168.77.131': 'node2'}]
