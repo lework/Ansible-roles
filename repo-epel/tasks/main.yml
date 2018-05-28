@@ -28,12 +28,21 @@
 - name: Check if EPEL Testing repo is already configured.
   stat: path={{ epel_testing_repofile_path }}
   register: epel_testing_repofile_result
+
+- name: Change Centos Base source.
+  replace: dest={{ epel_centos_repofile_path }} regexp={{ item.reg }} replace={{ item.rep }}
+  with_items:
+   - {'reg': '#baseurl=', 'rep': 'baseurl='}
+   - {'reg': 'mirrorlist=', 'rep': '#mirrorlist='}
+   - {'reg': 'http://mirror.centos.org', 'rep': "{{ epel_source_url }}"}
+  when: change_epel and epel_repofile_result.stat.exists
   
 - name: Change EPEL source.
   replace: dest={{ epel_repofile_path }} regexp={{ item.reg }} replace={{ item.rep }}
   with_items:
    - {'reg': '#baseurl=', 'rep': 'baseurl='}
    - {'reg': 'mirrorlist=', 'rep': '#mirrorlist='}
+   - {'reg': 'metalink=', 'rep': '#metalink='}
    - {'reg': 'http://download.fedoraproject.org/pub', 'rep': "{{ epel_source_url }}"}
   when: change_epel and epel_repofile_result.stat.exists
 
@@ -42,9 +51,12 @@
   with_items:
    - {'reg': '#baseurl=', 'rep': 'baseurl='}
    - {'reg': 'mirrorlist=', 'rep': '#mirrorlist='}
+   - {'reg': 'metalink=', 'rep': '#metalink='}
    - {'reg': 'http://download.fedoraproject.org/pub', 'rep': "{{ epel_source_url }}"}
   when: change_epel and epel_testing_repofile_result.stat.exists
 
 - name: Update yum cache.
   shell: yum clean all && yum makecache
+  args:
+    warn: no
   when: change_epel
