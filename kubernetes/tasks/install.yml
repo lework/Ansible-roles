@@ -1,0 +1,55 @@
+---
+# author: lework
+
+- name: install | Create kubernetes bin path.
+  file: path={{ kubernetes_bin_path }} state=directory
+
+- name: install | Create docker iamges path.
+  file: path={{ kubernetes_images_path }} state=directory
+
+- name: install | Copy kubelet bin file to remote.
+  copy: "src=bin/kubelet dest={{ kubernetes_bin_path }} mode=755"
+
+- name: install | Create cni bin path.
+  file: path={{ kubernetes_cni_bin_path }} state=directory
+
+- name: install | Copy kubectl bin file to remote.
+  copy: "src={{ item }} dest={{ kubernetes_cni_bin_path }} mode=755"
+  with_fileglob:
+    - bin/cni/*
+
+- block:
+  - name: install | Copy kubectl bin file to remote.
+    copy: "src=bin/kubectl dest={{ kubernetes_bin_path }} mode=755"
+
+  - name: install | Create helm bin path.
+    file: path={{ kubernetes_helm_bin_path }} state=directory
+  
+  - name: install | Copy helm bin file to remote.
+    copy: "src=bin/helm/helm dest={{ kubernetes_helm_bin_path }} mode=755"
+  
+  - name: install | Create calic bin path.
+    file: path={{ kubernetes_calic_bin_path }} state=directory
+  
+  - name: install | Copy helm bin file to remote.
+    copy: "src=bin/calic/calicoctl dest={{ kubernetes_calic_bin_path }} mode=755"
+
+  - name: install | Copy pods images to master node.
+    copy: "src={{ item }} dest={{ kubernetes_images_path }}"
+    with_fileglob:
+      - images/master/*
+  when: kubernetes_master
+
+- name: install | Copy pods images to all nodes.
+  copy: "src={{ item }} dest={{ kubernetes_images_path }}"
+  with_fileglob:
+    - images/all/*
+
+- name: install | Copy pods images to node.
+  copy: "src={{ item }} dest={{ kubernetes_images_path }}"
+  with_fileglob:
+    - images/node/*
+  when: kubernetes_node
+
+- name: install | Load pods images.
+  shell: "find {{ kubernetes_images_path }} -type f -name '*.tar' -exec docker load -i {} \\;"

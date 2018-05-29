@@ -1,0 +1,30 @@
+---
+# author: lework
+
+- name: certificate_etcd | Create etcd ssl path.
+  file: path={{ kubernetes_etcd_ssl_path }} state=directory
+
+- name: certificate_etcd | Copy ca csr file to remote.
+  copy: "src={{ item }} dest={{ kubernetes_etcd_ssl_path }}"
+  with_fileglob:
+   - csr/etcd/*
+
+- block:
+  - name: certificate_etcd | Generate etcd ca certificate.
+    shell: cfssl gencert -initca etcd-ca-csr.json | cfssljson -bare etcd-ca
+    args:
+     chdir: "{{ kubernetes_etcd_ssl_path }}"
+     
+  - name: certificate_etcd | Generate etcd certificate.
+    shell: |
+      cfssl gencert \
+      -ca=etcd-ca.pem \
+      -ca-key=etcd-ca-key.pem \
+      -config=ca-config.json \
+      -hostname=127.0.0.1{% for i in play_hosts %},{{ i }}{% endfor %} \
+      -profile=kubernetes \
+      etcd-csr.json | cfssljson -bare etcd
+    args:
+     chdir: "{{ kubernetes_etcd_ssl_path }}"
+  environment:
+    - PATH: "{{ kubernetes_cfssl_bin_path }}:{{ ansible_env.PATH }}"

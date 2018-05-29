@@ -1,0 +1,28 @@
+---
+# author: lework
+
+- name: certificate | Create bin path.
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ kubernetes_bin_path }}"
+    - "{{ kubernetes_cfssl_bin_path }}"
+
+- name: certificate | Copy cfssl bin file to remote.
+  copy: "src={{ item }} dest={{ kubernetes_cfssl_bin_path }} mode=755"
+  with_fileglob:
+   - bin/cfssl/*
+
+- name: certificate | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ kubernetes_cfssl_bin_path }}:{{ kubernetes_bin_path }}:$PATH'
+  
+- import_tasks: certificate_etcd.yml
+- import_tasks: certificate_kubernetes.yml
+- import_tasks: kubeconfig.yml
+- import_tasks: fetchfiles.yml
+
+- include_tasks: distribution.yml
+  with_items:
+    - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
+  loop_control:
+    loop_var: delegate_master_host
+    pause: 2

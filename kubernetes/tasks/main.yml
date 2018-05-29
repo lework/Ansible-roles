@@ -1,0 +1,22 @@
+---
+# author: lework
+
+- import_tasks: check.yml
+  when: not kubernetes_addons
+- import_tasks: bootstrap.yml
+  when: not kubernetes_addons
+- import_tasks: install.yml
+  when: not kubernetes_addons
+- import_tasks: certificate/certificate.yml
+  run_once: true
+  when: kubernetes_master
+- import_tasks: configure.yml
+  when: not kubernetes_addons
+- import_tasks: service.yml
+  when: not kubernetes_addons
+- import_tasks: configure_cluster.yml
+  run_once: true
+  when: kubernetes_master
+- import_tasks: configure_addons.yml
+  run_once: true
+  when: kubernetes_addons

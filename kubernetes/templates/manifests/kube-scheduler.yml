@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-scheduler
+    image: {{ kubernetes_scheduler_image }}
+    command:
+      - kube-scheduler
+      - --v=0
+      - --logtostderr=true
+      - --address=127.0.0.1
+      - --leader-elect=true
+      - --kubeconfig=/etc/kubernetes/scheduler.conf
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10251
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    resources:
+      requests:
+        cpu: 100m
+    volumeMounts:
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes/scheduler.conf
+      name: kubeconfig
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: {{ kubernetes_pki_path }}
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: {{ kubernetes_conf_path }}/scheduler.conf
+      type: FileOrCreate
+    name: kubeconfig

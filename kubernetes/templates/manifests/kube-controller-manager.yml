@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-controller-manager
+    image: {{ kubernetes_controller_image }}
+    command:
+      - kube-controller-manager
+      - --v=0
+      - --logtostderr=true
+      - --address=127.0.0.1
+      - --root-ca-file=/etc/kubernetes/pki/ca.pem
+      - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.pem
+      - --cluster-signing-key-file=/etc/kubernetes/pki/ca-key.pem
+      - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+      - --kubeconfig=/etc/kubernetes/controller-manager.conf
+      - --leader-elect=true
+      - --use-service-account-credentials=true
+      - --node-monitor-grace-period=40s
+      - --node-monitor-period=5s
+      - --pod-eviction-timeout=2m0s
+      - --controllers=*,bootstrapsigner,tokencleaner
+      - --allocate-node-cidrs=true
+      - --cluster-cidr={{ kubernetes_cluster_cidr }}
+      - --node-cidr-mask-size=24
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10252
+        scheme: HTTP
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    resources:
+      requests:
+        cpu: 200m
+    volumeMounts:
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes/controller-manager.conf
+      name: kubeconfig
+      readOnly: true
+    - mountPath: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+      name: flexvolume-dir
+  volumes:
+  - hostPath:
+      path: {{ kubernetes_pki_path }}
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: {{ kubernetes_conf_path }}/controller-manager.conf
+      type: FileOrCreate
+    name: kubeconfig
+  - hostPath:
+      path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+      type: DirectoryOrCreate
+    name: flexvolume-dir

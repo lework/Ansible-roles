@@ -1,0 +1,37 @@
+---
+# author: lework
+
+- name: service | Ensure kubelet is started and enabled at boot.
+  systemd: name=kubelet state=started enabled=yes
+
+- name: service | Wait for kueblet to start.
+  wait_for: port=10248
+
+- block: 
+  - name: service | Wait for etcd to start.
+    wait_for: port=2379
+  
+  - name: service | Wait for apiserver to start.
+    wait_for: port=5443
+  
+  - name: service | Wait for kube-scheduler to start.
+    wait_for: port=10251
+  
+  - name: service | Wait for kube-controller to start.
+    wait_for: port=10252
+  
+  - name: service | Wait for haproxy to start.
+    wait_for: "port={{ kubernetes_apiserver_port }}"
+
+  - name: service | Waiting for cluster to start...
+    shell: kubectl get cs
+    register: waiting_for_cluster
+    until: waiting_for_cluster.stdout.find("Unhealthy") == -1
+    retries: 10
+    delay: 5
+    changed_when: false
+    environment:
+      - PATH: "{{ kubernetes_bin_path }}:{{ ansible_env.PATH }}"
+  
+  - wait_for: timeout=5
+  when: kubernetes_master

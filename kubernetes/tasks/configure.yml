@@ -1,0 +1,104 @@
+---
+# author: lework
+
+- block:
+  - name: configure | Create conf path on master node.
+    file: path={{ item }} state=directory
+    with_items:
+      - "{{ kubernetes_manifests_path }}"
+      - "{{ kubernetes_etcd_conf_path }}"
+      - "{{ kubernetes_haproxy_conf_path }}"
+      - "{{ kubernetes_kubelet_service_path }}"
+      - "{{ kubernetes_kubelet_data_path }}"
+      - "{{ kubernetes_log_path }}"
+      - "{{ kubernetes_etcd_data_path }}"
+      - "{{ kubernetes_cni_conf_path }}"
+      - "~/.kube"
+
+  - name: configure | Config software environment variable on master node.
+    lineinfile: dest=/etc/profile line={{ item }}
+    with_items:
+      - "export ETCD_ENDPOINTS='{% for h in play_hosts %}https://{{ h }}:2379{%- if not loop.last %},{% endif %}{% endfor%}'"
+      - 'export ETCD_CA_CERT_FILE="{{ kubernetes_etcd_ssl_path }}/etcd-ca.pem"'
+      - 'export ETCD_CERT_FILE="{{ kubernetes_etcd_ssl_path }}/etcd.pem"'
+      - 'export ETCD_KEY_FILE="{{ kubernetes_etcd_ssl_path }}/etcd-key.pem"'
+      - 'export PATH={{ kubernetes_bin_path }}:{{ kubernetes_helm_bin_path }}:{{ kubernetes_cni_bin_path }}:{{ kubernetes_calic_bin_path }}:$PATH'
+
+  - name: configure | Configuration manifests.
+    template: "src={{ item }} dest={{ kubernetes_manifests_path }}/"
+    with_fileglob:
+      - templates/manifests/*
+
+  - name: configure | Configuration rbac conf.
+    template: "src={{ item }} dest={{ kubernetes_conf_path }}/"
+    with_fileglob:
+      -  conf/*
+
+  - name: configure | Configuration addon conf.
+    template: "src={{ item }} dest={{ kubernetes_conf_path }}/"
+    with_fileglob:
+      -  templates/addon/*
+
+  - name: configure | Configuration etcd.
+    template: "src=etcd/etcd.config.yml dest={{ kubernetes_etcd_conf_path }}/"
+  
+  - name: configure | Configuration haproxy.
+    template: "src=haproxy/haproxy.cfg dest={{ kubernetes_haproxy_conf_path }}/"
+
+  - name: configure | Configuration kubelet service.
+    template: "src=master/kubelet.service dest=/lib/systemd/system/"
+
+  - name: configure | Configuration kubelet service conf.
+    template: "src=master/10-kubelet.conf dest={{ kubernetes_kubelet_service_path }}/"
+
+  - name: configure | Generate an encryption key.
+    shell: head -c 32 /dev/urandom | base64
+    register: encryption_key
+    run_once: true
+
+  - name: configure | Configuration encryption key conf.
+    template: "src=master/encryption.yml dest={{ kubernetes_conf_path }}/"
+
+  - name: configure | Configuration calico conf.
+    template: "src=network/calico.yml.conf dest={{ kubernetes_conf_path }}/"
+
+  - name: configure | Copy admin.conf to kube config.
+    copy: src=/etc/kubernetes/admin.conf dest=~/.kube/config remote_src=yes
+  when: kubernetes_master
+
+- block:
+  - name: configure | Create conf path on node.
+    file: path={{ item }} state=directory
+    with_items:
+      - "{{ kubernetes_pki_path }}"
+      - "{{ kubernetes_manifests_path }}"
+      - "{{ kubernetes_kubelet_service_path }}"
+      - "{{ kubernetes_etcd_ssl_path }}"
+      - "{{ kubernetes_kubelet_data_path }}"
+      - "{{ kubernetes_log_path }}"
+      - "{{ kubernetes_cni_conf_path }}"
+
+  - name: configure | Config software environment variable on node.
+    lineinfile: dest=/etc/profile line='export PATH={{ kubernetes_bin_path }}:$PATH'
+
+  - name: configure | Configuration kubelet service.
+    template: "src=node/kubelet.service dest=/lib/systemd/system/"
+
+  - name: configure | Configuration kubelet service conf.
+    template: "src=node/10-kubelet.conf dest={{ kubernetes_kubelet_service_path }}/"
+
+  - name: configure | Copy etcd pem to node.
+    copy: src={{ item }} dest={{ kubernetes_etcd_ssl_path }}
+    with_fileglob:
+      - "{{ kubernetes_tmp_path }}/etcd*.pem"
+
+  - name: configure | Copy kubernetes pem to node.
+    copy: src={{ item }} dest={{ kubernetes_pki_path }}
+    with_fileglob:
+      - "{{ kubernetes_tmp_path }}/ca*.pem"
+
+  - name: configure | Copy kubernetes config to node.
+    copy: src={{ item }} dest={{ kubernetes_conf_path }}
+    with_items:
+      - "{{ kubernetes_tmp_path }}/bootstrap-kubelet.conf"
+  when: kubernetes_node

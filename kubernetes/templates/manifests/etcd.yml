@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+  labels:
+    component: etcd
+    tier: control-plane
+  name: etcd
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: etcd
+    image: {{ kubernetes_etcd_image }}
+    command:
+    - etcd
+    - --config-file={{ kubernetes_etcd_conf_path }}/etcd.config.yml
+    livenessProbe:
+      failureThreshold: 8
+      tcpSocket:
+        port: 2379
+      initialDelaySeconds: 15
+      timeoutSeconds: 15
+    volumeMounts:
+    - mountPath: /etc/etcd/ssl
+      name: etcd-certs
+    - mountPath: /etc/etcd/etcd.config.yml
+      name: etcd-conf
+    - mountPath: /var/lib/etcd
+      name: data
+  volumes:
+  - hostPath:
+      path: {{ kubernetes_etcd_ssl_path }}
+      type: DirectoryOrCreate
+    name: etcd-certs
+  - hostPath:
+      path: {{ kubernetes_etcd_conf_path }}/etcd.config.yml
+    name: etcd-conf
+  - hostPath:
+      path: {{ kubernetes_etcd_data_path }}
+      type: DirectoryOrCreate
+    name: data

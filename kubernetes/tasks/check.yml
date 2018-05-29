@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: check | Linux system.
+  fail: msg="Only support centos 7 system."
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version != "7"
+
+- name: check | Kubelet apiserver vip address.
+  fail: msg="Please set apiserver vip address. kubernetes_apiserver_vip:\ 192.168.77.140"
+  when: kubernetes_apiserver_vip == ""
+
+- name: check | Check server RAM.
+  fail: msg="This machine does not have sufficient RAM to run kubernetes service, at least {{ kubernetes_min_ram }} MB."
+  when:
+    - ansible_memtotal_mb < kubernetes_min_ram|int
+
+- name: check | Check Docker.
+  wait_for: path=/var/run/docker.sock msg="Docker needs to start."

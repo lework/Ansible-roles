@@ -1,0 +1,68 @@
+---
+# author: lework
+
+- block:
+  - name: configure_addons | Create Kubernetes Proxy.
+    shell: kubectl apply -f kube-proxy.yml.conf
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+      
+  - name: configure_addons | Create Kubernetes DNS.
+    shell: kubectl apply -f kube-dns.yml.conf
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Create Calico Network.
+    shell: kubectl apply -f calico.yml.conf
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Create kubernetes dashboard.
+    shell: |
+      kubectl -n kube-system create sa dashboard &&
+      kubectl create clusterrolebinding dashboard --clusterrole cluster-admin --serviceaccount=kube-system:dashboard &&
+      kubectl apply -f kubernetes-dashboard.yaml 
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Create open-api Cluster Role Binding.
+    shell: kubectl apply -f open-api.yml 
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Create kube-monitor.
+    shell: kubectl apply -f kube-monitor.yml.conf
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Create Ingress Controller.
+    shell: kubectl create ns ingress-nginx && kubectl apply -f ingress-controller.yml.conf
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Create Helm Tiller Server.
+    shell: |
+      kubectl -n kube-system create sa tiller &&
+      kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller &&
+      helm init --service-account tiller
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - wait_for: timeout=10
+
+  - name: configure_addons | Get kube dashboard SECRET.
+    shell: |
+      SECRET=$(kubectl -n kube-system get sa dashboard -o yaml | awk '/dashboard-token/ {print $3}') &&
+      kubectl -n kube-system describe secrets ${SECRET} | awk '/token:/{print $2}'
+    register: kube_dashboard_secret
+    args:
+      chdir: "{{ kubernetes_conf_path }}"
+
+  - name: configure_addons | Set addons access info to file.
+    lineinfile: "dest=~/k8s_addons_access line={{ item }} create=yes"
+    with_items:
+      - "dashboard_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login"
+      - "dashboard_secret: {{ kube_dashboard_secret.stdout }}"
+      - "grafana_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1"
+  environment:
+    - PATH: "{{ kubernetes_bin_path }}:{{ kubernetes_helm_bin_path }}:{{ ansible_env.PATH }}"

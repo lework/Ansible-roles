@@ -1,0 +1,100 @@
+---
+# author: lework
+
+
+- name: certificate_kubernetes | Create kubernetes pik  path.
+  file: path={{ kubernetes_pki_path }} state=directory
+
+- name: certificate_kubernetes | Copy ca csr file to remote.
+  copy: "src={{ item }} dest={{ kubernetes_pki_path }}"
+  with_fileglob:
+   - csr/kubernetes/*
+
+- block: 
+  - name: certificate_kubernetes | Generate kubernetes certificate.
+    shell: cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+     
+  - name: certificate_kubernetes | Generate the apiserver certificate.
+    shell: |
+      cfssl gencert \
+      -ca=ca.pem \
+      -ca-key=ca-key.pem \
+      -config=ca-config.json \
+      -hostname={{ kubernetes_cluster_ip }},{{ kubernetes_apiserver_vip }},127.0.0.1,kubernetes.default \
+      -profile=kubernetes \
+      apiserver-csr.json | cfssljson -bare apiserver
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+  
+  - name: certificate_kubernetes | Generate front-proxy ca certificate.
+    shell: cfssl gencert -initca front-proxy-ca-csr.json | cfssljson -bare front-proxy-ca
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+     
+  - name: certificate_kubernetes | Generate the front-proxy certificate.
+    shell: |
+      cfssl gencert \
+      -ca=front-proxy-ca.pem \
+      -ca-key=front-proxy-ca-key.pem \
+      -config=ca-config.json \
+      -profile=kubernetes \
+      front-proxy-client-csr.json | cfssljson -bare front-proxy-client
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+     
+  - name: certificate_kubernetes | Generate the admin certificate.
+    shell: |
+      cfssl gencert \
+      -ca=ca.pem \
+      -ca-key=ca-key.pem \
+      -config=ca-config.json \
+      -profile=kubernetes \
+      admin-csr.json | cfssljson -bare admin
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+  
+  - name: certificate_kubernetes | Generate the controller-manager certificate.
+    shell: |
+      cfssl gencert \
+      -ca=ca.pem \
+      -ca-key=ca-key.pem \
+      -config=ca-config.json \
+      -profile=kubernetes \
+      manager-csr.json | cfssljson -bare controller-manager
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+  
+  - name: certificate_kubernetes | Generate the scheduler certificate.
+    shell: |
+      cfssl gencert \
+      -ca=ca.pem \
+      -ca-key=ca-key.pem \
+      -config=ca-config.json \
+      -profile=kubernetes \
+      scheduler-csr.json | cfssljson -bare scheduler
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+  
+  - name: certificate_kubernetes | Generate the Master Kubelet certificate.
+    shell: |
+      cp kubelet-csr.json kubelet-{{ hostvars[item].ansible_hostname }}-csr.json && 
+      sed -i "s/\$NODE/{{ hostvars[item].ansible_hostname }}/g" kubelet-{{ hostvars[item].ansible_hostname }}-csr.json &&
+      cfssl gencert \
+      -ca=ca.pem \
+      -ca-key=ca-key.pem \
+      -config=ca-config.json \
+      -hostname={{ hostvars[item].ansible_hostname }} \
+      -profile=kubernetes \
+      kubelet-{{ hostvars[item].ansible_hostname }}-csr.json | cfssljson -bare kubelet-{{ hostvars[item].ansible_hostname }}
+    args:
+      chdir: "{{ kubernetes_pki_path }}"
+    with_items: "{{ play_hosts }}"
+  environment:
+    - PATH: "{{ kubernetes_cfssl_bin_path }}:{{ ansible_env.PATH }}"
+
+- name: certificate_kubernetes | Generate the service Account Key.
+  shell: openssl genrsa -out sa.key 2048 && openssl rsa -in sa.key -pubout -out sa.pub
+  args:
+    chdir: "{{ kubernetes_pki_path }}"
