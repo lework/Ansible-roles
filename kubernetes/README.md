@@ -1,6 +1,6 @@
 # Ansible Role: kubernetes
 
-以Static Pods方式安装kubernetes 1.10.2 ha 集群。
+以Static Pods方式安装kubernetes 1.10.3 ha 集群。
 
 ## 介绍
 
@@ -11,6 +11,9 @@ Kubernetes是一个开源系统，用于自动化容器化应用程序的部署�
 ## 要求
 
 此角色仅在RHEL及其衍生产品上运行。
+
+内存大于4G, 8G最好了。
+CPU大于4核, 8核最好了。
 
 ## 测试环境
 
@@ -46,6 +49,7 @@ os `Centos 7.4 X64`
 
     kubernetes_log_path: "/var/log/kubernetes"
     kubernetes_conf_path: "/etc/kubernetes"
+    kubernetes_addons_conf_path: "{{ kubernetes_conf_path }}/addons"
     kubernetes_pki_path: "{{ kubernetes_conf_path }}/pki"
     kubernetes_manifests_path: "{{ kubernetes_conf_path }}/manifests"
     kubernetes_kubelet_service_path: "/etc/systemd/system/kubelet.service.d"
@@ -59,35 +63,55 @@ os `Centos 7.4 X64`
     kubernetes_cluster_ip_rang: "10.96.0.0/12"
     kubernetes_cluster_cidr: "10.244.0.0/16"
 
+    kubernetes_dashboard_port: "443"
     kubernetes_haproxy_admin_passwd: "admin123"
 
-    kubernetes_apiserver_image: "gcr.io/google_containers/kube-apiserver-amd64:v1.10.2"
-    kubernetes_controller_image: "gcr.io/google_containers/kube-controller-manager-amd64:v1.10.2"
-    kubernetes_scheduler_image:  "gcr.io/google_containers/kube-scheduler-amd64:v1.10.2"
+    # Kubernetes ingress: nginx,traefik
+    kubernetes_ingress_controller: "nginx"
 
+    # Kubernetes master
+    kubernetes_apiserver_image: "gcr.io/google_containers/kube-apiserver-amd64:v1.10.3"
+    kubernetes_controller_image: "gcr.io/google_containers/kube-controller-manager-amd64:v1.10.3"
+    kubernetes_scheduler_image:  "gcr.io/google_containers/kube-scheduler-amd64:v1.10.3"
     kubernetes_etcd_image: "gcr.io/google_containers/etcd-amd64:3.1.13"
-    kubernetes_keepalived_image: "kairen/keepalived:1.2.24"
-    kubernetes_haproxy_image: "kairen/haproxy:1.7"
+    kubernetes_keepalived_image: "lework/keepalived:v1.3.9"
+    kubernetes_haproxy_image: "haproxy:1.8.9-alpine"
 
+    # Kube-proxy
+    kubernetes_kube_proxy_image: "gcr.io/google_containers/kube-proxy-amd64:v1.10.3"
+
+    # kubernetes dashboard
+    kubernetes_dashboard_image: "gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.3"
+
+    # Kubernetes network
     kubernetes_calico_node_image: "quay.io/calico/node:v3.1.2"
     kubernetes_calico_cni_image: "quay.io/calico/cni:v2.0.5"
     kubernetes_calico_kube_controllers_image: "quay.io/calico/kube-controllers:v2.0.4"
 
+    # Ingress controller
     kubernetes_nginx_ingress_controller_image: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.15.0"
     kubernetes_default_http_backend_image: "gcr.io/google_containers/defaultbackend:1.4"
+    kubernetes_traefik_ingress_controller_image: "traefik:v1.6.2-alpine"
 
+    # Kube-dns
     kubernetes_kube_dns_image: "gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.10"
     kubernetes_kube_dns_dnsmasq_image: "gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.10"
     kubernetes_kube_dns_sidecar_image: "gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.10"
 
+    # Kubernetes monitor
     kubernetes_heapster_image: "gcr.io/google_containers/heapster-amd64:v1.5.3"
     kubernetes_heapster_addon_resizer_image: "gcr.io/google_containers/addon-resizer:1.8.1"
     kubernetes_heapster_influxdb_image: "gcr.io/google_containers/heapster-influxdb-amd64:v1.3.3"
     kubernetes_heapster_grafana_image: "gcr.io/google_containers/heapster-grafana-amd64:v4.4.3"
 
-    kubernetes_kube_proxy_image: "k8s.gcr.io/kube-proxy-amd64:v1.10.2"
-    kubernetes_dashboard_image: "k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3"
-    kubernetes_dashboard_port: "443"
+    # Kubernetes logging
+    kubernetes_alpine_image: "alpine:3.7"
+    kubernetes_elasticsearch_image: "gcr.io/google-containers/elasticsearch:v6.2.4"
+    kubernetes_fluentd_image: "gcr.io/google-containers/fluentd-elasticsearch:v2.1.0"
+    kubernetes_kibana_image: "docker.elastic.co/kibana/kibana-oss:6.2.4"
+
+    kubernetes_logging: true
+    kubernetes_monitor: true
 
     kubernetes_master: false
     kubernetes_node: false
@@ -159,6 +183,7 @@ centos 7.3 以上版本
       any_errors_fatal: true
       vars:
         - kubernetes_addons: true
+        - kubernetes_ingress_controller: nginx
         - kubernetes_apiserver_vip: 192.168.77.140
       roles:
         - kubernetes
@@ -192,3 +217,8 @@ helm version
 ```bash
 cat ~/k8s_addons_access
 ```
+
+- dashboard_url: `https://{{kubernetes_apiserver_vip}}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login`
+- grafana_url: `https://{{kubernetes_apiserver_vip}}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/`
+- elasticsearch_url: `https://{{kubernetes_apiserver_vip}}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/elasticsearch-logging/proxy/`
+- kibana_url: `https://{{kubernetes_apiserver_vip}}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/kibana-logging/proxy/`

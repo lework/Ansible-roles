@@ -1,9 +1,11 @@
 ---
 # author: lework
 
+- wait_for: timeout=10
+
 - block: 
   - name: configure_cluster | Set apiserver access node permissions.
-    shell: kubectl apply -f apiserver-to-kubelet-rbac.yml.conf
+    shell: kubectl apply -f apiserver-to-kubelet-rbac.yml
     args:
       chdir: "{{ kubernetes_conf_path }}"
 
@@ -13,12 +15,12 @@
       chdir: "{{ kubernetes_conf_path }}"
 
   - name: configure_cluster | Create TLS bootstrap secret.
-    shell: kubectl apply -f kubelet-bootstrap-secret.yml.conf
+    shell: kubectl apply -f kubelet-bootstrap-secret.yml
     args:
       chdir: "{{ kubernetes_conf_path }}"
 
   - name: configure_cluster | Create TLS Bootstrap Autoapprove RBAC.
-    shell: kubectl apply -f kubelet-bootstrap-rbac.yml.conf
+    shell: kubectl apply -f kubelet-bootstrap-rbac.yml
     args:
       chdir: "{{ kubernetes_conf_path }}"
   environment:

@@ -3,17 +3,17 @@
 
 - block:
   - name: configure_addons | Create Kubernetes Proxy.
-    shell: kubectl apply -f kube-proxy.yml.conf
+    shell: kubectl apply -f kube-proxy.yml
     args:
-      chdir: "{{ kubernetes_conf_path }}"
+      chdir: "{{ kubernetes_addons_conf_path }}"
       
   - name: configure_addons | Create Kubernetes DNS.
-    shell: kubectl apply -f kube-dns.yml.conf
+    shell: kubectl apply -f kube-dns.yml
     args:
-      chdir: "{{ kubernetes_conf_path }}"
+      chdir: "{{ kubernetes_addons_conf_path }}"
 
   - name: configure_addons | Create Calico Network.
-    shell: kubectl apply -f calico.yml.conf
+    shell: kubectl apply -f calico.yml
     args:
       chdir: "{{ kubernetes_conf_path }}"
 
@@ -21,25 +21,57 @@
     shell: |
       kubectl -n kube-system create sa dashboard &&
       kubectl create clusterrolebinding dashboard --clusterrole cluster-admin --serviceaccount=kube-system:dashboard &&
-      kubectl apply -f kubernetes-dashboard.yaml 
+      kubectl apply -f kubernetes-dashboard.yml 
     args:
-      chdir: "{{ kubernetes_conf_path }}"
+      chdir: "{{ kubernetes_addons_conf_path }}"
 
   - name: configure_addons | Create open-api Cluster Role Binding.
     shell: kubectl apply -f open-api.yml 
     args:
       chdir: "{{ kubernetes_conf_path }}"
 
+  - wait_for: timeout=5
+
   - name: configure_addons | Create kube-monitor.
-    shell: kubectl apply -f kube-monitor.yml.conf
+    shell: kubectl apply -f kube-monitor.yml
     args:
-      chdir: "{{ kubernetes_conf_path }}"
-
+      chdir: "{{ kubernetes_addons_conf_path }}"
+    when: kubernetes_monitor
+    
   - name: configure_addons | Create Ingress Controller.
-    shell: kubectl create ns ingress-nginx && kubectl apply -f ingress-controller.yml.conf
+    shell: kubectl create ns ingress-nginx && kubectl apply -f ingress-controller.yml
     args:
-      chdir: "{{ kubernetes_conf_path }}"
+      chdir: "{{ kubernetes_addons_conf_path }}"
+    when: kubernetes_ingress_controller == 'nginx'
+      
+  - name: configure_addons | Create Ingress traefik Controller.
+    shell: kubectl create ns ingress-traefik && kubectl apply -f ingress-traefik.yml
+    args:
+      chdir: "{{ kubernetes_addons_conf_path }}"
+    when: kubernetes_ingress_controller == 'traefik'
 
+  - wait_for: timeout=5
+
+  - name: configure_addons | Create elasticsearch.
+    shell: kubectl apply -f elasticsearch.yml
+    args:
+      chdir: "{{ kubernetes_addons_conf_path }}"
+    when: kubernetes_logging
+ 
+  - name: configure_addons | Create fluentd.
+    shell: kubectl apply -f fluentd.yml
+    args:
+      chdir: "{{ kubernetes_addons_conf_path }}"
+    when: kubernetes_logging
+
+  - name: configure_addons | Create kibana.
+    shell: kubectl apply -f kibana.yml
+    args:
+      chdir: "{{ kubernetes_addons_conf_path }}"
+    when: kubernetes_logging
+
+  - wait_for: timeout=5
+      
   - name: configure_addons | Create Helm Tiller Server.
     shell: |
       kubectl -n kube-system create sa tiller &&
@@ -47,8 +79,6 @@
       helm init --service-account tiller
     args:
       chdir: "{{ kubernetes_conf_path }}"
-
-  - wait_for: timeout=10
 
   - name: configure_addons | Get kube dashboard SECRET.
     shell: |
@@ -63,6 +93,8 @@
     with_items:
       - "dashboard_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login"
       - "dashboard_secret: {{ kube_dashboard_secret.stdout }}"
-      - "grafana_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1"
+      - "grafana_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/"
+      - "elasticsearch_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/elasticsearch-logging/proxy/" 
+      - "kibana_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/kibana-logging/proxy/" 
   environment:
     - PATH: "{{ kubernetes_bin_path }}:{{ kubernetes_helm_bin_path }}:{{ ansible_env.PATH }}"

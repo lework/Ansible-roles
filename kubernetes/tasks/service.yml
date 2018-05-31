@@ -32,6 +32,26 @@
     changed_when: false
     environment:
       - PATH: "{{ kubernetes_bin_path }}:{{ ansible_env.PATH }}"
-  
-  - wait_for: timeout=5
+
+  - name: service | Check Kubernetes apiserver version.
+    uri:
+      url: "https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/version"
+      client_cert: "/etc/kubernetes/pki/apiserver.pem"
+      client_key: "/etc/kubernetes/pki/apiserver-key.pem"
+      validate_certs: no
+    register: result_version
+    until: result_version.status == 200
+    retries: 10
+    delay: 5
+
+  - name: service | Curl Kubernetes v1 api.
+    uri:
+      url: "https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1"
+      client_cert: "/etc/kubernetes/pki/apiserver.pem"
+      client_key: "/etc/kubernetes/pki/apiserver-key.pem"
+      validate_certs: no
+    register: result_api
+    until: result_api.status == 200
+    retries: 10
+    delay: 5
   when: kubernetes_master

@@ -18,6 +18,7 @@
     state: present
   with_items:
     - { 'name': 'vm.swappiness', 'value': 0}
+    - { 'name': 'vm.nr_hugepages', 'value': 757}
     - { 'name': 'net.ipv4.ip_forward', 'value': 1}
     - { 'name': 'net.bridge.bridge-nf-call-ip6tables', 'value': 1}
     - { 'name': 'net.bridge.bridge-nf-call-iptables', 'value': 1}
@@ -28,6 +29,8 @@
     - '* - nofile 165535'
     - '* soft nofile 165535'
     - '* hard nofile 165535'
+    - '* soft memlock unlimited'
+    - '* hard memlock unlimited'
 
 - name: bootstrap | Turn off the swap.
   shell: swapoff -a && sed -ri '/^[^#]*swap/s@^@#@' /etc/fstab

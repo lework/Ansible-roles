@@ -134,6 +134,12 @@ metadata:
   name: tcp-services
   namespace: ingress-nginx
 ---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: udp-services
+  namespace: ingress-nginx
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -156,7 +162,7 @@ metadata:
 spec:
   type: LoadBalancer
   externalIPs:
-  - {{ kubernetes_apiserver_vip }}
+  - "{{ kubernetes_apiserver_vip }}"
   ports:
   - name: http
     port: 80

@@ -13,6 +13,7 @@
       - "{{ kubernetes_log_path }}"
       - "{{ kubernetes_etcd_data_path }}"
       - "{{ kubernetes_cni_conf_path }}"
+      - "{{ kubernetes_addons_conf_path }}"
       - "~/.kube"
 
   - name: configure | Config software environment variable on master node.
@@ -34,10 +35,11 @@
     with_fileglob:
       -  conf/*
 
-  - name: configure | Configuration addon conf.
-    template: "src={{ item }} dest={{ kubernetes_conf_path }}/"
+  - name: configure | Configuration addons conf.
+    template: "src={{ item }} dest={{ kubernetes_addons_conf_path }}/"
     with_fileglob:
-      -  templates/addon/*
+      -  templates/addons/*
+    run_once: true
 
   - name: configure | Configuration etcd.
     template: "src=etcd/etcd.config.yml dest={{ kubernetes_etcd_conf_path }}/"
@@ -60,7 +62,7 @@
     template: "src=master/encryption.yml dest={{ kubernetes_conf_path }}/"
 
   - name: configure | Configuration calico conf.
-    template: "src=network/calico.yml.conf dest={{ kubernetes_conf_path }}/"
+    template: "src=network/calico.yml dest={{ kubernetes_conf_path }}/"
 
   - name: configure | Copy admin.conf to kube config.
     copy: src=/etc/kubernetes/admin.conf dest=~/.kube/config remote_src=yes
