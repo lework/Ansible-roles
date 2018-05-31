@@ -188,6 +188,12 @@ centos 7.3 以上版本
       roles:
         - kubernetes
 
+        
+## 运行日志
+
+[![asciicast](https://asciinema.org/a/1saMof2HuDhY0ujkoS2UyuSl7.png)](https://asciinema.org/a/1saMof2HuDhY0ujkoS2UyuSl7)
+
+
 ## 检查集群状态
 
 ```bash
