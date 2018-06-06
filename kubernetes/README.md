@@ -117,6 +117,7 @@ os `Centos 7.4 X64`
     kubernetes_node: false
     kubernetes_addons: false
     kubernetes_ntpd: true
+    kubernetes_node_init: true
 
 ## 依赖
 

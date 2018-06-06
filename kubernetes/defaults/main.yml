@@ -94,3 +94,4 @@ kubernetes_master: false
 kubernetes_node: false
 kubernetes_addons: false
 kubernetes_ntpd: true
+kubernetes_node_init: true

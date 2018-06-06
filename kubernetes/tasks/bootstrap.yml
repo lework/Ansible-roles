@@ -6,6 +6,7 @@
 
 - name: bootstrap | Turn off the NetworkManager.
   systemd: name=NetworkManager state=stopped enabled=no
+  when: kubernetes_node_init
 
 - name: bootstrap | Ensure kubenetes packages are installed.
   yum: "name={{ item }} state=installed  update_cache=yes"
@@ -22,6 +23,7 @@
     - { 'name': 'net.ipv4.ip_forward', 'value': 1}
     - { 'name': 'net.bridge.bridge-nf-call-ip6tables', 'value': 1}
     - { 'name': 'net.bridge.bridge-nf-call-iptables', 'value': 1}
+  when: kubernetes_node_init
 
 - name: bootstrap | Change nofile limits.
   lineinfile: dest=/etc/security/limits.conf line={{ item }}
@@ -31,10 +33,12 @@
     - '* hard nofile 165535'
     - '* soft memlock unlimited'
     - '* hard memlock unlimited'
+  when: kubernetes_node_init
 
 - name: bootstrap | Turn off the swap.
   shell: swapoff -a && sed -ri '/^[^#]*swap/s@^@#@' /etc/fstab
-
+  when: kubernetes_node_init
+  
 - block:
   - name: bootstrap | Ensure ntp packages are installed.
     yum: name=ntp state=installed
