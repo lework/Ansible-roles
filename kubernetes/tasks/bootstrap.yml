@@ -35,7 +35,7 @@
 - name: bootstrap | Turn off the swap.
   shell: swapoff -a && sed -ri '/^[^#]*swap/s@^@#@' /etc/fstab
 
-- blcok:
+- block:
   - name: bootstrap | Ensure ntp packages are installed.
     yum: name=ntp state=installed
 
