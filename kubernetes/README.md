@@ -116,6 +116,7 @@ os `Centos 7.4 X64`
     kubernetes_master: false
     kubernetes_node: false
     kubernetes_addons: false
+    kubernetes_ntpd: true
 
 ## 依赖
 
@@ -143,7 +144,7 @@ centos 7.3 以上版本
     ansible_ssh_pass=123456
 
     ---
-    # 初始化集群
+    # 初始化集群, 配置主机名，配置epel源，安装docker
     - hosts: k8s-cluster
       serial: "100%"
       any_errors_fatal: true

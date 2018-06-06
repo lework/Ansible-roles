@@ -35,15 +35,17 @@
 - name: bootstrap | Turn off the swap.
   shell: swapoff -a && sed -ri '/^[^#]*swap/s@^@#@' /etc/fstab
 
-- name: bootstrap | Ensure ntp packages are installed.
-  yum: name=ntp state=installed
+- blcok:
+  - name: bootstrap | Ensure ntp packages are installed.
+    yum: name=ntp state=installed
 
-- name: bootstrap | Update time on server.
-  shell: ntpdate 0.asia.pool.ntp.org && hwclock --systohc
-  ignore_errors: true
+  - name: bootstrap | Update time on server.
+    shell: ntpdate 0.asia.pool.ntp.org && hwclock --systohc
+    ignore_errors: true
 
-- name: bootstrap | Change ntpd server on ntp.conf.
-  template: src=ntp/ntp.conf dest=/etc/ backup=yes
+  - name: bootstrap | Change ntpd server on ntp.conf.
+    template: src=ntp/ntp.conf dest=/etc/ backup=yes
 
-- name: bootstrap | Restart ntpd service.
-  service: "name=ntpd state=restarted"
+  - name: bootstrap | Restart ntpd service.
+    service: "name=ntpd state=restarted"
+  when: kubernetes_ntpd

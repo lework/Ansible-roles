@@ -26,10 +26,11 @@
   - name: service | Waiting for cluster to start...
     shell: kubectl get cs
     register: waiting_for_cluster
-    until: waiting_for_cluster.stdout.find("Unhealthy") == -1
+    until: waiting_for_cluster.rc == 0 and waiting_for_cluster.stdout.find("Unhealthy") == -1
     retries: 10
     delay: 5
     changed_when: false
+    ignore_errors: true
     environment:
       - PATH: "{{ kubernetes_bin_path }}:{{ ansible_env.PATH }}"
 

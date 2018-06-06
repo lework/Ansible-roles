@@ -10,7 +10,7 @@
       chdir: "{{ kubernetes_conf_path }}"
 
   - name: configure_cluster | Set cluster allow Taint.
-    shell: kubectl taint nodes node-role.kubernetes.io/master="":NoSchedule --all
+    shell: kubectl taint nodes node-role.kubernetes.io/master="":NoSchedule --all --overwrite=true
     args:
       chdir: "{{ kubernetes_conf_path }}"
 
