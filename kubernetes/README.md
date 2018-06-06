@@ -64,6 +64,7 @@ os `Centos 7.4 X64`
     kubernetes_cluster_cidr: "10.244.0.0/16"
 
     kubernetes_dashboard_port: "443"
+    kubernetes_haproxy_status_port: "9090"
     kubernetes_haproxy_admin_passwd: "admin123"
 
     # Kubernetes ingress: nginx,traefik
@@ -195,6 +196,7 @@ centos 7.3 以上版本
 
 [![asciicast](https://asciinema.org/a/1saMof2HuDhY0ujkoS2UyuSl7.png)](https://asciinema.org/a/1saMof2HuDhY0ujkoS2UyuSl7)
 
+> 安装完集群后, 最好重启集群观察下健壮性。
 
 ## 检查集群状态
 

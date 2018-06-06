@@ -96,6 +96,7 @@
       - "grafana_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/"
       - "elasticsearch_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/elasticsearch-logging/proxy/" 
       - "kibana_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1/namespaces/kube-system/services/kibana-logging/proxy/" 
+      - "haproxy_url: https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_haproxy_status_port }}/haproxy_stats" 
   ignore_errors: true
   environment:
     - PATH: "{{ kubernetes_bin_path }}:{{ kubernetes_helm_bin_path }}:{{ ansible_env.PATH }}"

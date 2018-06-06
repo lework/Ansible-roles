@@ -41,6 +41,8 @@ kubernetes_cluster_ip_rang: "10.96.0.0/12"
 kubernetes_cluster_cidr: "10.244.0.0/16"
 
 kubernetes_dashboard_port: "443"
+
+kubernetes_haproxy_status_port: "9090"
 kubernetes_haproxy_admin_passwd: "admin123"
 
 # Kubernetes ingress: nginx,traefik
