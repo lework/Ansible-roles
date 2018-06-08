@@ -1,5 +1,5 @@
 {
-  "data-root": {{ docker_data_root }},
+  "data-root": "{{ docker_data_root }}",
   "registry-mirrors": {{ docker_registry_mirrors | to_json }},
   "insecure-registries": {{ docker_insecure_registries | to_json }}
 }
