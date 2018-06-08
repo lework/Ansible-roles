@@ -124,6 +124,13 @@ os `Centos 7.4 X64`
 
 centos 7.3 以上版本
 
+所需的文件下载链接：`https://pan.baidu.com/s/1M3geI4wwdvslNVAa8j9U7g` 密码：`lwzu`
+
+```bash
+# yum -y install unzip
+# unzip kubernetes-files.zip -d /etc/ansible/roles/kubernetes/files/
+```
+
 ## github地址
 
 <https://github.com/kuailemy123/Ansible-roles/tree/master/kubernetes>
