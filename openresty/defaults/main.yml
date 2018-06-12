@@ -4,7 +4,7 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-openresty_version: "1.13.6.1"
+openresty_version: "1.13.6.2"
 
 openresty_file: "openresty-{{ openresty_version }}.tar.gz"
 openresty_file_path: "{{ software_files_path }}/{{ openresty_file }}"
