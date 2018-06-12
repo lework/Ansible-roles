@@ -10,8 +10,9 @@ openresty_file: "openresty-{{ openresty_version }}.tar.gz"
 openresty_file_path: "{{ software_files_path }}/{{ openresty_file }}"
 openresty_file_url: "https://openresty.org/download/openresty-{{ openresty_version }}.tar.gz"
 
-openresty_conf_path: "{{ software_install_path }}/openresty/nginx/conf/"
-openresty_conf_file_path: "{{ software_install_path }}/openresty/nginx/conf/nginx.conf"
+openresty_conf_path: "{{ software_install_path }}/openresty/nginx/conf"
+openresty_conf_d_path: "{{ openresty_conf_path }}/conf.d"
+openresty_conf_file_path: "{{ openresty_conf_path }}/nginx.conf"
 
 openresty_user: 'openresty'
 openresty_group: 'openresty'
@@ -33,7 +34,7 @@ openresty_configure_command: >
 
 openresty_pidfile: '/var/run/nginx.pid'
 openresty_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
-openresty_worker_connections: "1024"
+openresty_worker_connections: "102400"
 openresty_multi_accept: "off"
 
 openresty_logpath: "/var/log/openresty"
@@ -58,7 +59,6 @@ openresty_extra_conf_options: ""
 # Example extra main options, used within the main openresty's context:
 #   openresty_extra_conf_options: |
 #     env VARIABLE;
-#     include /etc/openresty/main.d/*.conf;
 
 openresty_extra_http_options: ""
 # Example extra http options, printed inside the main server http config:

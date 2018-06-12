@@ -34,8 +34,9 @@ ansible管理主机
     openresty_file_path: "{{ software_files_path }}/{{ openresty_file }}"
     openresty_file_url: "https://openresty.org/download/openresty-{{ openresty_version }}.tar.gz"
 
-    openresty_conf_path: "{{ software_install_path }}/openresty/nginx/conf/"
-    openresty_conf_file_path: "{{ software_install_path }}/openresty/nginx/conf/nginx.conf"
+    openresty_conf_path: "{{ software_install_path }}/openresty/nginx/conf"
+    openresty_conf_d_path: "{{ openresty_conf_path }}/conf.d"
+    openresty_conf_file_path: "{{ openresty_conf_path }}/nginx.conf"
 
     openresty_user: 'openresty'
     openresty_group: 'openresty'
@@ -57,7 +58,7 @@ ansible管理主机
 
     openresty_pidfile: '/var/run/nginx.pid'
     openresty_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
-    openresty_worker_connections: "1024"
+    openresty_worker_connections: "102400"
     openresty_multi_accept: "off"
 
     openresty_logpath: "/var/log/openresty"
@@ -133,7 +134,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/openresty
     #反向代理缓存,采用扩展选项
     - hosts: node1
       vars:
-      - openresty_proxy_cache_path: /data/openresty/cache levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=5g
+      - openresty_proxy_cache_path: /usr/local/openresty/nginx/proxy_temp levels=1:2 keys_zone=STATIC:10m inactive=24h max_size=5g
       - openresty_vhosts:
         - listen: 80
           extra_parameters: |

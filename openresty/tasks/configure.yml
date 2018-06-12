@@ -9,7 +9,48 @@
     owner: "{{ openresty_user }}"
     group: "{{ openresty_group }}"
   notify: Reload nginx.
-
+  
+  
+- name: configure | Setup default_server conf.
+  template:
+    dest: "{{ openresty_conf_d_path }}/00_default_server.conf"
+    src: nginx_default_server_conf.j2
+    mode: 0644
+    owner: "{{ openresty_user }}"
+    group: "{{ openresty_group }}"
+  when: not openresty_upstreams and not openresty_proxys and not openresty_vhosts
+  notify: Reload nginx.
+  
+- name: configure | Setup up upstream conf.
+  template:
+    dest: "{{ openresty_conf_d_path }}/10_upstream.conf"
+    src: nginx_upstream_conf.j2
+    mode: 0644
+    owner: "{{ openresty_user }}"
+    group: "{{ openresty_group }}"
+  when: openresty_upstreams and not openresty_stream
+  notify: Reload nginx.
+  
+- name: configure | Setup up vhosts conf.
+  template:
+    dest: "{{ openresty_conf_d_path }}/20_vhosts.conf"
+    src: nginx_vhosts_conf.j2
+    mode: 0644
+    owner: "{{ openresty_user }}"
+    group: "{{ openresty_group }}"
+  when: openresty_vhosts and not openresty_stream 
+  notify: Reload nginx.
+  
+- name: configure | Setup up stream conf.
+  template:
+    dest: "{{ openresty_conf_path }}/00_stream.conf"
+    src: nginx_stream_conf.j2
+    mode: 0644
+    owner: "{{ openresty_user }}"
+    group: "{{ openresty_group }}"
+  when: openresty_stream
+  notify: Reload nginx.
+  
 - name: configure | Setup nginx.sh file.
   template:
     dest: "/etc/rc.d/init.d/openresty"

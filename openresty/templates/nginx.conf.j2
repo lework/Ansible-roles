@@ -33,7 +33,7 @@ http {
                          '"upstream_status": "$upstream_status", '
                          '"status": "$status"} ';
 
-    access_log  {{ openresty_access_log }};
+    access_log  {{ openresty_access_log }} main;
     
     server_names_hash_bucket_size {{ openresty_server_names_hash_bucket_size }};
     large_client_header_buffers 4 16k;
@@ -88,23 +88,8 @@ http {
 {% if openresty_extra_http_options %}
     {{ openresty_extra_http_options|indent(4, False) }}
 {% endif %}
+    include {{ openresty_conf_d_path }}/*.conf;
+}
 {% if openresty_stream %}
-}
-stream {
+include 00_stream.conf;
 {% endif %}
-{% for upstream in openresty_upstreams %}
-    upstream {{ upstream.name }} {
-{% if upstream.strategy is defined %}
-        {{ upstream.strategy }};
-{% endif %}
-{% for server in upstream.servers %}
-        server {{ server }};
-{% endfor %}
-{% if upstream.keepalive is defined %}
-        keepalive {{ upstream.keepalive }};
-{% endif %}
-    }
-{% endfor %}
-{% include 'nginx_default_server_conf.j2' %}
-{% include 'nginx_vhosts_conf.j2' %}
-}

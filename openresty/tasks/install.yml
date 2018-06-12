@@ -72,6 +72,7 @@
   file: path={{ item }} state=directory owner={{ openresty_user }} group={{ openresty_group }}
   with_items:
    - "{{ openresty_logpath }}"
+   - "{{ openresty_conf_d_path }}"
 
 - name: install | Config environment variable.
   lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/openresty/bin/:$PATH'
