@@ -1,0 +1,14 @@
+---
+# author: lework
+
+- name: verify | 查看验证url状态。
+  uri: "url={{ deploy_verify_url }}"
+  register: curl_result
+  until: curl_result.status == 200
+  retries: 5
+  delay: 3
+  changed_when: false
+  check_mode: no
+  connection: local
+  become: no
+  when: deploy_verify_url != ""

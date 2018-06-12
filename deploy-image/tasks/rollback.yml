@@ -1,0 +1,17 @@
+---
+# author: lework
+
+- name: deloy | 拉取image。
+  shell: "{{ deploy_image_pull }}"
+  any_errors_fatal: true
+  
+- name: deloy | 关闭container。
+  shell: "{{ deploy_container_stop }}"
+  
+- name: deloy | 启动container。
+  shell: "{{ deploy_container_run }}"
+  
+- name: deloy | 等待端口开启。
+  wait_for: port={{ deploy_service_port }} delay={{ deploy_service_port_delay }} timeout={{ deploy_service_port_timeout }}
+
+- import_tasks: verify.yml

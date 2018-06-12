@@ -1,0 +1,11 @@
+---
+# author: lework
+
+- name: build | 编译image。
+  shell: "{{ deploy_image_build }}"
+  connection: local
+
+- name: build | 上传image。
+  shell: "{{ deploy_image_push }}"
+  any_errors_fatal: true
+  connection: local

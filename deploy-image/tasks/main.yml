@@ -1,0 +1,21 @@
+---
+# author: lework
+
+# 1. 进行发布前检查，发布image不存在时停止执行并抛出错误信息
+- import_tasks: check.yml
+  when: not deploy_rollback
+# 2. 发布image到repositoy
+- import_tasks: build.yml
+  when: not deploy_rollback
+# 3. 目标服务器拉取image并启动
+- import_tasks: deploy.yml
+  when: not deploy_rollback
+# 4. 确认image发布后，是否正常运行
+- import_tasks: verify.yml
+  when: not deploy_rollback
+# 回滚image
+- import_tasks: rollback.yml
+  when: deploy_rollback
+# 清理文件
+- import_tasks: clear.yml
+  when: deploy_clear

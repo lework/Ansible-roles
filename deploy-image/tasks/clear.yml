@@ -1,0 +1,12 @@
+---
+# author: lework
+
+- name: clear | 清除本地标签为none的镜像。
+  shell: "{{ deploy_clear_run }}"
+  connection: local
+  ignore_errors: true
+
+
+- name: clear | 清除服务端标签为none的镜像。
+  shell: "{{ deploy_clear_run }}"
+  ignore_errors: true

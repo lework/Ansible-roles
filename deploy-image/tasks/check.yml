@@ -1,0 +1,19 @@
+---
+# author: lework
+
+- name: check | 检查发布文件是否存在。
+  shell: "ls {{ deploy_service_path }}/{{ deploy_service_file }}"
+  connection: local
+  become: no
+  register: deploy_file_stats
+  changed_when: false
+  failed_when: deploy_file_stats.stdout_lines[0] == "" or deploy_service_path =="" or deploy_service_file == ""
+
+- name: check | 检查本地docker服务状态。
+  shell: "docker ps"
+  connection: local
+  changed_when: false
+  
+- name: check | 检查部署端docker服务状态。
+  shell: "docker ps"
+  changed_when: false
