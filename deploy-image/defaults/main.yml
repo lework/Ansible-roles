@@ -42,7 +42,10 @@ deploy_container_publish:
 # container目录绑定
 deploy_container_volume:
   - "/tmp/:/tmp/"
-  
+
+# container ip
+deploy_container_ip: ""  
+
 deploy_docker_bin: "/usr/bin/docker"
 # image编译脚本
 deploy_image_build: >
@@ -76,6 +79,7 @@ deploy_container_run: >
   {% for p in deploy_container_publish %}-p {{ p }} {% endfor %}
   {% for v in deploy_container_volume %}-v {{ v }} {% endfor %}
   --restart=always
+  {% if deploy_container_ip %}--ip {{ deploy_container_ip }}{% endif %}  
   {{ deploy_image_tag }}
 
 # 清除无用的镜像

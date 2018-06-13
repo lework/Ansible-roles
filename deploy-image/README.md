@@ -58,6 +58,9 @@ docker `18.03.1-ce`
     deploy_container_volume:
       - "/tmp/:/tmp/"
       
+    # container ip
+    deploy_container_ip: ""  
+
     deploy_docker_bin: "/usr/bin/docker"
     # image编译脚本
     deploy_image_build: >
@@ -90,6 +93,7 @@ docker `18.03.1-ce`
       -h {{ deploy_container_hostname }}
       {% for p in deploy_container_publish %}-p {{ p }} {% endfor %}
       {% for v in deploy_container_volume %}-v {{ v }} {% endfor %}
+      {% if deploy_container_ip %}--ip {{ deploy_container_ip }}{% endif %} 
       --restart=always
       {{ deploy_image_tag }}
 
