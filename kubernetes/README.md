@@ -137,6 +137,8 @@ centos 7.3 以上版本
 
 ## Example Playbook
 
+> 请注意, 主机名称请用小写字母, 大写字母会出现找不到主机的问题。
+
     # /etc/ansibe/hosts
     [k8s-master]
     192.168.77.133
