@@ -1,0 +1,30 @@
+---
+
+- name: configure | Configure the trusted pool.
+  shell: "gluster peer probe {{ item }}"
+  with_items: "{{ play_hosts | map('extract', hostvars, 'ansible_hostname') | list }}"
+  when: item != ansible_hostname
+  run_once: true
+
+- name: configure | Waiting for cluster to start...
+  shell: gluster peer status
+  register: waiting_for_cluster
+  until: waiting_for_cluster.rc == 0 and waiting_for_cluster.stdout.find("Disconnected") == -1
+  retries: 10
+  delay: 5
+  changed_when: false
+  ignore_errors: true
+
+- block:
+  - name: configure | Set up a GlusterFS volume.
+    shell: "{{ gluster_volume_create }}"
+  
+  - name: configure | Start GlusterFS volume.
+    shell: "{{ gluster_volume_start }}"
+  
+  - name: configure | Get GlusterFS volume info.
+    shell: gluster volume info
+    register: gluster_volume_info
+    
+  - debug: "msg={{ gluster_volume_info.stdout }}"
+  run_once: true

@@ -1,0 +1,17 @@
+---
+# author: lework
+
+- name: install | Config glusterfs repo.
+  template:
+    src: CentOS-Gluster.repo.j2
+    dest: "/etc/yum.repos.d/CentOS-Gluster.repo"
+    
+- name: install | Create brick directory.
+  file: path={{ gluster_volume_brick }} state=directory
+
+- name: install | Ensure glusterfs packages are installed.
+  yum: "name={{ item }} state=installed  update_cache=yes"
+  with_items: "{{ gluster_packages }}"
+  
+- name: install | Install glusterfs.
+  yum: "name=glusterfs-server state=installed update_cache=yes enablerepo=centos-gluster"

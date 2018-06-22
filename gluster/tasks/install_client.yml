@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: install_client | Config glusterfs repo.
+  template:
+    src: CentOS-Gluster.repo.j2
+    dest: "/etc/yum.repos.d/CentOS-Gluster.repo"
+
+- name: install_client | Install glusterfs fuse.
+  yum: "name=glusterfs-fuse state=installed update_cache=yes enablerepo=centos-gluster"
+
+- name: install | Create clent mount directory.
+  file: path={{ gluster_client_mount_dest }} state=directory
+
+- name: install_client | mount glusterfs.
+  mount:
+    path: "{{ gluster_client_mount_dest }}"
+    src: "{{ gluster_client_mount_src }}"
+    fstype: glusterfs
+    state: mounted
+  when: gluster_client_mount_src and gluster_client_mount_dest

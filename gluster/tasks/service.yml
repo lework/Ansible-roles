@@ -1,0 +1,7 @@
+---
+
+- name: configure | Ensure glusterd is started and enabled at boot.
+  systemd: name=glusterd state=started enabled=yes
+
+- name: service | Wait for glusterd to start.
+  wait_for: path=/var/run/glusterd.socket

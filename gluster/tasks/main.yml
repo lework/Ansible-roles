@@ -1,0 +1,13 @@
+---
+# author: lework
+
+- import_tasks: bootstrap.yml
+  when: gluster_init and not gluster_client
+- import_tasks: install_client.yml
+  when: gluster_client
+- import_tasks: install.yml
+  when: not gluster_client
+- import_tasks: service.yml 
+  when: not gluster_client
+- import_tasks: configure.yml 
+  when: not gluster_client

@@ -1,0 +1,31 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+gluster_version: "4.1"
+
+gluster_packages: 
+  - xfsprogs
+
+gluster_volume_name: "gluster_data"
+gluster_volume_replica: "{{ ansible_play_hosts.__len__() }}"
+
+gluster_volume_brick: "/gluster_brick"
+
+gluster_volume_create: >
+  gluster volume create {{ gluster_volume_name}}
+  replica {{ gluster_volume_replica }}
+  {% for h in play_hosts %}{{ hostvars[h].ansible_hostname }}:{{ gluster_volume_brick }} {% endfor %}
+  force
+
+gluster_volume_start: >
+ gluster volume start {{ gluster_volume_name}}
+
+gluster_hostnames: true
+gluster_epel: true
+gluster_init: true
+gluster_client: false
+gluster_client_mount_src: ''
+gluster_client_mount_dest: ''
