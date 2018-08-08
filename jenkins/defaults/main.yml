@@ -51,6 +51,7 @@ jenkins_plugins_recommended:
   - timestamper
   - workflow-aggregator
   - ws-cleanup
+  - ansible
   - ansicolor
   - multiple-scms
   - role-strategy
