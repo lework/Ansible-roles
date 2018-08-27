@@ -45,6 +45,9 @@ python `2.6.6`
 
     # 是否回滚
     deploy_rollback: false
+    
+    # 验证uri
+    deploy_verify_uri: ""
 
 ## 依赖
 tomcat

@@ -41,8 +41,8 @@ supervisor `3.3.4`
     # supervisorctl 管理程序
     deploy_service_start_script: "/usr/bin/supervisorctl"
 
-    # 验证url
-    deploy_verify_url: ""
+    # 验证uri
+    deploy_verify_uri: ""
 
     # 临时目录
     deploy_file_path: "/packages"

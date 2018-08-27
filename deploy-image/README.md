@@ -58,6 +58,9 @@ docker `18.03.1-ce`
     deploy_container_volume:
       - "/tmp/:/tmp/"
       
+    # container 环境变量
+    deploy_container_env: []
+    
     # container ip
     deploy_container_ip: ""  
 
@@ -102,8 +105,8 @@ docker `18.03.1-ce`
     deploy_clear_run: >
       {{ deploy_docker_bin }} rmi --force $({{ deploy_docker_bin }} images | grep 'none' | awk '{print $3}')
 
-    # 验证url
-    deploy_verify_url: ""
+    # 验证uri
+    deploy_verify_uri: ""
 
     # 是否回滚
     deploy_rollback: false

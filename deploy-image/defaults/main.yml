@@ -43,6 +43,9 @@ deploy_container_publish:
 deploy_container_volume:
   - "/tmp/:/tmp/"
 
+# container 环境变量
+deploy_container_env: []
+
 # container ip
 deploy_container_ip: ""  
 
@@ -78,6 +81,7 @@ deploy_container_run: >
   -h {{ deploy_container_hostname }}
   {% for p in deploy_container_publish %}-p {{ p }} {% endfor %}
   {% for v in deploy_container_volume %}-v {{ v }} {% endfor %}
+  {% if deploy_container_env %}{% for e in deploy_container_env %}-e {{ e }} {% endfor %}{% endif %}
   --restart=always
   {% if deploy_container_ip %}--ip {{ deploy_container_ip }}{% endif %}  
   {{ deploy_image_tag }}
@@ -87,8 +91,8 @@ deploy_clear: true
 deploy_clear_run: >
   {{ deploy_docker_bin }} rmi --force $({{ deploy_docker_bin }} images | grep 'none' | awk '{print $3}')
 
-# 验证url
-deploy_verify_url: ""
+# 验证uri
+deploy_verify_uri: ""
 
 # 是否回滚
 deploy_rollback: false

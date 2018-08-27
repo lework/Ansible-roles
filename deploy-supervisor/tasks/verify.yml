@@ -2,7 +2,7 @@
 # author: lework
 
 - name: verify | 查看验证url状态。
-  uri: "url={{ deploy_verify_url }}"
+  uri: "url=http://{{ ansible_default_ipv4.address }}:{{ deploy_port }}{{ deploy_verify_uri }}"
   register: curl_result
   until: curl_result.status == 200
   retries: 50
@@ -11,4 +11,4 @@
   check_mode: no
   connection: local
   become: no
-  when: deploy_verify_url != ""
+  when: deploy_verify_uri != ""
