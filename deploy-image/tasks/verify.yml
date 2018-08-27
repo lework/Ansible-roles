@@ -5,7 +5,7 @@
   uri: "url={{ deploy_verify_url }}"
   register: curl_result
   until: curl_result.status == 200
-  retries: 5
+  retries: 50
   delay: 3
   changed_when: false
   check_mode: no

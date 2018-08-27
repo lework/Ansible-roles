@@ -33,3 +33,6 @@ deploy_old_path: "{{ deploy_file_path }}/old"
 
 # 是否回滚
 deploy_rollback: false
+
+# 验证url
+deploy_verify_url: ""
