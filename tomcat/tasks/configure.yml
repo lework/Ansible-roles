@@ -26,6 +26,7 @@
      CATALINA_HOME={{ tomcat_work_path }}
      CATALINA_OPTS='{{ tomcat_catalina_opts }}'
      TOMCAT_USER={{ tomcat_user }}
+     JSVC_OPTS='-umask 022'
 
      
 - name: "configure | Change jsvc current working directory."

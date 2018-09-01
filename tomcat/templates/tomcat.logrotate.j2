@@ -1,8 +1,10 @@
 {{ tomcat_work_path }}/logs/catalina-daemon.out {
 daily
 rotate 60
+ifempty
 missingok
 dateext
 nocompress
+create 0640 {{ tomcat_user }} {{ tomcat_user }}
 copytruncate
 }
