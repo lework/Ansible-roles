@@ -11,7 +11,7 @@
   ignore_errors: true
   
 - name: deloy | 等待端口关闭
-  wait_for: port={{ deploy_port }} state=stopped delay=10
+  wait_for: port={{ deploy_service_port }} state=stopped delay=10
   
 - name: deloy | 移动线上代码
   shell: "cd /tmp/ && rm -rf {{ deploy_pre_path }}/* && mv {{ deploy_file_workpath }}/* {{ deploy_pre_path }}/"
@@ -24,4 +24,4 @@
   ignore_errors: true
   
 - name: deloy | 等待端口开启
-  wait_for: port={{ deploy_port }} delay=10
+  wait_for: port={{ deploy_service_port }} delay=10

@@ -17,13 +17,13 @@ python `2.6.6`
     deploy_file: ""
 
     # tomcat服务的端口
-    deploy_port: "8080"
+    deploy_service_port: "8080"
 
     # tomcat服务用户
     deploy_service_user: "tomcat"
 
     # tomcat服务的名称
-    deploy_service_name: "tomcat{% if deploy_port != 8080 %}{{ deploy_port }}{% endif %}"
+    deploy_service_name: "tomcat{% if deploy_service_port != 8080 %}{{ deploy_service_port }}{% endif %}"
 
     # 发布服务的家目录
     deploy_file_workpath: "/usr/local/{{ deploy_service_name }}/webapps/ROOT"
@@ -48,6 +48,7 @@ python `2.6.6`
     
     # 验证uri
     deploy_verify_uri: ""
+    deploy_verify_url: "http://127.0.0.1:{{ deploy_service_port }}{{ deploy_verify_uri }}"
 
 ## 依赖
 tomcat

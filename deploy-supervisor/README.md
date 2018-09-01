@@ -43,6 +43,7 @@ supervisor `3.3.4`
 
     # 验证uri
     deploy_verify_uri: ""
+    deploy_verify_url: "http://127.0.0.1:{{ deploy_service_port }}{{ deploy_verify_uri }}"
 
     # 临时目录
     deploy_file_path: "/packages"

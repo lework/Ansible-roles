@@ -107,6 +107,7 @@ docker `18.03.1-ce`
 
     # 验证uri
     deploy_verify_uri: ""
+    deploy_verify_url: "http://127.0.0.1:{{ deploy_service_port }}{{ deploy_verify_uri }}"
 
     # 是否回滚
     deploy_rollback: false

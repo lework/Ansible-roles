@@ -11,7 +11,7 @@
   ignore_errors: true
 
 - name: rollback | 等待端口关闭
-  wait_for: port={{ deploy_port }} state=stopped
+  wait_for: port={{ deploy_service_port }} state=stopped
 
 - name: rollback | 部署上一版代码
   shell: "cd /tmp/ && rm -rf {{ deploy_file_workpath }}/* && cp -rf {{ deploy_pre_path }}/* {{ deploy_file_workpath }}/ && chown -R {{ deploy_service_user }} {{ deploy_file_workpath }}/"
@@ -21,6 +21,6 @@
   ignore_errors: true
 
 - name: rollback | 等待端口开启
-  wait_for: port={{ deploy_port }}
+  wait_for: port={{ deploy_service_port }}
 
-- include: verify.yml
+- import_tasks: verify.yml
