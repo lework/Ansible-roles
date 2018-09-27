@@ -64,6 +64,8 @@ python `2.7.5`
     redis_sentinel_quorum: '2'
     redis_sentinel_daemon: "redis-sentinel{{ redis_sentinel_port | default('') }}"
     
+    redis_rename_command: true
+    
 
 ## 依赖
 

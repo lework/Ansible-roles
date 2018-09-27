@@ -70,4 +70,10 @@ client-output-buffer-limit slave 256mb 64mb 60
 client-output-buffer-limit pubsub 32mb 8mb 60
 hz 10
 aof-rewrite-incremental-fsync yes
+{% if redis_rename_command %}
 
+rename-command KEYS     "LEKEYS"
+rename-command FLUSHALL "LEFLUSHALL"
+rename-command FLUSHDB  "LEFLUSHDB"
+rename-command CONFIG   "LECONFIG"
+{% endif %}
