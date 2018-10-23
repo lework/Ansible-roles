@@ -14,7 +14,7 @@
   wait_for: port={{ deploy_service_port }} state=stopped delay=10
   
 - name: deloy | 移动线上代码
-  shell: "cd /tmp/ && rm -rf {{ deploy_pre_path }}/* && mv {{ deploy_file_workpath }}/* {{ deploy_pre_path }}/"
+  shell: "cd /tmp/ && rm -rf {{ deploy_pre_path | d('/tmp/letest') }}/* && mv {{ deploy_file_workpath }}/* {{ deploy_pre_path }}/"
   
 - name: deloy | 部署最新代码
   shell: "cp -rf {{ deploy_new_path }}/* {{ deploy_file_workpath }}/ && chown -R {{ deploy_service_user }} {{ deploy_file_workpath }}/"

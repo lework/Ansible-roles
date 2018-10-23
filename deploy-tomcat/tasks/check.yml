@@ -13,6 +13,9 @@
   register: deploy_service_work_result
   failed_when: not deploy_service_work_result.stat.exists
   
+- name : check | 清空代码更新的目录
+  file: path={{ deploy_new_path | d('/tmp/letest') }} state=absent
+
 - name: check | 工作目录如果不存在则创建
   file: path={{ item }} state=directory
   with_items:
