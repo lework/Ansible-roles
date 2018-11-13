@@ -67,4 +67,4 @@
   file: src={{ software_install_path }}/{{ mysql_dirname }} dest={{ mysql_basedir }} state=link
 
 - name: install | Config environment variable.
-  lineinfile: dest=/etc/profile line='export PATH={{ mysql_basedir }}:$PATH'
+  lineinfile: dest=/etc/profile line='export PATH={{ mysql_basedir }}/bin/:$PATH'

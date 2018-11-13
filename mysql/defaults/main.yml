@@ -46,4 +46,4 @@ mysql_replication_master_port: "3306"
 mysql_replication_role: ''
 mysql_auto_increment_offset: ''
 
-mysql_binlog_format: "STATEMENT"
+mysql_binlog_format: "MIXED"
