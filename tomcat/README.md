@@ -21,7 +21,7 @@ python `2.7.5`
 
     java_home: "{{ ansible_env.JAVA_HOME | default('/usr/java/jdk1.7.0_80') }}"
 
-    tomcat_version: "7.0.90"
+    tomcat_version: "7.0.85"
     tomcat_file: "apache-tomcat-{{ tomcat_version }}.tar.gz"
     tomcat_path: "{{ software_install_path }}/apache-tomcat-{{ tomcat_version }}"
     tomcat_file_path: "{{ software_files_path }}/{{ tomcat_file }}"
@@ -43,7 +43,7 @@ python `2.7.5`
 
     tomcat_work_path: "{{ software_install_path }}/{{ tomcat_services_name }}"
     tomcat_daemon_native_path: "{{ tomcat_work_path }}/bin/commons-daemon-1.1.0-native-src"
-    tomcat_catalina_opts: "-server -Xms1G -Xmx1G -XX:PermSize=256m -XX:MaxPermSize=256m -XX:NewSize=256m -XX:MaxNewSize=256m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.awt.headless=true  -Djava.security.egd=file:/dev/./urandom -XX:SurvivorRatio=10 -XX:+UseParNewGC -XX:ParallelGCThreads=4 -XX:MaxTenuringThreshold=13 -XX:+UseConcMarkSweepGC -XX:+DisableExplicitGC -XX:+UseCMSInitiatingOccupancyOnly -XX:+ScavengeBeforeFullGC -XX:+UseCMSCompactAtFullCollection -XX:+CMSParallelRemarkEnabled -XX:CMSFullGCsBeforeCompaction=9 -XX:CMSInitiatingOccupancyFraction=60 -XX:+CMSClassUnloadingEnabled -XX:SoftRefLRUPolicyMSPerMB=0 -XX:-ReduceInitialCardMarks -XX:+CMSPermGenSweepingEnabled -XX:CMSInitiatingPermOccupancyFraction=70 -XX:+ExplicitGCInvokesConcurrent -Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.EPollSelectorProvider -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCApplicationConcurrentTime -XX:+PrintHeapAtGC -Xloggc:{{ tomcat_work_path }}/logs/heap_trace.txt -XX:-HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={{ tomcat_work_path }}/logs/HeapDumpOnOutOfMemoryError -Djava.util.Arrays.useLegacyMergeSort=true"
+    tomcat_catalina_opts: "-server -Xms1024m -Xmx1024m -XX:PermSize=256M -XX:MaxNewSize=256m -XX:MaxPermSize=256m -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -Djava.awt.headless=true"
 
     
 ## 依赖
@@ -58,12 +58,10 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/tomcat
     安装tomcat7
     - hosts: node1
       roles:
-       - java_version: "1.8"
        - tomcat
 
     - hosts: node1
       roles:
-       - java
        - { role: tomcat, tomcat_catalina_port: 8081, tomcat_server_port: 8005}
        - { role: tomcat, tomcat_catalina_port: 8082, tomcat_server_port: 8006}
        
@@ -71,7 +69,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/tomcat
     - hosts: node1
       vars:
        - java_version: "1.8"
-       - tomcat_version: "8.5.33"
+       - tomcat_version: "8.5.28"
       roles:
        - java
        - tomcat

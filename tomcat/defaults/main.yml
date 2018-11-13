@@ -11,7 +11,7 @@ tomcat_file: "apache-tomcat-{{ tomcat_version }}.tar.gz"
 tomcat_path: "{{ software_install_path }}/apache-tomcat-{{ tomcat_version }}"
 tomcat_file_path: "{{ software_files_path }}/{{ tomcat_file }}"
 
-tomcat_file_url: "http://archive.apache.org/dist/tomcat/tomcat-7/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+tomcat_file_url: "http://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-7/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
 
 tomcat_enabled: true
 tomcat_server_active: false
