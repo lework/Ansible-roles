@@ -7,4 +7,10 @@
   
 - import_tasks: install.yml
 - import_tasks: configure.yml
+
+- import_tasks: apr.yml
+  run_once: yes
+  when: tomcat_apr
+
 - import_tasks: logrotate.yml
+- import_tasks: check.yml

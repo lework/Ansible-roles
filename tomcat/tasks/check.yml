@@ -1,0 +1,26 @@
+---
+
+- name : check | 清理webapps多余的目录
+  file: path={{ item }} state=absent
+  with_items:
+    - "{{ tomcat_work_path }}/webapps/docs"
+    - "{{ tomcat_work_path }}/webapps/examples"
+    - "{{ tomcat_work_path }}/webapps/host-manager"
+    - "{{ tomcat_work_path }}/webapps/manager"
+  when: tomcat_clear_webapps
+
+
+- name: "check | Ensure {{ tomcat_services_name }} is running for centos6."
+  service: "name={{ tomcat_services_name }} state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+- name: "check | Change jsvc rc code."
+  replace: path=/etc/rc.d/init.d/{{ tomcat_services_name }} regexp="exit \$\?" replace="exit 0"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+  
+- name: "check | Ensure {{ tomcat_services_name }} is running for centos7."
+  systemd: "name={{ tomcat_services_name }} state=started enabled=true"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+
+- name: "check | Wait {{ tomcat_catalina_port }} port is opening."
+  wait_for: port={{ tomcat_catalina_port }}

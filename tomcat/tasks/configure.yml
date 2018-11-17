@@ -35,17 +35,3 @@
     insertafter: '-user \$TOMCAT_USER \\'
     line: '      -cwd $CATALINA_TMP \'
         
-- name: "configure | Ensure {{ tomcat_services_name }} is running for centos6."
-  service: "name={{ tomcat_services_name }} state=started enabled=yes"
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
-
-- name: "configure | Change jsvc rc code."
-  replace: path=/etc/rc.d/init.d/{{ tomcat_services_name }} regexp="exit \$\?" replace="exit 0"
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
-  
-- name: "configure | Ensure {{ tomcat_services_name }} is running for centos7."
-  systemd: "name={{ tomcat_services_name }} state=started enabled=true"
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
-  
-- name: "configure | Wait {{ tomcat_catalina_port }} port is opening."
-  wait_for: port={{ tomcat_catalina_port }}

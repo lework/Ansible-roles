@@ -5,3 +5,10 @@
   template:
     dest: "/etc/logrotate.d/{{ tomcat_services_name }}"
     src: tomcat.logrotate.j2
+
+- name: logrotate | Create a cron rule.
+  cron:
+    name: "Logrotate {{ tomcat_services_name }} catalina-daemon.out"
+    minute: "59"
+    hour: "23"
+    job: "sleep 59;/usr/sbin/logrotate -vf /etc/logrotate.d/{{ tomcat_services_name }} >> /var/log/logrotate-{{ tomcat_services_name }}.log 2>&1"

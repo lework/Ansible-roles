@@ -35,6 +35,7 @@
     - libtool
     - make
     - libcap-devel
+    - expat-devel
     
 - name: install | Copy tomcat file to agent.
   unarchive:

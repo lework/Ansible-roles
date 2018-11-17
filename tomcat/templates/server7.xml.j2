@@ -29,7 +29,7 @@
   <Listener className="org.apache.catalina.security.SecurityListener" />
   -->
   <!--APR library loader. Documentation at /docs/apr.html -->
-  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="off" />
   <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
   <Listener className="org.apache.catalina.core.JasperListener" />
   <!-- Prevent memory leaks due to use of particular java/javax APIs-->
@@ -63,7 +63,14 @@
     <Executor name="tomcatThreadPool" namePrefix="catalina-exec-"
         maxThreads="150" minSpareThreads="4"/>
     -->
-
+    <Executor name="tomcatThreadPool"
+              namePrefix="catalina-req-exec-"
+              prestartminSpareThreads="true"
+              maxThreads="10000"
+              maxQueueSize="1000"
+              minSpareThreads="100"
+              maxIdleTime="60000"
+    />
 
     <!-- A "Connector" represents an endpoint by which requests are received
          and responses are returned. Documentation at :
@@ -72,17 +79,21 @@
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL HTTP/1.1 Connector on port 8080
     -->
-    <Connector port="{{ tomcat_catalina_port }}" protocol="HTTP/1.1"
+    <Connector port="{{ tomcat_catalina_port }}"
+               executor="tomcatThreadPool"
+               protocol="org.apache.coyote.http11.{% if tomcat_apr %}Http11AprProtocol{% else %}Http11NioProtocol{% endif %}"
                connectionTimeout="20000"
-               redirectPort="{{ tomcat_catalina_redirect_port }}" 
-			   URIEncoding="UTF-8"
-			   enableLookups="false"
-			   acceptCount="800"
-			   maxThreads="500"
-			   compression="on"
-			   compressionMinSize="2048" 
-			   compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript" 
-	/>
+               redirectPort="{{ tomcat_catalina_redirect_port }}"
+               URIEncoding="UTF-8"
+               enableLookups="false"
+               acceptCount="10000"
+               maxConnections="20000"
+               compression="on"
+               compressionMinSize="2048"
+               maxHttpHeaderSize="8192"
+               maxPostSize="10485760"
+               compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript" 
+    />
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"

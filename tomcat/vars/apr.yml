@@ -1,0 +1,12 @@
+---
+
+tomcat_apr_version: "1.6.5"
+tomcat_apr_file: "apr-{{ tomcat_apr_version }}.tar.gz"
+tomcat_apr_file_path: "{{ software_files_path }}/{{ tomcat_apr_file }}"
+tomcat_apr_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/apr/{{ tomcat_apr_file }}"
+
+
+tomcat_apr_util_version: "1.6.1"
+tomcat_apr_util_file: "apr-util-{{ tomcat_apr_util_version }}.tar.gz"
+tomcat_apr_util_file_path: "{{ software_files_path }}/{{ tomcat_apr_util_file }}"
+tomcat_apr_util_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/apr/{{ tomcat_apr_util_file }}"

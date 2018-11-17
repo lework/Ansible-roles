@@ -1,0 +1,60 @@
+---
+# author: lework
+
+- name: Include apr variables.
+  include_vars: apr.yml
+  
+- name: apr | Check if apr local file is already configured.
+  stat: path={{ tomcat_apr_file_path }}
+  connection: local
+  register: tomcat_apr_file_result
+  
+- name: apr | Download apr file.
+  get_url: url={{ tomcat_apr_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not tomcat_apr_file_result.stat.exists
+  
+- name: apr | Check if apr util local file is already configured.
+  stat: path={{ tomcat_apr_util_file_path }}
+  connection: local
+  register: tomcat_apr_util_file_result
+  
+- name: apr | Download apr util file.
+  get_url: url={{ tomcat_apr_util_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not tomcat_apr_util_file_result.stat.exists
+  
+- name: apr | Copy apr file to agent.
+  unarchive:
+    src: "{{ item }}"
+    dest: /tmp
+  with_items:
+   - "{{ tomcat_apr_file_path }}"
+   - "{{ tomcat_apr_util_file_path }}"
+
+- name: apr | Build apr.
+  shell: "./configure --prefix=/usr/local/apr && make && make install"
+  args:
+    chdir: "/tmp/{{ tomcat_apr_file | regex_replace('.tar.gz')  }}"
+    creates: /usr/local/apr/bin/apr-1-config
+  
+- name: apr | Build apr utils.
+  shell: "./configure --with-apr=/usr/local/apr/ --prefix=/usr/local/apr-utils && make && make install"
+  args:
+    chdir: "/tmp/{{ tomcat_apr_util_file | regex_replace('.tar.gz') }}"
+    creates: /usr/local/apr-utils/bin/apu-1-config
+    
+- name: apr | Unarchive tomcat native.
+  unarchive:
+    src: "{{ tomcat_work_path }}/bin/tomcat-native.tar.gz"
+    dest: "{{ tomcat_work_path }}/bin/"
+    creates: "{{ tomcat_native_path }}"
+    copy: no
+    
+- name: apr | Build tomcat native.
+  shell: "./configure --with-apr=/usr/local/apr/bin/apr-1-config && make && make install"
+  args:
+    chdir: "{{ tomcat_native_path }}/native"
+    
+- name: apr | Config environment variable.
+  lineinfile: dest=/etc/profile line='export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/apr/lib'
