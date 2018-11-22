@@ -31,6 +31,7 @@ _php_rpm:
   - php71w-common
   - php71w-gd
   - php71w-mysql
+  - php71w-mysqlnd
   - php71w-bcmath
   - php71w-mbstring
   - php71w-xml
@@ -39,3 +40,7 @@ _php_rpm:
   - php71w-mcrypt
   - php71w-opcache
   - php71w-pecl-apcu
+  - php71w-devel
+  - php71w-pecl-memcached
+  - php71w-pecl-redis
+  - php71w-pecl-mongodb
