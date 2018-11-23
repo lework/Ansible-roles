@@ -3,7 +3,7 @@
 
 - name: logrotate | Setup Tomcat logrotate conf file.
   template:
-    dest: "/etc/logrotate.d/{{ tomcat_services_name }}"
+    dest: "{{ tomcat_work_path }}/conf/logrotate.conf"
     src: tomcat.logrotate.j2
 
 - name: logrotate | Create a cron rule.
@@ -11,4 +11,4 @@
     name: "Logrotate {{ tomcat_services_name }} catalina-daemon.out"
     minute: "59"
     hour: "23"
-    job: "sleep 59;/usr/sbin/logrotate -vf /etc/logrotate.d/{{ tomcat_services_name }} >> /var/log/logrotate-{{ tomcat_services_name }}.log 2>&1"
+    job: "sleep 57;/usr/sbin/logrotate -vf {{ tomcat_work_path }}/conf/logrotate.conf >> /var/log/logrotate-{{ tomcat_services_name }}.log 2>&1"
