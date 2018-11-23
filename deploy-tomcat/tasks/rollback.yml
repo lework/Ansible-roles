@@ -7,20 +7,22 @@
   failed_when: rollback_code_result.stdout == 0
 
 - name: rollback | 关闭服务
+  #systemd: "name={{ deploy_service_name }} state=stopped"
   shell: "{{ deploy_service_start_script }} stop"
   ignore_errors: true
 
 - name: rollback | 等待端口关闭
-  wait_for: port={{ deploy_service_port }} state=stopped
+  wait_for: port={{ deploy_service_port }} state=stopped delay=3
 
 - name: rollback | 部署上一版代码
   shell: "cd /tmp/ && rm -rf {{ deploy_file_workpath }}/* && cp -rf {{ deploy_pre_path }}/* {{ deploy_file_workpath }}/ && chown -R {{ deploy_service_user }} {{ deploy_file_workpath }}/"
 
 - name: rollback | 启动服务
+  #systemd: "name={{ deploy_service_name }} state=started"
   shell: "{{ deploy_service_start_script }} start"
   ignore_errors: true
 
 - name: rollback | 等待端口开启
-  wait_for: port={{ deploy_service_port }}
+  wait_for: port={{ deploy_service_port }} delay=3
 
 - import_tasks: verify.yml
