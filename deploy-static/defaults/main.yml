@@ -1,0 +1,32 @@
+---
+# author: lework
+
+# 发布的代码文件，包含绝对路径，如:/tmp/test.jar
+deploy_file: ""
+
+# 发布服务名称
+deploy_service: ""
+
+# 发布文件的用户
+deploy_service_user: ""
+
+# 发布服务的家目录
+deploy_service_workpath: "/Microservices/{{ deploy_service }}"
+
+# 临时目录
+deploy_file_path: "/packages"
+
+# 上线代码的存储目录
+deploy_code_online_path: "{{ deploy_file_path }}/online/{{ deploy_service }}"
+
+# 当前代码(也就是上一版本的代码)的存储目录
+deploy_code_previous_path: "{{ deploy_file_path }}/previous/{{ deploy_service }}"
+
+# 历史代码存储目录
+deploy_code_history_path: "{{ deploy_file_path }}/history/{{ deploy_service }}"
+
+# 是否回滚
+deploy_rollback: false
+
+# 检查uri
+deploy_verify_uri: ""

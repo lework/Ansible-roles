@@ -1,0 +1,32 @@
+---
+# author: lework
+
+- name: deloy | 拷贝代码至目标服务器。
+  unarchive:
+    src: "{{ deploy_file_stats.stdout_lines[0] }}"
+    dest: "{{ deploy_code_online_path }}"
+
+- name: deloy | 备份线上代码。
+  synchronize:
+    src: "{{ deploy_service_workpath }}/"
+    dest: "{{ deploy_code_previous_path }}/"
+    delete: yes
+    checksum: yes
+    rsync_opts:
+      - "--no-motd"
+      - "--exclude=.git"
+  delegate_to: "{{ inventory_hostname }}"
+  
+- name: deloy | 同步最新代码。
+  synchronize:
+    src: "{{ deploy_code_online_path }}/"
+    dest: "{{ deploy_service_workpath }}/"
+    delete: yes
+    checksum: yes
+    rsync_opts:
+      - "--no-motd"
+      - "--exclude=.git"
+  delegate_to: "{{ inventory_hostname }}"
+  
+- name: deloy | 目录授权给{{deploy_service_user}}。
+  file: "dest={{ deploy_service_workpath }} owner={{ deploy_service_user }} group={{ deploy_service_user }} recurse=yes"

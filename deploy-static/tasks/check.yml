@@ -1,0 +1,30 @@
+---
+# author: lework
+
+- name: check | 发布文件是否存在。
+  shell: "ls {{ deploy_file }}"
+  connection: local
+  become: no
+  register: deploy_file_stats
+  changed_when: false
+  failed_when: deploy_file_stats.stdout_lines[0] == "" or deploy_file == ""
+
+- name: check | 服务家目录如果不存在则创建。
+  file: path={{ deploy_service_workpath }} owner={{ deploy_service_user }} state=directory
+  
+- name: check | 代码存储目录如果不存在则创建。
+  file: path={{ item }} state=directory
+  with_items:
+   - "{{ deploy_code_online_path }}"
+   - "{{ deploy_code_previous_path }}"
+   - "{{ deploy_code_history_path }}"
+   - "{{ deploy_service_workpath }}"
+
+- name : check | 清空代码更新的目录。
+  file: "path={{ deploy_code_online_path }} state=absent"
+
+- name: check | 代码存储目录如果不存在则创建。
+  file: "path={{ deploy_code_online_path }} state=directory"
+   
+- name: check | rsync客户端如果不存在则安装。
+  yum: name=rsync

@@ -1,0 +1,23 @@
+---
+# author: lework
+
+- name: rollback | 检查{{ deploy_code_previous_path }}是否存在代码。
+  shell: "ls {{ deploy_code_previous_path}} | wc -l"
+  register: rollback_code_result
+  failed_when: rollback_code_result.stdout == 0
+
+- name: rollback | 部署上一版代码。
+  synchronize:
+    src: "{{ deploy_code_previous_path }/}"
+    dest: "{{ deploy_service_workpath }}/"
+    delete: yes
+    checksum: yes
+    rsync_opts:
+      - "--no-motd"
+      - "--exclude=.git"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: rollback | 目录授权给{{deploy_service_user}}。
+  file: "dest={{ deploy_service_workpath }} owner={{ deploy_service_user }} group={{ deploy_service_user }} recurse=yes"
+  
+- import_tasks: verify.yml
