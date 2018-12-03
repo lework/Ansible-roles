@@ -2,8 +2,8 @@
     daily
     dateext
     missingok
-    rotate 100
-    nocompress
+    rotate 30
+    compress
     sharedscripts
     postrotate
         [ ! -f {{ openresty_pidfile }} ] || kill -USR1 `cat {{ openresty_pidfile }}`

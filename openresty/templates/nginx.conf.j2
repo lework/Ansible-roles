@@ -16,7 +16,23 @@ http {
     include       {{ openresty_mime_file_path }};
     default_type  application/octet-stream;
 
-    log_format  main  '{ "@timestamp": "$time_iso8601", '
+    log_format  main  '{"@timestamp": "$time_iso8601", '
+                         '"clientRealIp": "$remote_addr", '
+                         '"scheme": "$scheme", '
+                         '"method": "$request_method", '
+                         '"host": "$host", '
+                         '"url": "$request_uri", '
+                         '"size": $body_bytes_sent, '
+                         '"referrer": "$http_referer", '
+                         '"agent": "$http_user_agent", '
+                         '"upstream_addr": "$upstream_addr", '
+                         '"request_time": $request_time, '
+                         '"upstream_connect_time": "$upstream_connect_time", '
+                         '"upstream_response_time": "$upstream_response_time", '
+                         '"upstream_status": "$upstream_status", '
+                         '"status": "$status"}';
+                         
+    log_format  main-json escape=json '{"@timestamp": "$time_iso8601", '
                          '"clientRealIp": "$remote_addr", '
                          '"scheme": "$scheme", '
                          '"method": "$request_method", '
@@ -31,8 +47,8 @@ http {
                          '"upstream_connect_time": "$upstream_connect_time", '
                          '"upstream_response_time": "$upstream_response_time", '
                          '"upstream_status": "$upstream_status", '
-                         '"status": "$status"} ';
-
+                         '"status": "$status"}';
+    
     access_log  {{ openresty_access_log }} main;
     
     server_names_hash_bucket_size {{ openresty_server_names_hash_bucket_size }};
@@ -72,16 +88,19 @@ http {
     proxy_read_timeout 120;
     proxy_connect_timeout 120;
     #proxy_next_upstream error timeout invalid_header http_500 http_503 http_404;
-    
+   
+    proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    
+    proxy_set_header Connection "";
+        
     server_tokens off;
     more_clear_headers 'Server';
     proxy_hide_header X-Application-Context;
-
+    underscores_in_headers on;
+    
 {% if openresty_proxy_cache_path %}
     proxy_cache_path {{ openresty_proxy_cache_path }};
 {% endif %}

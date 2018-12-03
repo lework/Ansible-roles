@@ -3,5 +3,12 @@
 
 - name: logrotate | Setup openresty logrotate conf file.
   template:
-    dest: "/etc/logrotate.d/openresty"
+    dest: "{{ openresty_conf_path }}/logrotate.conf"
     src: nginx.logrotate.j2
+    
+- name: logrotate | Create a cron rule.
+  cron:
+    name: "Logrotate openresty logs"
+    minute: "59"
+    hour: "23"
+    job: "sleep 57;/usr/sbin/logrotate -vf {{ openresty_conf_path }}/logrotate.conf >> /var/log/logrotate-openresty.log 2>&1"
