@@ -20,16 +20,16 @@ deploy_file_workpath: "/usr/local/{{ deploy_service_name }}/webapps/ROOT"
 deploy_service_start_script: "/etc/init.d/{{ deploy_service_name }}"
 
 # 临时目录
-deploy_file_path: "/tmp/{{ deploy_service_name }}-ansible-snap"
+deploy_file_path: "/packages"
 
 # 上线代码的存储目录
-deploy_new_path: "{{ deploy_file_path }}/new"
+deploy_new_path: "{{ deploy_file_path }}/online/{{ deploy_service_name }}"
 
 # 当前代码(也就是上一版本的代码)的存储目录
-deploy_pre_path: "{{ deploy_file_path }}/pre"
+deploy_pre_path: "{{ deploy_file_path }}/previous/{{ deploy_service_name }}"
 
 # 历史代码存储目录
-deploy_old_path: "{{ deploy_file_path }}/old"
+deploy_old_path: "{{ deploy_file_path }}/history/{{ deploy_service_name }}"
 
 # 是否回滚
 deploy_rollback: false
