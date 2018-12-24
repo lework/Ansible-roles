@@ -5,6 +5,7 @@ port {{ redis_port | default('6379')}}
 tcp-backlog 511
 timeout {{ redis_timeout }}
 tcp-keepalive 0
+maxclients 20000
 loglevel {{ redis_loglevel }}
 logfile "{{ redis_logfile }}"
 databases {{ redis_databases }}
@@ -18,6 +19,7 @@ slave-read-only yes
 repl-diskless-sync no
 repl-diskless-sync-delay 5
 repl-disable-tcp-nodelay no
+repl-backlog-size 100mb
 slave-priority 100
 {% if redis_requirepass %}
 requirepass {{ redis_requirepass }}
