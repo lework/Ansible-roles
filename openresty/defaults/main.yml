@@ -35,7 +35,7 @@ openresty_configure_command: >
 openresty_pidfile: '/var/run/nginx.pid'
 openresty_worker_processes: "{{ ansible_processor_vcpus | default(ansible_processor_count) }}"
 openresty_worker_connections: "102400"
-openresty_multi_accept: "off"
+openresty_multi_accept: "on"
 
 openresty_logpath: "/var/log/openresty"
 openresty_error_log: "{{ openresty_logpath }}/error.log"
@@ -93,7 +93,7 @@ openresty_upstreams: ''
 #     "srv3.example.com"
 #   }
 openresty_proxys: false
-openresty_gzip: false
+openresty_gzip: true
 openresty_stub_status: false
 # - openresty_stub_status: true
 openresty_stream: false

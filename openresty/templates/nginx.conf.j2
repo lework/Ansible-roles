@@ -6,6 +6,7 @@ pid        {{ openresty_pidfile }};
 worker_processes  {{ openresty_worker_processes }};
 
 events {
+    use epoll;
     worker_connections  {{ openresty_worker_connections }};
     multi_accept {{ openresty_multi_accept }};
 }
@@ -71,14 +72,15 @@ http {
 
     keepalive_timeout  {{ openresty_keepalive_timeout }};
     keepalive_requests {{ openresty_keepalive_requests }};
+    
 {% if openresty_gzip %}
     gzip on;
-    gzip_min_length  1100;
-    gzip_buffers     4 32k;
-    gzip_http_version 1.0;
-    gzip_comp_level 6;
-    gzip_types text/html text/plain text/css text/javascript application/json application/javascript application/x-javascript application/xml;
     gzip_vary on;
+    gzip_min_length  1100;
+    gzip_comp_level 6;
+    gzip_buffers     16 8k;
+    #gzip_http_version 1.0;
+    gzip_types text/html text/plain text/css image/jpeg image/gif image/png text/javascript application/json application/javascript application/x-javascript application/xml;
 {% endif %}
 
     proxy_buffers 4 128k;
