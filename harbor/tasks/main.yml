@@ -1,0 +1,9 @@
+---
+# author: lework
+
+- include: install.yml
+  when: harbor_client == false
+- include: configure.yml
+  when: harbor_client == false
+- import_tasks: configure_client.yml
+  when: harbor_client == true
