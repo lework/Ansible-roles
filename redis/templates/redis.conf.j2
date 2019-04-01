@@ -75,6 +75,7 @@ aof-rewrite-incremental-fsync yes
 {% if redis_rename_command %}
 
 rename-command KEYS     "LEKEYS"
+rename-command CONFIG   "LECONFIG"
 rename-command FLUSHALL "LEFLUSHALL"
 rename-command FLUSHDB  "LEFLUSHDB"
 {% endif %}
