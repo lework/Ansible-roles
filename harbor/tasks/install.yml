@@ -1,0 +1,30 @@
+---
+# author: lework
+
+- name: install | Check if harbor local file is already configured.
+  stat: path={{ harbor_file_path }}
+  connection: local
+  register: harbor_file_result
+
+- name: install | Create a software file directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not harbor_file_result.stat.exists
+
+- name: install | Download harbor file.
+  get_url: url={{ harbor_file_url }} dest={{ software_files_path }}
+  connection: local
+  when: not harbor_file_result.stat.exists
+
+- name: install | Create a software file directory on the node.
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ software_files_path }}"
+    - "{{ harbor_home }}"
+    - "{{ harbor_ssl_home }}"
+  
+- name: install | Copy the harbor file to the node.
+  unarchive:
+    src: "{{ harbor_file_path }}"
+    dest: "{{ software_files_path }}"
+    creates: "{{ software_files_path }}/harbor"

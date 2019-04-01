@@ -1,0 +1,61 @@
+---
+# author: lework
+
+- name: configure | Generate a Certificate
+  shell: "{{ harbor_openssl }}"
+  when: harbor_ui_url_protocol == 'https'
+  
+- name: configure | Fetch ca.
+  fetch: src={{ harbor_ssl_cert }} dest=/tmp/harbor_{{ harbor_hostname }}_ca.crt flat=yes
+  when: harbor_ui_url_protocol == 'https'
+ 
+- name: configure | Modify harbor.cfg.
+  replace: path={{ software_files_path }}/harbor/harbor.cfg regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: "hostname = reg.mydomain.com", s: "hostname = {{ harbor_hostname }}"}
+   - { r: "ui_url_protocol = http", s: "ui_url_protocol = {{ harbor_ui_url_protocol }}"}
+   - { r: "max_job_workers = 10 ", s: "max_job_workers = {{ harbor_max_job_workers }}"}
+   - { r: "/data/cert/server.crt", s: "{{ harbor_ssl_cert }}"}
+   - { r: "/data/cert/server.key", s: "{{ harbor_ssl_cert_key }}"}
+   - { r: "secretkey_path = /data", s: "secretkey_path = {{ harbor_secretkey_path }}"}
+   - { r: "email_server = smtp.mydomain.com", s: "email_server = {{ harbor_email_server }}"}
+   - { r: "email_server_port = 25", s: "email_server_port = {{ harbor_email_server_port }}"}
+   - { r: "email_username = sample_admin@mydomain.com", s: "email_username = {{ harbor_email_username }}"}
+   - { r: "email_password = abc", s: "email_password = {{ harbor_email_password }}"}
+   - { r: "email_from = admin <sample_admin@mydomain.com>", s: "email_from = {{ harbor_email_from }}"}
+   - { r: "email_ssl = false", s: "email_ssl = {{ harbor_email_ssl }}"}
+   - { r: "email_insecure = false", s: "email_insecure = {{ harbor_email_insecure }}"}
+   - { r: "harbor_admin_password = Harbor12345", s: "harbor_admin_password = {{ harbor_admin_password }}"}
+
+- name: configure | add docker proxy.
+  blockinfile:
+    path: "{{ software_files_path }}/harbor/common/templates/registry/config.yml"
+    block: |
+      proxy:
+        remoteurl: {{ harbor_https_proxy }}
+
+- name: configure | Modify prepare.
+  replace: path={{ software_files_path }}/harbor/prepare regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: "/data", s: "{{ harbor_home }}"}
+
+- name: configure | Modify docker-compose.yml.
+  replace: path={{ software_files_path }}/harbor/docker-compose.yml regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: "- /data/", s: "- {{ harbor_home }}/"}
+
+- name: configure | Modify docker-compose.chartmuseum.yml.
+  replace: path={{ software_files_path }}/harbor/docker-compose.chartmuseum.yml regexp={{ item.r }} replace={{ item.s }}
+  with_items:
+   - { r: "- /data/", s: "- {{ harbor_home }}/"}
+
+- name: configure | run prepare script to populate the configuration.
+  shell: "{{ software_files_path }}/harbor/prepare --with-notary --with-clair --with-chartmuseum"
+  
+- name: configure | install and start Harbor.
+  shell: "./install.sh --with-notary --with-clair --with-chartmuseum"
+  args:
+   chdir: "{{ software_files_path }}/harbor"
+
+- name: configure | Set alias.
+  lineinfile: dest=/etc/bashrc line="alias harbor='docker-compose -f {{ software_files_path }}/harbor/docker-compose.yml -f {{ software_files_path }}/harbor/docker-compose.clair.yml -f {{ software_files_path }}/harbor/docker-compose.notary.yml -f {{ software_files_path}}/harbor/docker-compose.chartmuseum.yml'"

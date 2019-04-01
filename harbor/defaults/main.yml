@@ -1,0 +1,38 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+
+
+harbor_file: "harbor-offline-installer-v1.7.4.tgz"
+harbor_file_path: "{{ software_files_path }}/{{ harbor_file }}"
+harbor_file_url: "https://storage.googleapis.com/harbor-releases/release-1.7.0/{{ harbor_file }}"
+
+
+harbor_home: "/harbor_data"
+harbor_hostname: "reg.mydomain.com"
+harbor_ui_url_protocol: https
+
+harbor_max_job_workers: 10
+harbor_ssl_home: "{{ harbor_home}}/cert"
+harbor_ssl_cert: "{{ harbor_ssl_home }}/server.crt"
+harbor_ssl_cert_key: "{{ harbor_ssl_home }}/server.key"
+harbor_secretkey_path: "{{ harbor_home }}"
+
+harbor_https_proxy: https://docker.mirrors.ustc.edu.cn/
+
+harbor_email_server: smtp.mydomain.com
+harbor_email_server_port: 25
+harbor_email_username: sample_admin@mydomain.com
+harbor_email_password: abc
+harbor_email_from: admin <sample_admin@mydomain.com>
+harbor_email_ssl: false
+harbor_email_insecure: false
+
+harbor_admin_password: Harbor12345
+
+harbor_openssl: "openssl req -sha256 -x509 -days 3650 -nodes -newkey rsa:4096  -subj '/C=CN/ST=ShangHai/L=ShangHai/O=harbor/OU=harbor/CN={{ harbor_hostname }}' -keyout {{ harbor_ssl_cert_key }} -out {{ harbor_ssl_cert }}"
+
+harbor_client: false
+harbor_client_user: ""
+harbor_client_pass: ""

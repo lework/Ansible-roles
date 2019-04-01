@@ -27,7 +27,7 @@
     dest: "/etc/docker/daemon.json"
 
 - name: Ensure docker-ce are installed.
-  yum: "name=docker-ce state=installed update_cache=yes  enablerepo=docker-ce-stable"
+  yum: "name={{ docker_ce_packages }} state=installed update_cache=yes  enablerepo=docker-ce-stable"
 
 - name: Ensure docker is started and enabled at boot.
   systemd: name=docker state=started enabled=yes

@@ -1,0 +1,22 @@
+---
+# author: lework
+
+- name: configure_client | Configuration daemon.json.
+  template: "src=daemon.json.j2 dest=/etc/docker/daemon.json"
+  
+- name: "configure_client | Create a {{ harbor_hostname }} directory on the node."
+  file: path=/etc/docker/certs.d/{{ harbor_hostname }} state=directory
+
+- name: configure_client | Copy harbor ca to node.
+  copy: src="/tmp/harbor_{{ harbor_hostname }}_ca.crt" dest=/etc/docker/certs.d/{{ harbor_hostname }}/ca.crt
+   
+- name: configure_client | restart docker daemon.
+  systemd: name=docker state=restarted enabled=yes
+  
+- name: configure_client | sleep for 10 seconds.
+  wait_for: timeout=10
+
+- name: configure_client |login harbor.
+  shell: "docker login -u {{ harbor_client_user }} -p {{ harbor_client_pass }} {{ harbor_hostname }}"
+  when: harbor_client_user != '' and harbor_client_pass !=''
+  ignore_errors: true
