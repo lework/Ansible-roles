@@ -1,0 +1,37 @@
+---
+# author: lework
+
+keepalived_conf: "/etc/keepalived/keepalived.conf"
+
+keepalived_vrrp_instance:
+  - name: V1_1
+    state: "MASTER"
+    interface: "eth0"
+    virtual_router_id: "26"
+    priority: "100"
+    auth_pass: "261232"
+    keepalived_vip: "192.168.77.140"
+    extra: |
+      ! vrrp_instance extra conf
+    
+keepalived_virtual_server:
+#  - virtual_server: "192.168.200.100 80"
+#    delay_loop: 6
+#    lb_algo: wrr
+#    lb_kind: NAT
+#    persistence_timeout: 50
+#    protocol: TCP
+#    real_server:
+#    - server: "192.168.201.100 80"
+#      weight: 1
+#      tcp_check:
+#        connect_timeout: 10  
+#        nb_get_retry: 3
+#        delay_before_retry: 3
+#        connect_port: 80
+#      extra: |
+#        ! real_server extra conf
+#    extra: |
+#     ! virtual_server extra conf
+
+keepalived_conf_extra: ""

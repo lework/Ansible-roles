@@ -1,0 +1,17 @@
+---
+# author: lework
+
+- name: configure | Copy Keepalived configuration in place.
+  template:
+    src: keepalived.conf.j2
+    dest: "{{ keepalived_conf }}"
+    backup: yes
+  notify:
+    - restart keepalived
+
+- name: configure | Ensure Keepalived is started and enabled on boot.
+  systemd:
+    name: keepalived
+    state: started
+    enabled: yes
+#  service: "name=keepalived state=started enabled=yes"

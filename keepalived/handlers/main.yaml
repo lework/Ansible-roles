@@ -1,0 +1,4 @@
+---
+
+- name: restart keepalived
+  systemd: name=keepalived state=restarted

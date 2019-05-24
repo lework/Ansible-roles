@@ -1,0 +1,10 @@
+---
+# author: lework
+
+- name: install | Ensure keepalived packages are installed.
+  yum:
+    name:
+    - 'keepalived'
+    - 'ipvsadm'
+    state: installed
+  when: ansible_os_family == 'RedHat'
