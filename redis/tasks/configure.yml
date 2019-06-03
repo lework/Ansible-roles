@@ -40,14 +40,27 @@
     owner: "{{ redis_user }}"
     group: "{{ redis_user }}"
 
-- name: configure | Ensure Redis daemon shell is configured.
+- name: configure | Ensure Redis daemon shell is configured [centos 6].
   template:
     src: redis.sh.j2
     dest: "/etc/rc.d/init.d/{{ redis_daemon }}"
     mode: 0755
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
 
-- name: configure | Add redis services.
+- name: configure | Add redis services [centos 6].
   shell: "chkconfig --add {{ redis_daemon }}  && chkconfig {{ redis_daemon }} on"
-
-- name: configure | Ensure Redis is running and enabled on boot.
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: configure | Ensure Redis is running and enabled on boot [centos 6].
   service: "name={{ redis_daemon }} state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+- name: configure | Ensure Redis daemon service is configured [centos 7 or Debian].
+  template:
+    src: redis.service.j2
+    dest: "/etc/systemd/system/{{ redis_daemon }}.service"
+    mode: 0755
+  when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "7") or ansible_distribution == "Debian"
+  
+- name: configure | Ensure Redis is running and enabled on boot [centos 7 or Debian].
+  systemd: name={{ redis_daemon }} state=started enabled=yes

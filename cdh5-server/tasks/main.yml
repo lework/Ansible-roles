@@ -7,5 +7,10 @@
 - include: jdbc.yml
 - include: configure_db.yml 
 
-- name: main | Ensure cloudera-scm-server is running and enabled on boot.
+- name: main | Ensure cloudera-scm-server is running and enabled on boot [centos 6].
   service: "name=cloudera-scm-server state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: main | Ensure cloudera-scm-server is running and enabled on boot [centos 7].
+  systemd: "name=cloudera-scm-server state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

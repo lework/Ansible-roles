@@ -47,5 +47,10 @@
 - name: Set server host for config.ini file.
   replace: path=/etc/cloudera-scm-agent/config.ini regexp=localhost replace={{ cdh5_server_host }}
 
-- name: Ensure cloudera-scm-agent is running and enabled on boot.
+- name: Ensure cloudera-scm-agent is running and enabled on boot [centos 6].
   service: "name=cloudera-scm-agent state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+
+- name: Ensure cloudera-scm-agent is running and enabled on boot [centos 7].
+  systemd: "name=cloudera-scm-agent state=started enabled=yes"
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

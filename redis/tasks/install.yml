@@ -28,6 +28,8 @@
     - gcc-c++
     - libtool
     - make
+  ignore_errors: true
+
 
 - name: install | Copy redis file to agent.
   unarchive:

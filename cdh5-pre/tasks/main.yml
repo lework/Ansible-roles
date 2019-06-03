@@ -45,9 +45,14 @@
    - echo never >> /sys/kernel/mm/transparent_hugepage/enabled
    - echo never >> /sys/kernel/mm/transparent_hugepage/defrag
 
-- name: Shutdown iptables.
+- name: Shutdown iptables for centos 6.
   service: name=iptables enabled=no state=stopped
-
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
+  
+- name: Shutdown iptables.
+  systemd: name=firewalld enabled=no state=stopped
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7" 
+  
 - include: epel.yml
 - include: java.yml
 - include: jdbc.yml
