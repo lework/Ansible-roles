@@ -4,20 +4,20 @@
 software_files_path: "/opt/software"
 
 cdh5_version: "5.11.0"
-cdh5_rpms_url: "http://archive.cloudera.com/cm5/redhat/6/x86_64/cm/{{ cdh5_version }}/RPMS/x86_64"
+cdh5_rpms_url: "http://archive.cloudera.com/cm5/redhat/{{ ansible_distribution_major_version }}/x86_64/cm/{{ cdh5_version }}/RPMS/x86_64"
 
-cdh5_cm_daemons: "cloudera-manager-daemons-5.11.0-1.cm5110.p0.101.el6.x86_64.rpm"
+cdh5_cm_daemons: "cloudera-manager-daemons-5.11.0-1.cm5110.p0.101.el{{ ansible_distribution_major_version }}.x86_64.rpm"
 cdh5_cm_daemons_url: "{{ cdh5_rpms_url }}/{{ cdh5_cm_daemons }}"
 
-cdh5_cm_server: "cloudera-manager-server-5.11.0-1.cm5110.p0.101.el6.x86_64.rpm"
+cdh5_cm_server: "cloudera-manager-server-5.11.0-1.cm5110.p0.101.el{{ ansible_distribution_major_version }}.x86_64.rpm"
 cdh5_cm_server_url: "{{ cdh5_rpms_url }}/{{ cdh5_cm_server }}"
 
 cdh5_parcels_url: "http://archive.cloudera.com/cdh5/parcels/{{ cdh5_version }}"
 
-cdh5_parcels_cdh: "CDH-5.11.0-1.cdh5.11.0.p0.34-el6.parcel"
+cdh5_parcels_cdh: "CDH-5.11.0-1.cdh5.11.0.p0.34-el{{ ansible_distribution_major_version }}.parcel"
 cdh5_parcels_cdh_url: "{{ cdh5_parcels_url }}/{{ cdh5_parcels_cdh }}"
 
-cdh5_parcels_cdh_sha: "CDH-5.11.0-1.cdh5.11.0.p0.34-el6.parcel.sha1"
+cdh5_parcels_cdh_sha: "CDH-5.11.0-1.cdh5.11.0.p0.34-el{{ ansible_distribution_major_version }}.parcel.sha1"
 cdh5_parcels_cdh_sha_url: "{{ cdh5_parcels_url }}/{{ cdh5_parcels_cdh_sha }}"
 
 cdh5_parcels_manifest: "manifest.json"
