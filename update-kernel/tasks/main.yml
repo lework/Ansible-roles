@@ -1,0 +1,32 @@
+---
+# lework
+
+- include_vars: vars/{{ ansible_distribution | lower }}-{{ansible_distribution_major_version}}.yml
+
+- name: Add ELRepo gpg key to the system.
+  rpm_key:
+    key: "{{ update_kernel_repo_key }}"
+    state: present
+    
+- name: Add ELRepo Repository.
+  yum:
+    name: "{{ update_kernel_repo_rpm }}"
+    state: present
+    
+- name: Install new Kernel version.
+  yum:
+    enablerepo: elrepo-kernel
+    name: 
+    - kernel-ml
+    - kernel-ml-devel
+
+- name: Set the default kernel with Grub2.
+  shell: |
+    grub2-set-default 0 \
+    && grub2-mkconfig -o /etc/grub2.cfg \
+    && grubby --args="user_namespace.enable=1" --update-kernel="$(grubby --default-kernel)"
+
+- name: Reboot system.
+  reboot:
+    test_command: grubby --default-kernel
+  when: update_kernel_reboot | bool
