@@ -1,5 +1,18 @@
 {
-  "data-root": "{{ docker_data_root }}",
-  "registry-mirrors": {{ docker_registry_mirrors | to_json }},
-  "insecure-registries": {{ docker_insecure_registries | to_json }}
+    "data-root": "{{ docker_data_root }}",
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "100m",
+        "max-file": "3"
+    },
+    "live-restore": true,
+    "max-concurrent-downloads": 50,
+    "max-concurrent-uploads": 50,
+    "storage-driver": "overlay2",
+    "storage-opts": [
+        "overlay2.override_kernel_check=true"
+    ],
+    "exec-opts": ["native.cgroupdriver=systemd"],
+    "registry-mirrors": {{ docker_registry_mirrors | to_json }},
+    "insecure-registries": {{ docker_insecure_registries | to_json }}
 }
