@@ -13,6 +13,7 @@ docker_packages:
   - lvm2
   - yum-utils
   - device-mapper-persistent-data
+  - bash-completion
 
 docker_ce_packages:
   - docker-ce
@@ -20,6 +21,6 @@ docker_ce_packages:
 
 docker_start: true
 
-docker_registry_mirrors: ["https://docker.mirrors.ustc.edu.cn/", "https://registry.docker-cn.com"]
+docker_registry_mirrors: ["https://docker.mirrors.ustc.edu.cn/", "http://hub-mirror.c.163.com"]
 docker_insecure_registries: []
 docker_data_root: /var/lib/docker

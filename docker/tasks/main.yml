@@ -6,8 +6,7 @@
   with_items: "{{ docker_old }}"
 
 - name: Ensure docker packages are installed.
-  yum: "name={{ item }} state=installed  update_cache=yes"
-  with_items: "{{ docker_packages }}"
+  yum: "name={{ docker_packages }} state=installed  update_cache=yes"
    
 - name: Install docker repo.
   shell: "yum-config-manager --add-repo {{ docker_repo }}"
@@ -27,7 +26,10 @@
     dest: "/etc/docker/daemon.json"
 
 - name: Ensure docker-ce are installed.
-  yum: "name={{ docker_ce_packages }} state=installed update_cache=yes  enablerepo=docker-ce-stable"
+  yum: "name={{ docker_ce_packages }} state=installed update_cache=yes enablerepo=docker-ce-stable"
+
+- name: Set docker completion.
+  copy: src=/usr/share/bash-completion/completions/docker dest=/etc/bash_completion.d/docker remote_src=yes
 
 - name: Ensure docker is started and enabled at boot.
   systemd: name=docker state=started enabled=yes
