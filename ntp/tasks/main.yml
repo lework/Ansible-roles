@@ -1,0 +1,15 @@
+---
+# lework
+
+- name: Ensure ntp packages are installed.
+  package: name=ntp state=installed
+
+- name: Update time on server.
+  shell: ntpdate 0.asia.pool.ntp.org && hwclock --systohc
+  ignore_errors: true
+
+- name: Change ntpd server on ntp.conf.
+  template: src=ntp.conf dest=/etc/ backup=yes
+
+- name: Restart ntpd service.
+  systemd: name=ntpd state=restarted enabled=yes
