@@ -28,7 +28,7 @@ https://github.com/kuailemy123/Ansible-roles/tree/master/ssh-keys
       roles:
        - ssh-keys
     
-    实现指定主机(ssh_keys_host)免密码登录其他主机
+    实现指定主机(ssh_keys_host)免密码登录其他主机,指定主机必须为此次执行主机中的一个
     - hosts: node1 node2 node3
       roles:
        - { role: ssh-keys, ssh_keys_host: '192.168.77.129' }

@@ -1,6 +1,9 @@
 ---
 # author: lework
 
+- name: Make sure the .ssh directory exists.
+  file: path=~/.ssh state=directory
+
 - name: Generate SSH keys.
   shell: ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
   args:
@@ -35,10 +38,8 @@
   when: ssh_keys_host is undefined
 
 - name: "Deploy keys on all servers, but manger host is {{ ssh_keys_host | d('') }}."
-  authorized_key: 
+  authorized_key:
     user: "{{ ansible_user_id }}"
-    key: "{{ hostvars[item].ssh_keys.stdout }}"
+    key: "{{ hostvars[ssh_keys_host].ssh_keys.stdout }}"
     state: present
-  with_items:
-   - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
-  when: ssh_keys_host is defined and ansible_default_ipv4.address != ssh_keys_host
+  when: ssh_keys_host is defined
