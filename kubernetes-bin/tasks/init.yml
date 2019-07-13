@@ -1,0 +1,48 @@
+---
+# author: lework
+
+
+- name: init | Turn off the firewall.
+  systemd: name=firewalld state=stopped enabled=no
+
+- name: init | Turn off the NetworkManager.
+  systemd: name=NetworkManager state=stopped enabled=no
+
+- name: init | Turn off the selinux.
+  shell: setenforce 0;sed -i "s#=enforcing#=disabled#g" /etc/selinux/config
+
+- name: init | Turn off the swap.
+  shell: >
+   swapoff -a 
+   && sysctl -w vm.swappiness=0 
+   && swapoff -a 
+   && sed -ri '/^[^#]*swap/s@^@#@' /etc/fstab
+  
+- name: init | Set sysctl.
+  copy: src=system/k8s-sysctl.conf dest=/etc/sysctl.d/
+  
+- name: init | Reload sysctl.
+  shell: sysctl --system
+
+- name: init | Change nofile limits.
+  blockinfile:
+    path: /etc/security/limits.conf
+    marker: ""
+    block: |
+      * - nofile 165535
+      * soft nofile 165535
+      * hard nofile 165535
+      * soft memlock unlimited
+      * hard memlock unlimited
+
+- name: init | Ensure ipvsadm packages are installed.
+  yum: name={{ kubernetes_ipvsadm_packages}} state=installed
+  
+- name: init | Set ipvs modules.
+  copy: src=system/ipvs.conf dest=/etc/modules-load.d/
+  
+- name: init | Start systemd-modules-load service.
+  service: name=systemd-modules-load state=started enabled=yes
+
+- name: init | Ensure kubenetes packages are installed.
+  yum: "name={{ kubernetes_node_packages }} state=installed update_cache=yes"

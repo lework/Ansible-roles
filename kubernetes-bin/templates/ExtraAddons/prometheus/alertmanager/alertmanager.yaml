@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Alertmanager
+metadata:
+  name: main
+  labels:
+    alertmanager: main
+  namespace: monitoring
+spec:
+  replicas: 1
+  version: v0.17.0
+  externalUrl: http://127.0.0.1:9093

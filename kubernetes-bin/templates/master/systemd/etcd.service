@@ -1,0 +1,16 @@
+[Unit]
+Description=Etcd Service
+Documentation=https://coreos.com/etcd/docs/latest/
+After=network.target
+
+[Service]
+Type=notify
+User=etcd
+ExecStart=/usr/local/bin/etcd --config-file={{ kubernetes_etcd_conf_path }}/etcd.config.yaml
+Restart=on-failure
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+Alias=etcd3.service

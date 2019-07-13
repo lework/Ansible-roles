@@ -1,0 +1,48 @@
+name: '{{ ansible_hostname }}'
+data-dir: {{ kubernetes_etcd_data_path }}
+wal-dir: {{ kubernetes_etcd_data_path }}/wal
+snapshot-count: 10000
+heartbeat-interval: 100
+election-timeout: 1000
+quota-backend-bytes: 0
+listen-peer-urls: 'https://0.0.0.0:2380'
+listen-client-urls: 'https://0.0.0.0:2379'
+max-snapshots: 5
+max-wals: 5
+cors:
+initial-advertise-peer-urls: 'https://{{ ansible_default_ipv4.address }}:2380'
+advertise-client-urls: 'https://{{ ansible_default_ipv4.address }}:2379'
+discovery:
+discovery-fallback: 'proxy'
+discovery-proxy:
+discovery-srv:
+initial-cluster: '{% for h in play_hosts %}{{ hostvars[h].ansible_hostname }}=https://{{ hostvars[h].ansible_default_ipv4.address }}:2380{%- if not loop.last %},{% endif %}{% endfor%}'
+initial-cluster-token: 'etcd-k8s-cluster'
+initial-cluster-state: 'new'
+strict-reconfig-check: false
+enable-v2: true
+enable-pprof: true
+proxy: 'off'
+proxy-failure-wait: 5000
+proxy-refresh-interval: 30000
+proxy-dial-timeout: 1000
+proxy-write-timeout: 5000
+proxy-read-timeout: 0
+client-transport-security:
+  ca-file: '{{ kubernetes_etcd_ssl_path }}/etcd-ca.pem'
+  cert-file: '{{ kubernetes_etcd_ssl_path }}/etcd.pem'
+  key-file: '{{ kubernetes_etcd_ssl_path }}/etcd-key.pem'
+  client-cert-auth: true
+  trusted-ca-file: '{{ kubernetes_etcd_ssl_path }}/etcd-ca.pem'
+  auto-tls: true
+peer-transport-security:
+  ca-file: '{{ kubernetes_etcd_ssl_path }}/etcd-ca.pem'
+  cert-file: '{{ kubernetes_etcd_ssl_path }}/etcd.pem'
+  key-file: '{{ kubernetes_etcd_ssl_path }}/etcd-key.pem'
+  peer-client-cert-auth: true
+  trusted-ca-file: '{{ kubernetes_etcd_ssl_path }}/etcd-ca.pem'
+  auto-tls: true
+debug: false
+log-package-levels:
+log-output: default
+force-new-cluster: false

@@ -1,0 +1,64 @@
+{% if kubernetes_external_dns_ip %}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: coredns
+  name: coredns-tcp
+  namespace: external-dns
+spec:
+  type: LoadBalancer
+  externalIPs:
+  - {{ kubernetes_external_dns_ip }}
+  ports:
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+  - name: metrics
+    port: 9153
+    protocol: TCP
+  selector:
+    k8s-app: coredns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: coredns
+  name: coredns-udp
+  namespace: external-dns
+spec:
+  type: LoadBalancer
+  externalIPs:
+  - {{ kubernetes_external_dns_ip }}
+  ports:
+  - name: dns-udp
+    port: 53
+    protocol: UDP
+  selector:
+    k8s-app: coredns
+{% else %}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: coredns
+  name: coredns
+  namespace: external-dns
+spec:
+  type: NodePort
+  ports:
+  - name: dns-tcp
+    port: 53
+    nodePort: 30053
+    protocol: TCP
+  - name: dns-udp
+    port: 53
+    nodePort: 30053
+    protocol: UDP
+  - name: metrics
+    port: 9153
+    protocol: TCP
+  selector:
+    k8s-app: coredns
+{% endif %}

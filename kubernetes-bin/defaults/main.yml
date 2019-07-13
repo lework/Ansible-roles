@@ -1,0 +1,94 @@
+---
+# author: lework
+
+software_install_path: '/usr/local/bin'
+
+kubernetes_node_packages:
+  - socat
+  - openssl
+  - curl
+
+kubernetes_ipvsadm_packages:
+  - ipvsadm
+  - ipset
+  - sysstat
+  - conntrack
+  - libseccomp
+
+kubernetes_min_ram: 1500
+
+kubernetes_tmp_path: "/tmp/ansibe.fetch"
+kubernetes_etcd_conf_path: '/etc/etcd'
+kubernetes_etcd_ssl_path: '{{ kubernetes_etcd_conf_path }}/ssl'
+kubernetes_etcd_data_path: "/var/lib/etcd"
+
+kubernetes_haproxy_conf_path: "/etc/haproxy"
+kubernetes_images_path: "/opt/kubernetes/images"
+
+kubernetes_log_path: "/var/log/kubernetes"
+kubernetes_conf_path: "/etc/kubernetes"
+kubernetes_addons_conf_path: "{{ kubernetes_conf_path }}/addons"
+kubernetes_pki_path: "{{ kubernetes_conf_path }}/pki"
+kubernetes_manifests_path: "{{ kubernetes_conf_path }}/manifests"
+
+kubernetes_apiserver_vip: "127.0.0.1"
+kubernetes_apiserver_port: "6443"
+kubernetes_cluster_ip: "10.96.0.1"
+kubernetes_cluster_dns: "10.96.0.10"
+kubernetes_cluster_domain: "cluster.local"
+kubernetes_cluster_ip_range: "10.96.0.0/12"
+kubernetes_cluster_cidr: "10.244.0.0/16"
+
+kubernetes_ingress_ip: ""
+kubernetes_external_dns_ip: ""
+
+kubernetes_haproxy_status_port: "9090"
+kubernetes_haproxy_admin_passwd: "admin123"
+
+
+# kubernetes
+
+kubernetes_pause_image: "k8s.gcr.io/pause-amd64:3.1"
+
+# kubernetes dashboard
+kubernetes_dashboard_image: "k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1"
+
+# Kubernetes network
+kubernetes_calico_node_image: "calico/node:v3.7.3"
+kubernetes_calico_cni_image: "calico/cni:v3.7.3"
+kubernetes_calico_ctl_image: "calico/ctl:v3.7.3"
+kubernetes_calico_kube_controllers_image: "calico/kube-controllers:v3.7.3"
+
+# dns
+kubernetes_coredns_image: "coredns/coredns:1.5.0"
+kubernetes_coredns_etcd_image: "quay.io/coreos/etcd:v3.3.13"
+kubernetes_external_dns_image: "registry.opensource.zalan.do/teapot/external-dns:v0.5.14"
+
+# Ingress controller
+kubernetes_nginx_ingress_controller_image: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.24.1"
+kubernetes_default_http_backend_image: "registry.cn-hangzhou.aliyuncs.com/google_containers/defaultbackend:1.4"
+
+# Kubernetes monitoring
+kubernetes_metrics_server_image: "k8s.gcr.io/metrics-server-amd64:v0.3.3"
+kubernetes_kube_state_metrics_image: "k8s.gcr.io/kube-state-metrics:v1.6.0"
+kubernetes_addon_resizer_image: "k8s.gcr.io/addon-resizer:1.8.5"
+kubernetes_grafana_image: "grafana/grafana:6.2.4"
+kubernetes_prometheus_node_exporter_image: "prom/node-exporter:v0.18.1"
+kubernetes_prometheus_operator_image: "quay.io/coreos/prometheus-operator:v0.31.0"
+kubernetes_prometheus_configmap_reload_image: "quay.io/coreos/configmap-reload:v0.0.1"
+kubernetes_prometheus_config_reloader_image: "quay.io/coreos/prometheus-config-reloader:v0.31.0"
+
+# weavescope
+kubernetes_weavescope_image: "docker.io/weaveworks/scope:1.11.2"
+
+# Kubernetes logging
+
+kubernetes_master: false
+kubernetes_node: false
+kubernetes_addons: false
+kubernetes_dashboard: true
+kubernetes_metrics_server: true
+kubernetes_external_dns: true
+kubernetes_prometheus: true
+kubernetes_weavescope: true
+kubernetes_helm: true

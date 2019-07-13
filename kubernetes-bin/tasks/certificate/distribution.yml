@@ -1,0 +1,38 @@
+---
+# author: lework
+
+
+- block:
+  - name: distribution | Create conf path.
+    file: path={{ item }} state=directory
+    with_items:
+      - "{{ kubernetes_etcd_ssl_path }}"
+      - "{{ kubernetes_pki_path }}"
+
+  - name: distribution | Copy etcd pem to other master node.
+    copy: src={{ item }} dest={{ kubernetes_etcd_ssl_path }} owner=etcd
+    with_fileglob:
+      - "{{ kubernetes_tmp_path }}/etcd*.pem"
+
+  - name: distribution | Copy kubernetes pem to other master node.
+    copy: src={{ item }} dest={{ kubernetes_pki_path }}
+    with_fileglob:
+      - "{{ kubernetes_tmp_path }}/ca*.pem"
+      - "{{ kubernetes_tmp_path }}/sa.*"
+      - "{{ kubernetes_tmp_path }}/apiserver*.pem"
+      - "{{ kubernetes_tmp_path }}/front*.pem"
+      - "{{ kubernetes_tmp_path }}/scheduler*.pem"
+
+  - name: distribution | Copy kubernetes config to other master node.
+    copy: src={{ item }} dest={{ kubernetes_conf_path }}
+    with_items:
+      - "{{ kubernetes_tmp_path }}/admin.kubeconfig"
+      - "{{ kubernetes_tmp_path }}/controller-manager.kubeconfig"
+      - "{{ kubernetes_tmp_path }}/scheduler.kubeconfig"
+  
+  - name: distribution | Copy kubelet config to other master node.
+    copy: src={{ item }} dest={{ kubernetes_conf_path }}/kubelet.kubeconfig
+    with_items:
+      - "{{ kubernetes_tmp_path }}/kubelet-{{ hostvars[delegate_master_host].ansible_hostname }}.kubeconfig"
+
+  delegate_to: "{{ delegate_master_host }}"

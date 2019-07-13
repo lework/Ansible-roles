@@ -1,0 +1,53 @@
+---
+# author: lework
+
+
+- name: configure | Create conf path on master node.
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ kubernetes_log_path }}/apiserver"
+    - "{{ kubernetes_log_path }}/scheduler"
+    - "{{ kubernetes_log_path }}/controller-manager"
+    - "{{ kubernetes_log_path }}/proxy"
+    - "{{ kubernetes_log_path }}/kubelet"
+    - "{{ kubernetes_manifests_path }}"
+    - ~/.kube
+
+- name: configure | Create etcd path on master node.
+  file: path={{ item }} state=directory owner=etcd
+  with_items:
+    - "{{ kubernetes_etcd_ssl_path }}"
+    - "{{ kubernetes_etcd_data_path }}"
+
+- name: configure | Config software environment variable on master node.
+  lineinfile: dest=/etc/profile line={{ item }}
+  with_items:
+    - "export ETCDCTL_API=3"
+    - "export ETCD_ENDPOINTS='{% for h in play_hosts %}https://{{ h }}:2379{%- if not loop.last %},{% endif %}{% endfor%}'"
+    - 'export ETCDCTL_CACERT="{{ kubernetes_etcd_ssl_path }}/etcd-ca.pem"'
+    - 'export ETCDCTL_CERT="{{ kubernetes_etcd_ssl_path }}/etcd.pem"'
+    - 'export ETCDCTL_KEY="{{ kubernetes_etcd_ssl_path }}/etcd-key.pem"'
+
+- name: configure | Configuration etcd.
+  template: src=master/etc/etcd/etcd.config.yaml dest={{ kubernetes_etcd_conf_path }}/ owner=etcd
+
+- name: configure | Generate an encryption key.
+  shell: head -c 32 /dev/urandom | base64
+  register: encryption_key
+  run_once: true
+
+- name: configure | Configuration kubernetes conf.
+  template: "src={{ item }} dest={{ kubernetes_conf_path }}/"
+  with_fileglob:
+    - templates/master/etc/kubernetes/*
+
+- name: configure | Configuration kubelet service.
+  template: "src={{ item }} dest=/lib/systemd/system/"
+  with_fileglob:
+    - templates/master/systemd/*.service 
+
+- name: configure | Copy admin.kubeconfig to kube config.
+  copy: src=/etc/kubernetes/admin.kubeconfig dest=~/.kube/config remote_src=yes
+  
+- name: configure | Set kubectl completion.
+  shell: kubectl completion bash > /etc/bash_completion.d/kubectl

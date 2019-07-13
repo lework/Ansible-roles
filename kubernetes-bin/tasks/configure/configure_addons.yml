@@ -1,0 +1,167 @@
+---
+# author: lework
+
+
+- name: configure_addons | Configuration addons conf.
+  template: "src={{ item }} dest={{ kubernetes_addons_conf_path }}/"
+  with_fileglob:
+    -  templates/addons/*.yaml
+
+- name: configure_addons | Create Calico Network.
+  shell: kubectl apply -f calico.yaml
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+    
+- name: configure_addons | Create Kubernetes DNS.
+  shell: kubectl apply -f coredns.yaml
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+
+- name: configure_addons | Create Kuber Proxy.
+  shell: kubectl apply -f kube-proxy.rbac.yaml
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+
+- name: configure_addons | Create kube-proxy kubeconfig.
+  shell: |
+    SECRET=$(kubectl -n kube-system get sa/kube-proxy --output=jsonpath='{.secrets[0].name}') &&
+    JWT_TOKEN=$(kubectl -n kube-system get secret/$SECRET --output=jsonpath='{.data.token}' | base64 -d) &&
+    kubectl config set-cluster kubernetes \
+    --certificate-authority={{ kubernetes_pki_path }}/ca.pem \
+    --embed-certs=true \
+    --server=https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }} \
+    --kubeconfig=kube-proxy.kubeconfig &&
+    kubectl config set-context kubernetes \
+    --cluster=kubernetes \
+    --user=kubernetes \
+    --kubeconfig=kube-proxy.kubeconfig &&
+    kubectl config set-credentials kubernetes \
+    --token=${JWT_TOKEN} \
+    --kubeconfig=kube-proxy.kubeconfig &&
+    kubectl config use-context kubernetes --kubeconfig=kube-proxy.kubeconfig
+  args:
+    chdir: "{{ kubernetes_conf_path }}"
+
+- name: configure_addons | Read kube-proxy kubeconfig files.
+  slurp: src={{ kubernetes_conf_path }}/kube-proxy.kubeconfig
+  register: kubeconfig_files
+
+- name: configure_addons | Copy kube-proxy kubeconfig to other node.
+  copy: content={{ kubeconfig_files['content'] | b64decode }} dest={{ kubeconfig_files['source'] }}
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['k8s_cluster'] | symmetric_difference([ansible_default_ipv4.address]) }}"
+
+- name: configure_addons | Start kube-proxy service.
+  systemd: name=kube-proxy state=started enabled=yes
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['k8s_cluster'] }}"
+
+- wait_for: timeout=5
+
+
+- name: configure_addons | Create directory.
+  file: path={{ kubernetes_addons_conf_path }}/ExtraAddons/{{ item.path }} state=directory
+  with_filetree:
+    - templates/ExtraAddons/ 
+  when: item.state == 'directory'
+
+- name: configure_addons | Create ExtraAddons conf.
+  template: src={{ item.src }} dest={{ kubernetes_addons_conf_path }}/ExtraAddons/{{ item.path }}
+  with_filetree:
+    - templates/ExtraAddons/
+  when: item.state == 'file'
+
+- name: configure_addons | Create Ingress Controller.
+  shell: |
+   kubectl apply -f ExtraAddons/ingress-controller/ingress-controller.ns.yaml &&
+   kubectl apply -f ExtraAddons/ingress-controller/
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+
+- name: configure_addons | Create kubernetes dashboard.
+  shell: |
+    kubectl create secret generic kubernetes-dashboard-certs \
+    --from-file=dashboard.crt={{ kubernetes_pki_path }}/kubernetes-dashboard.pem \
+    --from-file=dashboard.key={{ kubernetes_pki_path }}/kubernetes-dashboard-key.pem -n kube-system && 
+    kubectl create secret tls kubernetes-dashboard-certs-tls \
+    --key {{ kubernetes_pki_path }}/kubernetes-dashboard-key.pem \
+    --cert {{ kubernetes_pki_path }}/kubernetes-dashboard.pem -n kube-system &&
+    kubectl apply -f ExtraAddons/dashboard/
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+    
+- name: configure_addons | Create external-dns.
+  shell: |
+    kubectl apply -f ExtraAddons/external-dns/ &&
+    kubectl apply -f ExtraAddons/external-dns/coredns/ &&
+    kubectl apply -f ExtraAddons/external-dns/external-dns/
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+  when: kubernetes_external_dns | bool
+  
+
+- name: configure_addons | Create metrics-server.
+  shell: kubectl apply -f ExtraAddons/metrics-server/
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+  when: kubernetes_metrics_server | bool
+  
+
+- name: configure_addons | Create prometheus operator.
+  shell: |
+   kubectl apply -f ExtraAddons/prometheus/ &&
+   kubectl apply -f ExtraAddons/prometheus/prometheus-operator/
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+  when: kubernetes_prometheus | bool
+
+- wait_for: timeout=10
+
+
+- name: configure_addons | Create prometheus component.
+  shell: |
+   kubectl apply -f ExtraAddons/prometheus/kube-state-metrics/ &&
+   kubectl apply -f ExtraAddons/prometheus/node-exporter/ &&
+   kubectl apply -f ExtraAddons/prometheus/alertmanager/ &&
+   kubectl apply -f ExtraAddons/prometheus/prometheus/ &&
+   kubectl apply -f ExtraAddons/prometheus/grafana/ &&
+   kubectl apply -f ExtraAddons/prometheus/service-monitor/ &&
+   kubectl apply -f ExtraAddons/prometheus/kube-service-discovery/ &&
+   kubectl apply -f ExtraAddons/prometheus/kube-service-discovery/endpoints/ 
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+  when: kubernetes_prometheus | bool
+ 
+- name: configure_addons | Create WeaveScope.
+  shell: |
+   kubectl apply -f ExtraAddons/WeaveScope/scope.ns.yaml &&
+   kubectl apply -f ExtraAddons/WeaveScope/
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+  when: kubernetes_weavescope | bool
+    
+- wait_for: timeout=5
+
+
+- name: configure_addons | Copy Helm to node.
+  copy: src=bin/helm dest={{ software_install_path }} mode=0755
+  when: kubernetes_helm | bool
+
+- name: configure_addons | Create Helm Tiller Server.
+  shell: |
+    kubectl apply -f ExtraAddons/helm/helm.rbac.yaml &&
+    helm init --service-account tiller --stable-repo-url http://mirror.azure.cn/kubernetes/charts
+  args:
+    chdir: "{{ kubernetes_addons_conf_path }}"
+  when: kubernetes_helm | bool
+
+- name: configure_addons | Get kube dashboard SECRET.
+  shell: |
+    kubectl -n kube-system describe secrets \
+    $(kubectl describe sa kubernetes-dashboard-admin -n kube-system | awk '/Tokens/ {print $2}') | awk '/token:/{print $2}'
+  register: kube_dashboard_secret
+
+- name: configure_addons | Set addons access info to file.
+  template: src=addons/k8s-addons-access.md dest=~/k8s-addons-access.md

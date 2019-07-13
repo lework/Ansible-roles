@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: coredns-etcd
+  name: coredns-etcd
+  namespace: external-dns
+spec:
+  ports:
+  - name: etcd-http
+    port: 2379
+  - name: etcd-peer
+    port: 2380
+  selector:
+    k8s-app: coredns-etcd
+  type: ClusterIP

@@ -1,0 +1,54 @@
+---
+# author: lework
+
+
+- name: install | Create docker iamges path.
+  file: path={{ kubernetes_images_path }} state=directory
+
+- name: install | Copy hyperkube bin file to remote.
+  copy: "src=bin/hyperkube dest=/usr/local/bin/ mode=755"
+
+- block:
+  - name: install_master | Create symlinks.
+    shell: hyperkube --make-symlinks chdir=/usr/local/bin/
+    
+  - name: install_etcd | Create etcd group.
+    group: name=etcd
+
+  - name: install_master | Create etcd user.
+    user: name=etcd group=etcd shell=/sbin/nologin
+
+  - name: install_master | Copy etcd bin file to remote.
+    copy: "src={{ item }} dest=/usr/local/bin/ mode=755"
+    with_fileglob:
+      - bin/etcd*
+    
+  - name: install_master | Copy pods images to master node.
+    copy: "src={{ item }} dest={{ kubernetes_images_path }}"
+    with_fileglob:
+      - images/master/*
+  when: kubernetes_master | bool
+
+- block:
+  - name: install_node | install haproxy.
+    yum: name=haproxy
+  
+  - name: install | crate symlinks.
+    file: "src=/usr/local/bin/hyperkube dest=/usr/local/bin/{{ item }} state=link"
+    with_items:
+      - kubelet
+      - kube-proxy
+    
+  - name: install_node | Copy pods images to node.
+    copy: "src={{ item }} dest={{ kubernetes_images_path }}"
+    with_fileglob:
+      - images/node/*
+  when: kubernetes_node | bool
+  
+- name: install_node | Copy pods images to all nodes.
+  copy: "src={{ item }} dest={{ kubernetes_images_path }}"
+  with_fileglob:
+    - images/all/*
+    
+- name: install | Load pods images.
+  shell: "find {{ kubernetes_images_path }} -type f -name '*.tgz' -exec sh -c 'docker load < {}' \\;"

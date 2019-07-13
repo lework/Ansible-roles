@@ -1,0 +1,29 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: anonymous-dashboard-proxy-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "services/proxy"
+  resourceNames:
+  - "https:kubernetes-dashboard:"
+  verbs:
+  - get
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: anonymous-dashboard-proxy-binding
+  namespace: ""
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: anonymous-dashboard-proxy-role
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:anonymous
+

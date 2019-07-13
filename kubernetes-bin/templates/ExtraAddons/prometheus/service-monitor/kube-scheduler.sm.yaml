@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-scheduler
+  labels:
+    k8s-app: kube-scheduler
+  namespace: monitoring
+spec:
+  jobLabel: k8s-app
+  endpoints:
+  - port: http-metrics
+    interval: 5s
+  selector:
+    matchLabels:
+      k8s-app: kube-scheduler
+  namespaceSelector:
+    matchNames:
+    - kube-system

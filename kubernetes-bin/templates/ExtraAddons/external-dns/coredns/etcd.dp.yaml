@@ -1,0 +1,62 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: coredns-etcd
+  name: coredns-etcd
+  namespace: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: coredns-etcd
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        k8s-app: coredns-etcd
+    spec:
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      containers:
+      - name: coredns-etcd
+        image: {{ kubernetes_coredns_etcd_image }}
+        command: ["/usr/local/bin/etcd"]
+        args:
+        - --listen-client-urls=http://0.0.0.0:2379
+        - --advertise-client-urls=http://0.0.0.0:2379
+        - --data-dir=/var/lib/etcd
+        livenessProbe:
+          failureThreshold: 5
+          tcpSocket:
+            port: 2379
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        ports:
+        - name: etcd-http
+          containerPort: 2379
+          protocol: TCP
+        - name: etcd-peer
+          containerPort: 2380
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: etcd-data
+          mountPath: /var/lib/etcd
+      volumes:
+      - name: etcd-data
+        hostPath:
+          path: /var/lib/coredns-etcd
+          type: DirectoryOrCreate

@@ -1,0 +1,23 @@
+---
+# author: lework
+
+
+- wait_for: timeout=10
+
+- name: configure_cluster | Set apiserver access node permissions.
+  shell: kubectl apply -f apiserver-to-kubelet-rbac.yaml
+  args:
+    chdir: "{{ kubernetes_conf_path }}"
+
+- name: configure_cluster | Set cluster allow Taint.
+  shell: kubectl taint nodes node-role.kubernetes.io/master="":NoSchedule --all --overwrite=true
+
+- name: configure_cluster | Create TLS bootstrap secret.
+  shell: kubectl apply -f kubelet-bootstrap-secret.yaml
+  args:
+    chdir: "{{ kubernetes_conf_path }}"
+
+- name: configure_cluster | Create TLS Bootstrap Autoapprove RBAC.
+  shell: kubectl apply -f kubelet-bootstrap-rbac.yaml
+  args:
+    chdir: "{{ kubernetes_conf_path }}"

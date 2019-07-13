@@ -1,0 +1,20 @@
+---
+# author: lework
+
+
+- import_tasks: configure_master.yml
+  when: kubernetes_master | bool
+
+- import_tasks: configure_node.yml
+  when: kubernetes_node | bool
+
+- import_tasks: service.yml
+  when: kubernetes_master or kubernetes_node
+  
+- import_tasks: configure_cluster.yml
+  when: kubernetes_master | bool
+  run_once: true
+
+- import_tasks: configure_addons.yml
+  when: kubernetes_addons | bool
+  run_once: true

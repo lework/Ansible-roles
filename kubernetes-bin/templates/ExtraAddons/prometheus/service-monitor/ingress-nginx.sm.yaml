@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-ingress-controller-metrics
+  labels:
+    k8s-app: nginx-ingress
+  namespace: monitoring
+spec:
+  jobLabel: k8s-app
+  endpoints:
+  - interval: 5s
+    port: metrics
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+      app.kubernetes.io/part-of: ingress-nginx
+  namespaceSelector:
+    matchNames:
+    - ingress-nginx

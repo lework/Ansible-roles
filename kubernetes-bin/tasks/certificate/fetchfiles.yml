@@ -1,0 +1,23 @@
+---
+# author: lework
+
+
+- name: fetchfiles | Create local tmp. 
+  file: path={{ kubernetes_tmp_path }}  state=directory
+  connection: local
+
+- name: fetchfiles | Find etcd pem.
+  find: paths={{ kubernetes_etcd_ssl_path }} patterns='*.pem'
+  register: etcd_file_fetch
+
+- name: fetchfiles | Fetch etcd pem.
+  fetch: src={{ item.path }} dest={{ kubernetes_tmp_path }}/ flat=yes
+  with_items: "{{ etcd_file_fetch.files }}"
+
+- name: fetchfiles | Find kubernets pem.
+  find: paths={{ kubernetes_conf_path }} patterns='*.kubeconfig,*.pem,sa.*' recurse=yes
+  register: kubernets_file_fetch
+
+- name: fetchfiles | Fetch kubenets pem.
+  fetch: src={{ item.path }} dest={{ kubernetes_tmp_path }}/ flat=yes
+  with_items: "{{ kubernets_file_fetch.files }}"

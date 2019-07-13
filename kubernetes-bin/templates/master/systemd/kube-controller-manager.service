@@ -1,0 +1,34 @@
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/kubernetes/kubernetes
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/kube-controller-manager \
+  --allocate-node-cidrs=true \
+  --kubeconfig={{ kubernetes_conf_path }}/controller-manager.kubeconfig \
+  --authentication-kubeconfig={{ kubernetes_conf_path }}/controller-manager.kubeconfig \
+  --authorization-kubeconfig={{ kubernetes_conf_path }}/controller-manager.kubeconfig \
+  --client-ca-file={{ kubernetes_pki_path }}/ca.pem \
+  --cluster-signing-cert-file={{ kubernetes_pki_path }}/ca.pem \
+  --cluster-signing-key-file={{ kubernetes_pki_path }}/ca-key.pem \
+  --bind-address=0.0.0.0 \
+  --leader-elect=true \
+  --cluster-cidr={{ kubernetes_cluster_cidr }} \
+  --service-cluster-ip-range={{ kubernetes_cluster_ip_range }} \
+  --requestheader-client-ca-file={{ kubernetes_pki_path }}/front-proxy-ca.pem \
+  --service-account-private-key-file={{ kubernetes_pki_path }}/sa.key \
+  --root-ca-file={{ kubernetes_pki_path }}/ca.pem \
+  --use-service-account-credentials=true \
+  --controllers=*,bootstrapsigner,tokencleaner \
+  --experimental-cluster-signing-duration=86700h \
+  --feature-gates=RotateKubeletClientCertificate=true \
+  --logtostderr=false \
+  --log-dir={{ kubernetes_log_path }}/controller-manager \
+  --v=2
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

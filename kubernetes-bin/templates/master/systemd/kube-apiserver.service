@@ -1,0 +1,58 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https:/github.com/kubernetes/kubernetes
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/kube-apiserver \
+  --authorization-mode=Node,RBAC \
+  --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeClaimResize,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,Priority,PodPreset \
+  --advertise-address={{ ansible_default_ipv4.address }} \
+  --bind-address=0.0.0.0  \
+  --insecure-port=0 \
+  --secure-port=6443 \
+  --allow-privileged=true \
+  --apiserver-count={{ play_hosts | length }} \
+  --enable-swagger-ui=true \
+  --storage-backend=etcd3 \
+  --etcd-cafile={{ kubernetes_etcd_ssl_path }}/etcd-ca.pem \
+  --etcd-certfile={{ kubernetes_etcd_ssl_path }}/etcd.pem \
+  --etcd-keyfile={{ kubernetes_etcd_ssl_path }}/etcd-key.pem \
+  --etcd-servers={% for h in play_hosts %}https://{{ h }}:2379{% if not loop.last %},{% endif %}{% endfor%} \
+  --event-ttl=1h \
+  --enable-bootstrap-token-auth \
+  --client-ca-file={{ kubernetes_pki_path }}/ca.pem \
+  --kubelet-https \
+  --kubelet-client-certificate={{ kubernetes_pki_path }}/apiserver.pem \
+  --kubelet-client-key={{ kubernetes_pki_path }}/apiserver-key.pem \
+  --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \
+  --runtime-config=api/all,settings.k8s.io/v1alpha1=true \
+  --service-cluster-ip-range={{ kubernetes_cluster_ip_range }} \
+  --service-node-port-range=30000-32767 \
+  --service-account-key-file={{ kubernetes_pki_path }}/sa.pub \
+  --tls-cert-file={{ kubernetes_pki_path }}/apiserver.pem \
+  --tls-private-key-file={{ kubernetes_pki_path }}/apiserver-key.pem \
+  --requestheader-client-ca-file={{ kubernetes_pki_path }}/front-proxy-ca.pem \
+  --requestheader-username-headers=X-Remote-User \
+  --requestheader-group-headers=X-Remote-Group \
+  --requestheader-allowed-names=front-proxy-client \
+  --requestheader-extra-headers-prefix=X-Remote-Extra- \
+  --proxy-client-cert-file={{ kubernetes_pki_path }}/front-proxy-client.pem \
+  --proxy-client-key-file={{ kubernetes_pki_path }}/front-proxy-client-key.pem \
+  --feature-gates=PodShareProcessNamespace=true \
+  --audit-log-maxage=30 \
+  --audit-log-maxbackup=3 \
+  --audit-log-maxsize=128 \
+  --audit-log-path={{ kubernetes_log_path }}/apiserver/audit.log \
+  --audit-policy-file={{ kubernetes_conf_path }}/audit-policy.yaml \
+  --experimental-encryption-provider-config={{ kubernetes_conf_path }}/encryption.yaml \
+  --log-dir={{ kubernetes_log_path }}/apiserver \
+  --logtostderr=false \
+  --v=2
+
+Restart=on-failure
+RestartSec=10s
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

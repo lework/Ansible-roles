@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: external-dns
+  labels:
+    k8s-app: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: external-dns
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        k8s-app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+      containers:
+      - name: external-dns
+        image: {{ kubernetes_external_dns_image }}
+        env:
+        - name: ETCD_URLS
+          value: "http://coredns-etcd:2379"
+        args:
+        - --provider=coredns
+        - --source=service
+        - --source=ingress
+        - --registry=txt
+        - --interval=15s
+        - --log-level=debug
+{% raw %}
+        # - --fqdn-template="{{.Namespace}}.k8s.local"
+        # - --domain-filter=k8s.local
+        # - --namespace=default
+        # - --txt-owner-id=default.k8s.local
+        # - --metrics-address=":7979"
+{% endraw %}

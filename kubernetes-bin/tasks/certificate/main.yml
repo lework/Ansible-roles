@@ -1,0 +1,20 @@
+---
+# author: lework
+
+
+- name: certificate | Copy cfssl bin file to remote.
+  copy: "src={{ item }} dest=/usr/local/bin/ mode=755"
+  with_fileglob:
+    - bin/cfssl*
+  
+- import_tasks: certificate_etcd.yml
+- import_tasks: certificate_kubernetes.yml
+- import_tasks: kubeconfig.yml
+- import_tasks: fetchfiles.yml
+
+- include_tasks: distribution.yml
+  with_items:
+    - "{{ play_hosts | symmetric_difference([ansible_default_ipv4.address]) }}"
+  loop_control:
+    loop_var: delegate_master_host
+    pause: 2

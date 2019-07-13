@@ -1,0 +1,34 @@
+---
+# author: lework
+
+
+- name: configure | Create conf path on node.
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ kubernetes_pki_path }}"
+    - "{{ kubernetes_manifests_path }}"
+    - "{{ kubernetes_log_path }}/proxy"
+    - "{{ kubernetes_log_path }}/kubelet"
+
+- name: configure | Configuration haproxy.
+  template: "src=node/etc/haproxy/haproxy.cfg dest={{ kubernetes_haproxy_conf_path }}/"
+  
+- name: configure | Configuration kubelet service.
+  template: src={{ item }} dest=/lib/systemd/system/
+  with_fileglob:
+    - templates/node/systemd/*.service
+
+- name: configure | Configuration kubelet service conf.
+  template: src={{ item }} dest={{ kubernetes_conf_path }}/
+  with_fileglob:
+    - templates/node/etc/kubernetes/*.yaml
+
+- name: configure | Copy kubernetes pem to node.
+  copy: src={{ item }} dest={{ kubernetes_pki_path }}
+  with_fileglob:
+    - "{{ kubernetes_tmp_path }}/ca.pem"
+
+- name: configure | Copy kubernetes config to node.
+  copy: src={{ item }} dest={{ kubernetes_conf_path }}
+  with_items:
+    - "{{ kubernetes_tmp_path }}/bootstrap-kubelet.kubeconfig"

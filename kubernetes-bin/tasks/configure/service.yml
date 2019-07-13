@@ -1,0 +1,73 @@
+---
+# author: lework
+
+- block: 
+  - name: service | Ensure master servcies is started and enabled at boot.
+    systemd: name={{ item }} state=started enabled=yes
+    with_items:
+    - etcd
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+    - kubelet
+    
+  - name: service | Wait for etcd to start.
+    wait_for: port=2379
+    
+  - name: service | Wait for apiserver to start.
+    wait_for: port=6443
+  
+  - name: service | Wait for kueblet to start.
+    wait_for: port=10248
+
+  - name: service | Wait for kube-scheduler to start.
+    wait_for: port=10251
+  
+  - name: service | Wait for kube-controller to start.
+    wait_for: port=10252
+
+  - name: service | Waiting for cluster to start...
+    shell: kubectl get cs
+    register: waiting_for_cluster
+    until: waiting_for_cluster.rc == 0 and waiting_for_cluster.stdout.find("Unhealthy") == -1
+    retries: 10
+    delay: 5
+    changed_when: false
+    ignore_errors: true
+
+  - name: service | Check Kubernetes apiserver version.
+    uri:
+      url: "https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/version"
+      client_cert: "/etc/kubernetes/pki/apiserver.pem"
+      client_key: "/etc/kubernetes/pki/apiserver-key.pem"
+      validate_certs: no
+    register: result_version
+    until: result_version.status == 200
+    retries: 10
+    delay: 5
+
+  - name: service | Curl Kubernetes v1 api.
+    uri:
+      url: "https://{{ kubernetes_apiserver_vip }}:{{ kubernetes_apiserver_port }}/api/v1"
+      client_cert: "/etc/kubernetes/pki/apiserver.pem"
+      client_key: "/etc/kubernetes/pki/apiserver-key.pem"
+      validate_certs: no
+    register: result_api
+    until: result_api.status == 200
+    retries: 10
+    delay: 5
+  when: kubernetes_master | bool
+
+- block: 
+  - name: service | Ensure node services is started and enabled at boot.
+    systemd: name={{ item }} state=started enabled=yes
+    with_items:
+    - haproxy
+    - kubelet
+    
+  - name: service | Wait for haproxy to start.
+    wait_for: "port={{ kubernetes_apiserver_port }}"
+    
+  - name: service | Wait for kueblet to start.
+    wait_for: port=10248
+  when: kubernetes_node | bool

@@ -1,0 +1,18 @@
+---
+# author: lework
+
+
+- import_tasks: check.yml
+  when: kubernetes_master or kubernetes_node
+  
+- import_tasks: init.yml
+  when: kubernetes_master or kubernetes_node
+  
+- import_tasks: install.yml
+  when: kubernetes_master or kubernetes_node
+  
+- import_tasks: certificate/main.yml
+  run_once: true
+  when: kubernetes_master | bool
+  
+- import_tasks: configure/main.yml
