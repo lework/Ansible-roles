@@ -1,0 +1,17 @@
+dn: {{ openldap_dc }}
+dc: {{ openldap_dc | regex_replace('^dc=(.*),dc=.*', '\\1') }}
+objectClass: top
+objectClass: domain
+
+dn: cn=Manager,{{ openldap_dc }}
+objectClass: organizationalRole
+cn: Manager
+description: LDAP Manager
+
+dn: ou=People,{{ openldap_dc }}
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Group,{{ openldap_dc }}
+objectClass: organizationalUnit
+ou: Group

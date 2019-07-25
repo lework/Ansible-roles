@@ -1,0 +1,17 @@
+---
+# lework
+
+
+openldap_packages:
+  - openldap
+  - compat-openldap
+  - openldap-clients
+  - openldap-servers
+  - openldap-servers-sql
+  - openldap-devel
+  - migrationtools
+  - rsyslog
+
+openldap_dc: "dc=lework,dc=com"
+openldap_passwd: 123456
+openldap_log: /var/log/slapd.log

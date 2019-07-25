@@ -1,0 +1,52 @@
+---
+# lework
+
+- name: Ensure openldap packages are installed.
+  package: name={{ openldap_packages }} state=installed
+    
+- name: Set db config.
+  copy: src=/usr/share/openldap-servers/DB_CONFIG.example dest=/var/lib/ldap/DB_CONFIG remote_src=yes
+  
+- name: Recursively change ownership of a directory.
+  file: path=/var/lib/ldap state=directory recurse=yes owner=ldap group=ldap
+  
+- name: Enable service slapd.
+  systemd: name={{ item }} state=started enabled=yes
+  with_items:
+    - rsyslog
+    - slapd
+    
+- name: Create slap passwd.
+  shell: slappasswd -h {SSHA} -s {{ openldap_passwd }}
+  register: openldap_slappasswd
+  
+- name: Create ldif a directory.
+  file: path=~/openldap state=directory
+  
+- name: Copy ldif to remote.
+  template: src={{ item }} dest=~/openldap/
+  with_fileglob:
+    -  templates/*.ldif
+    
+- name: Set openldap.
+  shell: >
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f ~/openldap/db.ldif &&
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f ~/openldap/monitor.ldif &&
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f ~/openldap/db.ldif &&
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f ~/openldap/loglevel.ldif
+
+- name: Set openldap schema.
+  shell: >
+    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif  &&
+    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif  &&
+    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif &&
+    ldapadd -x -w {{ openldap_passwd }} -D 'cn=Manager,{{ openldap_dc }}' -f ~/openldap/base.ldif
+    
+- name: Set rsyslog.
+  lineinfile: dest=/etc/rsyslog.conf line='local4.* {{ openldap_log }}'
+  
+- name: Restart service.
+  systemd: name={{ item }} state=restarted
+  with_items:
+    - rsyslog
+    - slapd
