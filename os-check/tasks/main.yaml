@@ -1,0 +1,38 @@
+---
+# author: lework
+#
+
+- name: Get system check data.
+  script: check_linux.sh
+  register: check_result
+
+- block:
+  - name: Generate report file.
+    template:
+      src: report-cssinline.html
+      dest: "{{ check_report_path | d('/tmp') }}/report{{ check_report_file_suffix | d('') }}.html"
+
+  - name: Get report file content.
+    slurp:
+      src: "{{ check_report_path | d('/tmp') }}/report{{ check_report_file_suffix | d('') }}.html"
+    register: report_data
+
+  - name: Send a report by email.
+    mail:
+      host: "{{ check_mail_host }}"
+      port: "{{ check_mail_port }}"
+      username: "{{ check_mail_username }}"
+      password: "{{ check_mail_password }}"
+      from: "{{ check_mail_username }}"
+      to: "{{ check_mail_to }}"
+      subject: "{{ check_mail_subject }}"
+      body: "{{ report_data['content'] | b64decode }}"
+      subtype: html
+    when:
+    - check_mail_host != ""
+    - check_mail_port !=""
+    - check_mail_username != ""
+    - check_mail_password !=""
+    - check_mail_to
+  run_once: true
+  connection: local

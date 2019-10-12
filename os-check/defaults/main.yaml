@@ -1,0 +1,15 @@
+---
+# author: lework
+#
+
+
+check_day: "{{ '%Y-%m-%d' | strftime }}"
+check_report_path: /tmp
+check_report_file_suffix: "-{{ check_day }}"
+
+check_mail_host: ""
+check_mail_port: ""
+check_mail_username: ""
+check_mail_password: ""
+check_mail_to: []
+check_mail_subject: "System Check Report [{{ check_day }}]"
