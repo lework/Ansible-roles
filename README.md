@@ -1,4 +1,4 @@
-# **Ansible roles 怎么用？**
+# **Ansible roles 怎么用？** ![GitHub](https://img.shields.io/github/license/lework/Ansible-roles) 
 
 # 系统环境
 os:  `Centos 6.7 X64`
@@ -24,7 +24,7 @@ ansible 2.2.1.0
 
 ## 使用git 克隆ansible role
 ```bash
-[root@node roles]# git clone https://github.com/kuailemy123/Ansible-roles.git /etc/ansible/roles/
+[root@node roles]# git clone https://github.com/lework/Ansible-roles.git /etc/ansible/roles/
 Initialized empty Git repository in /etc/ansible/roles/.git/
 remote: Counting objects: 165, done.
 remote: Compressing objects: 100% (95/95), done.
@@ -88,7 +88,7 @@ os `Centos 6.7 X64`
 没有
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/python2.7
+https://github.com/lework/Ansible-roles/tree/master/python2.7
 
 ## Example Playbook
 
@@ -191,4 +191,4 @@ Python 2.7.12
 Python 2.7.12
 ```
 
-至此，ansible role怎么使用大家都明白了把。如果有疑问的话，欢迎大家来QQ群【425931784】交流
+至此，ansible role怎么使用大家都明白了把。如果有疑问的话，欢迎大家来QQ群【425931784 已满员】【756527917】交流

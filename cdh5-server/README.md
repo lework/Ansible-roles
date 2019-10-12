@@ -69,7 +69,7 @@ cdh5-pre
 cdh5-agent
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/cdh5-server
+https://github.com/lework/Ansible-roles/tree/master/cdh5-server
 
 ## Example Playbook
 

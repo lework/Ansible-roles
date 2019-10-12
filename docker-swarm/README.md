@@ -34,7 +34,7 @@ centos 7.3 以上版本
 docker
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/docker-swarm
+https://github.com/lework/Ansible-roles/tree/master/docker-swarm
 
 ## Example Playbook
     部署集群

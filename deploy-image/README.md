@@ -120,7 +120,7 @@ docker `18.03.1-ce`
 - docker hub
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/deploy-image
+https://github.com/lework/Ansible-roles/tree/master/deploy-image
 
 ## Example Playbook
 

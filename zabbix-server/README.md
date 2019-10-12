@@ -72,7 +72,7 @@ python `2.7.5`
 Mysql, Httpd, PHP
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-server
+https://github.com/lework/Ansible-roles/tree/master/zabbix-server
 
 ## Example Playbook
 

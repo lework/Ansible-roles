@@ -65,7 +65,7 @@ elasticsearch
 
 ## github地址
 
-https://github.com/kuailemy123/Ansible-roles/tree/master/kibana
+https://github.com/lework/Ansible-roles/tree/master/kibana
 
 ## Example Playbook
 

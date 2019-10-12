@@ -34,7 +34,7 @@ os `Centos 7.4 X64`
 没有
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/nodejs
+https://github.com/lework/Ansible-roles/tree/master/nodejs
 
 ## Example Playbook
 

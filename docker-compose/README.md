@@ -25,7 +25,7 @@ docker `17.12.0-ce`
 docker
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/docker-compose
+https://github.com/lework/Ansible-roles/tree/master/docker-compose
 
 ## Example Playbook
 

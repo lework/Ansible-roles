@@ -72,7 +72,7 @@ python `2.7.5`
 java ruby
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/redis
+https://github.com/lework/Ansible-roles/tree/master/redis
 
 ## Example Playbook
 

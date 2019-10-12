@@ -36,7 +36,7 @@ python `2.6.6`
 None
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/grafana
+https://github.com/lework/Ansible-roles/tree/master/grafana
 
 ## Example Playbook
      - hosts: node1

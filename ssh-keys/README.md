@@ -20,7 +20,7 @@ python `2.7.5`
 ssh
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/ssh-keys
+https://github.com/lework/Ansible-roles/tree/master/ssh-keys
 
 ## Example Playbook
     实现各主机之间免密码登录

@@ -38,7 +38,7 @@ os `Centos 6.7 X64`
 Java 1.6+
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/sbt
+https://github.com/lework/Ansible-roles/tree/master/sbt
 
 ## Example Playbook
 

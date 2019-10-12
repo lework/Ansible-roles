@@ -60,7 +60,7 @@ docker
 docker-compose
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/harbor
+https://github.com/lework/Ansible-roles/tree/master/harbor
 
 ## Example Playbook
 

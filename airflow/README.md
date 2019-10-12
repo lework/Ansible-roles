@@ -43,7 +43,7 @@ python2.7
 supervisor
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/airflow
+https://github.com/lework/Ansible-roles/tree/master/airflow
 
 ## Example Playbook
 

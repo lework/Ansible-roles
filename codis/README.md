@@ -94,7 +94,7 @@ go
 zookeeper
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/codis
+https://github.com/lework/Ansible-roles/tree/master/codis
 
 ## Example Playbook
 

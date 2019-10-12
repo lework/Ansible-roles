@@ -23,7 +23,7 @@ os `Centos 7.4 X64`
 
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/hostnames
+https://github.com/lework/Ansible-roles/tree/master/hostnames
 
 ## Example Playbook
 	

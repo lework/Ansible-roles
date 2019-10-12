@@ -62,7 +62,7 @@ python `2.6.6`
 None
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/samba
+https://github.com/lework/Ansible-roles/tree/master/samba
 
 ## Example Playbook
     # 默认配置，匿名访问/samba_shares目录

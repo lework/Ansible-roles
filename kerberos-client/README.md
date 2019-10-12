@@ -37,7 +37,7 @@ Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为�
 None
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/kerberos-client
+https://github.com/lework/Ansible-roles/tree/master/kerberos-client
 
 ## Example Playbook
 

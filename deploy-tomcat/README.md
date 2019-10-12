@@ -54,7 +54,7 @@ python `2.6.6`
 tomcat
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/deploy-tomcat
+https://github.com/lework/Ansible-roles/tree/master/deploy-tomcat
 
 ## Example Playbook
 

@@ -46,7 +46,7 @@ os `Centos 7.4 X64`
 etcd nginx
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/confd
+https://github.com/lework/Ansible-roles/tree/master/confd
 
 ## Example Playbook
     

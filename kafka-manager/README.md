@@ -53,7 +53,7 @@ Java 8+
 sbt
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/kafka-manager
+https://github.com/lework/Ansible-roles/tree/master/kafka-manager
 
 ## Example Playbook
     - hosts: node1 

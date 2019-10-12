@@ -75,7 +75,7 @@ os `Centos 6.7 X64`
 Java (2.53以上版本需要1.8+)
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/jenkins
+https://github.com/lework/Ansible-roles/tree/master/jenkins
 
 ## Example Playbook
     - hosts: node1

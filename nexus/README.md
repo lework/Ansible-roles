@@ -47,7 +47,7 @@ ansible管理主机
 jdk 1.8
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/nexus
+https://github.com/lework/Ansible-roles/tree/master/nexus
 
 ## Example Playbook
     #默认安装nexus

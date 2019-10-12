@@ -43,7 +43,7 @@ python2.7
 pip
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/supervisor
+https://github.com/lework/Ansible-roles/tree/master/supervisor
 
 ## Example Playbook
 

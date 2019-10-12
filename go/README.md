@@ -34,7 +34,7 @@ os `Centos 7.4 X64`
 gcc
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/go
+https://github.com/lework/Ansible-roles/tree/master/go
 
 ## Example Playbook
 

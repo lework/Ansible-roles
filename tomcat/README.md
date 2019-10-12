@@ -58,7 +58,7 @@ java
 
 ## github地址
 
-https://github.com/kuailemy123/Ansible-roles/tree/master/tomcat
+https://github.com/lework/Ansible-roles/tree/master/tomcat
 
 ## Example Playbook
     安装tomcat7

@@ -52,7 +52,7 @@ python2.7
 supervisor
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/superset
+https://github.com/lework/Ansible-roles/tree/master/superset
 
 ## Example Playbook
 

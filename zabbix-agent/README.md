@@ -58,7 +58,7 @@ supervisor `3.3.4`
 zabbix server
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/zabbix-agent
+https://github.com/lework/Ansible-roles/tree/master/zabbix-agent
 
 ## Example Playbook
     ---

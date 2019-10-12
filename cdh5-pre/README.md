@@ -36,7 +36,7 @@ python `2.6.6`
 没有
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/cdh5-pre
+https://github.com/lework/Ansible-roles/tree/master/cdh5-pre
 
 ## Example Playbook
 

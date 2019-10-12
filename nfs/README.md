@@ -26,7 +26,7 @@ python `2.6.6`
 rpcbind
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/nfs
+https://github.com/lework/Ansible-roles/tree/master/nfs
 
 ## Example Playbook
 

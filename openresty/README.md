@@ -93,7 +93,7 @@ ansible管理主机
 没有
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/openresty
+https://github.com/lework/Ansible-roles/tree/master/openresty
 
 ## Example Playbook
 

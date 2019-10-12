@@ -72,7 +72,7 @@ python `2.7.5`
 go
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/etcd
+https://github.com/lework/Ansible-roles/tree/master/etcd
 
 ## Example Playbook
 

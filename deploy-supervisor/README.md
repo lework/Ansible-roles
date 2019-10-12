@@ -66,7 +66,7 @@ supervisor `3.3.4`
 - {{ deploy_service_name }}的值 应为supervisor应用名称
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/deploy-supervisor
+https://github.com/lework/Ansible-roles/tree/master/deploy-supervisor
 
 ## Example Playbook
 

@@ -32,7 +32,7 @@ python `2.6.6`
 cdh5-pre
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/cdh5-agent
+https://github.com/lework/Ansible-roles/tree/master/cdh5-agent
 
 ## Example Playbook
 

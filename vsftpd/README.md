@@ -66,7 +66,7 @@ python `2.6.6`
 None
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/vsftpd
+https://github.com/lework/Ansible-roles/tree/master/vsftpd
 
 ## Example Playbook
     # 默认配置，匿名登录

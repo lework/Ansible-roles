@@ -133,7 +133,7 @@ centos 7.3 以上版本
 
 ## github地址
 
-<https://github.com/kuailemy123/Ansible-roles/tree/master/kubernetes>
+<https://github.com/lework/Ansible-roles/tree/master/kubernetes>
 
 ## Example Playbook
 

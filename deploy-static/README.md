@@ -47,7 +47,7 @@ os `Centos 7.2.1511 X64`
 
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/deploy-static
+https://github.com/lework/Ansible-roles/tree/master/deploy-static
 
 ## Example Playbook
 

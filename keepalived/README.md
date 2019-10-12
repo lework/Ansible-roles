@@ -58,7 +58,7 @@ os `Centos 7.4 X64`
 epel
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/keepalived
+https://github.com/lework/Ansible-roles/tree/master/keepalived
 
 ## Example Playbook
     单主

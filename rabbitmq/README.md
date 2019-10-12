@@ -49,7 +49,7 @@ os `Centos 6.7 X64`
 ## 依赖
 
 ## github地址
-https://github.com/kuailemy123/Ansible-roles/tree/master/rabbitmq
+https://github.com/lework/Ansible-roles/tree/master/rabbitmq
 
 ## Example Playbook
     安装rabbitmq
