@@ -56,3 +56,17 @@ https://github.com/lework/Ansible-roles/tree/master/os-check
 	- `report-cssinline.html` 是将css设置以`inline`的方式存储的html文件,`report.html`才是源模板文件，修改完源模板文件后，使用[Responsive Email CSS Inliner](https://htmlemail.io/inline/)进行转换下，才能更好的兼容邮件显示。
 	- 其中模板中使用的`get_check_data`过滤器是从`hostvars`中获取每台主机的脚本执行结果，进行分析整理传递给模板，使用传递回来的数据进行渲染。
 3. 获取生成的模板文件内容，并通过smtp发送给接收人。
+
+### 统计的系统资源
+
+- Hostname
+- Main IP
+- OS
+- CPU Used
+- CPU LoadAvg
+- Mem Used
+- Swap Used
+- Disk Size Used
+- Disk Inode Used
+- Tcp Connection Used
+- Timestamp
