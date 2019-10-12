@@ -33,6 +33,6 @@
     - check_mail_port !=""
     - check_mail_username != ""
     - check_mail_password !=""
-    - check_mail_to
+    - check_mail_to | bool
   run_once: true
   connection: local

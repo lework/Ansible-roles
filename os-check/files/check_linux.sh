@@ -138,7 +138,7 @@ EOF
 function get_disk() {
   # 获取磁盘使用信息  
 
-  mount=$(grep '^/dev/' /proc/mounts | grep -v -E 'docker|containers|iso9660' | awk '{print $2}')
+  mount=$(grep '^/dev/' /proc/mounts | grep -v -E 'docker|containers|iso9660|kubelet' | awk '{print $2}')
   
   for m in ${mount:-}; do
     size_total=$(df -hP $m 2>/dev/null | awk 'END{print $2}')
