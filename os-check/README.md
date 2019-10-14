@@ -30,6 +30,7 @@ python `2.7.5`
 ## 依赖
 
 - 过滤器插件 `filter_plugins/os-check.py [get_check_data]`
+- 目标机`bash`
 
 ## Github地址
 https://github.com/lework/Ansible-roles/tree/master/os-check
@@ -48,6 +49,8 @@ https://github.com/lework/Ansible-roles/tree/master/os-check
 	   check_mail_to: ["ops@lework.com"] 
 	  roles:
 	   - os-check
+
+> 这里注意下，check_mail_*的配置，这里使用的是ssl加密的配置方式，如果要其他的方式配置请使用`ansible-doc mail`查看使用方法，针对自身情况配置mail。
 
 ## 执行流程
 

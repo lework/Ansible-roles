@@ -52,8 +52,10 @@ function get_system() {
 
   hostname=$(hostname 2>/dev/null)
   default_ipv4=$(ip -4 route get 8.8.8.8 2>/dev/null | head -1 | awk '{print $7}')
-  distribution=$(awk '/^ID=/' /etc/*-release | awk -F'=' '{gsub("\"","");print $2 }')
-  distribution_version=$(awk '/^VERSION_ID=/' /etc/*-release | awk -F'=|"' '{ print $3 }')
+  distribution=$(awk '/^ID=/' /etc/*-release 2>/dev/null | awk -F'=' '{gsub("\"","");print $2}')
+  distribution_version=$(python -c 'import platform; print platform.linux_distribution()[1]' 2>/dev/null)
+  [ -z $distribution_version ] && distribution_version=$(awk '/^VERSION_ID=/' /etc/*-release 2>/dev/null | awk -F'=' '{gsub("\"","");print $2}')
+  os_pretty_name=$(awk '/^PRETTY_NAME=/' /etc/*-release 2>/dev/null | awk -F'=' '{gsub("\"","");print $2 }')
   kernel=$(uname -r 2>/dev/null)
   os_time=$(date +"%F %T" 2>/dev/null)
   uptime=$(uptime 2>/dev/null |awk '{print $3}'|awk -F, '{print $1}')
@@ -64,6 +66,7 @@ function get_system() {
     "default_ipv4": "${default_ipv4:-}",
     "distribution": "${distribution:-}",
     "distribution_version": "${distribution_version:-}",
+    "os_pretty_name": "${os_pretty_name:-}",
     "kernel": "${kernel:-}",
     "os_time": "${os_time:-}",
     "uptime": "${uptime:-}"
@@ -177,8 +180,8 @@ EOF
     check_used 'mount_block_'${m} ${block_usedutilization}
     check_used 'mount_inode_'${m} ${inode_usedutilization}
   done
-  
-  disk_facts="["${mount_facts::-1}"]"
+
+  disk_facts="["${mount_facts:0:$((${#mount_facts}-1))}"]"
 
 }
 
@@ -196,7 +199,7 @@ function get_network() {
   fi
   network_facts=$(cat << EOF
   {
-    "tcpconnection": {${stat::-1}},
+    "tcpconnection": {${stat:0:$((${#stat}-1))}},
     "conn": "${conn}"
   }
 EOF
@@ -215,8 +218,8 @@ function main() {
   get_network
   
   
-  [ ! -z $bad ] && bad='['${bad::-1}']'
-  [ ! -z $critical ] && critical='['${critical::-1}']'
+  [ ! -z $bad ] && bad='['${bad:0:$((${#bad}-1))}']'
+  [ ! -z $critical ] && critical='['${critical:0:$((${#critical}-1))}']'
 
   check_facts=$(cat << EOF
   {
