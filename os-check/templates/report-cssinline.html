@@ -7663,7 +7663,7 @@ h3 {
                                                   {% endfor%}
                                                   </span></span></td>
                                                   <td style="outline: none; box-sizing: inherit; margin: 0; padding: 0.75rem; border-top: 1px solid #dee2e6; line-height: 1.2; vertical-align: middle; border-color: #f3f3f3;" valign="middle">
-                                                  {% for conn_key,conn_value in value.network.tcpconnection.iteritems() %}
+                                                  {% for conn_key,conn_value in value.network.tcpconnection.items() %}
                                                       {% if 'tcp_' + conn_key in value.critical %}<span class="badge badge-danger" style="outline: none; box-sizing: inherit; margin: 0; display: inline-block; font-size: 75%; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; color: #fff; font-weight: 400; padding: 0.35em 0.45em; background-color: #ff5e5e;">{% elif 'tcp_' + conn_key in value.bad %}<span class="badge badge-warning" style="outline: none; box-sizing: inherit; margin: 0; display: inline-block; font-size: 75%; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; color: #212529; font-weight: 400; padding: 0.35em 0.45em; background-color: #f29d56;"> {% else %}<span style="outline: none; box-sizing: inherit; margin: 0; padding: 0;">{% endif %}
                                                           {{  conn_key | lower  }} [{{ conn_value }}]
                                                       </span>
@@ -7733,7 +7733,7 @@ h3 {
                                                   {% endfor%}
                                                   </span></td>
                                                   <td style="outline: none; box-sizing: inherit; margin: 0; padding: 0.75rem; border-top: 1px solid #dee2e6; line-height: 1.2; vertical-align: middle; border-color: #f3f3f3;" valign="middle">
-                                                  {% for conn_key,conn_value in value.network.tcpconnection.iteritems() %}
+                                                  {% for conn_key,conn_value in value.network.tcpconnection.items() %}
                                                       {% if 'tcp_' + conn_key in value.bad %}<span class="badge badge-warning" style="outline: none; box-sizing: inherit; margin: 0; display: inline-block; font-size: 75%; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; color: #212529; font-weight: 400; padding: 0.35em 0.45em; background-color: #f29d56;"> {% else %} <span style="outline: none; box-sizing: inherit; margin: 0; padding: 0;"> {% endif %}
                                                           {{  conn_key | lower  }} [{{ conn_value }}]
                                                       </span>
@@ -7792,7 +7792,7 @@ h3 {
                                                   <td style="outline: none; box-sizing: inherit; margin: 0; padding: 0.75rem; border-top: 1px solid #dee2e6; line-height: 1.2; vertical-align: middle; border-color: #f3f3f3;" valign="middle">{% for d in value.disk %}
                                                   {{ d.mount }} [{{ d.inode_usedutilization }}%] {% if not loop.last %}<br style="outline: none; box-sizing: inherit; margin: 0; padding: 0;">{% endif %}
                                                   {% endfor%}</td>
-                                                  <td style="outline: none; box-sizing: inherit; margin: 0; padding: 0.75rem; border-top: 1px solid #dee2e6; line-height: 1.2; vertical-align: middle; border-color: #f3f3f3;" valign="middle">{% for conn_key,conn_value in value.network.tcpconnection.iteritems() %}
+                                                  <td style="outline: none; box-sizing: inherit; margin: 0; padding: 0.75rem; border-top: 1px solid #dee2e6; line-height: 1.2; vertical-align: middle; border-color: #f3f3f3;" valign="middle">{% for conn_key,conn_value in value.network.tcpconnection.items() %}
                                                   {{ conn_key | lower }} [{{ conn_value }}] {% if not loop.last %}<br style="outline: none; box-sizing: inherit; margin: 0; padding: 0;">{% endif %}
                                                   {% endfor%}</td>
                                                   <td style="outline: none; box-sizing: inherit; margin: 0; padding: 0.75rem; border-top: 1px solid #dee2e6; line-height: 1.2; vertical-align: middle; border-color: #f3f3f3;" valign="middle">{{ value.system.os_time }}</td>
