@@ -181,7 +181,7 @@ EOF
     check_used 'mount_inode_'${m} ${inode_usedutilization}
   done
 
-  disk_facts="["${mount_facts:0:$((${#mount_facts}-1))}"]"
+  disk_facts="["${mount_facts%?}"]"
 
 }
 
@@ -199,7 +199,7 @@ function get_network() {
   fi
   network_facts=$(cat << EOF
   {
-    "tcpconnection": {${stat:0:$((${#stat}-1))}},
+    "tcpconnection": {${stat%?}},
     "conn": "${conn}"
   }
 EOF
@@ -218,8 +218,8 @@ function main() {
   get_network
   
   
-  [ ! -z $bad ] && bad='['${bad:0:$((${#bad}-1))}']'
-  [ ! -z $critical ] && critical='['${critical:0:$((${#critical}-1))}']'
+  [ ! -z $bad ] && bad='['${bad%?}']'
+  [ ! -z $critical ] && critical='['${critical%?}']'
 
   check_facts=$(cat << EOF
   {
