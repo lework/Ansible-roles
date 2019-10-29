@@ -1,0 +1,14 @@
+---
+# lework
+
+- name: Ensure ntp packages are removed.
+  package: name=ntp state=removed
+  
+- name: Ensure chrony packages are installed.
+  package: name=chrony state=installed
+
+- name: Change chrony server on chrony.conf.
+  template: src=chrony.conf dest=/etc/ backup=yes
+
+- name: Restart chronyd service.
+  systemd: name=chronyd state=restarted enabled=yes
