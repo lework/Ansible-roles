@@ -13,7 +13,7 @@ supervisor_pip_package:
 supervisor_supervisor_package:
   - name: supervisor
     version: "{% if not supervisor_version and ansible_python.version.major == 2 and ansible_python.version.micro < 7 %}3.4.0{%else%}{{supervisor_version}}{%endif%}"
-  - "{%- if ansible_python.version.major == 2 and ansible_python.version.micro < 7 -%}{{ '{\"name\": \"meld3\", \"version\": \"0.6.10\"}' | from_json }}{%- endif -%}"
+  - "{%- if ansible_python.version.major == 2 and ansible_python.version.micro < 7 -%}{{ '{\"name\": \"meld3\", \"version\": \"0.6.10\"}' | from_json }}{%else%}{}{%- endif -%}"
 
 # 是否启动supervisor
 supervisor_started: true

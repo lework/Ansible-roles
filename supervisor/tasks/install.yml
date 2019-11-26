@@ -16,7 +16,7 @@
     version: "{{ item.version }}"
     extra_args: "-i {{ supervisor_package_index }}"
   with_items: "{{supervisor_supervisor_package}}"
-  when: not supervisor_bin_result.stat.exists
+  when: not supervisor_bin_result.stat.exists and item
 
 - name: install | Copy Supervisor init file into place (for non-systemd systems).
   template:
