@@ -1,0 +1,98 @@
+---
+# author: lework
+
+- name: config | Ensure Supervisor need paths are present.
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - "{{ supervisor_log_path }}"
+    - "{{ supervisor_config_path }}/conf.d"
+
+- name: config | Ensure Supervisor configuration is present.
+  template:
+    src: supervisord.conf.j2
+    dest: "{{ supervisor_config_path }}/supervisord.conf"
+    mode: 0644
+  notify: restart supervisor
+
+- name: config | Ensure Supervisor program configs are present.
+  template:
+    src: program.ini.j2
+    dest: "{{ supervisor_config_path }}/conf.d/{{ item.name }}.ini"
+    force: true
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ supervisor_programs }}"
+  notify: restart supervisor
+
+- block:
+  - name: config | Install pyyaml for pip.
+    pip:
+      name: pyyaml
+      extra_args: "-i {{ supervisor_package_index }}"
+  - name: config | Ensure healthCheck scripts paths are present."
+    file:
+      path: "{{ item }}"
+      state: directory
+      mode: 0755
+      owner: root
+      group: root
+    with_items:
+      - "{{ supervisor_config_path }}/scripts"
+    
+  - name: config | Ensure Supervisor healthCheck configuration is present.
+    template:
+      src: healthCheck.ini.j2
+      dest: "{{ supervisor_config_path }}/conf.d/healthCheck.ini"
+      mode: 0644
+    notify: restart supervisor
+    
+  - name: config | Ensure healthCheck configuration is present.
+    template:
+      src: healthCheck-config.yaml.j2
+      dest: "{{ supervisor_config_path }}/scripts/config.yaml"
+      mode: 0644
+    notify: restart supervisor
+
+  - name: config | Ensure healthCheck script is present.
+    copy:
+      src: healthCheck.py
+      dest: "{{ supervisor_config_path }}/scripts/healthCheck.py"
+      mode: 0755
+    notify: restart supervisor
+  when: supervisor_healthCheck_enable | bool
+  
+- block:
+  - name: config | Install prometheus_client for pip.
+    pip:
+      name: prometheus_client
+      extra_args: "-i {{ supervisor_package_index }}"
+  - name: config | Ensure supervisor_exporter scripts paths are present."
+    file:
+      path: "{{ item }}"
+      state: directory
+      mode: 0755
+      owner: root
+      group: root
+    with_items:
+      - "{{ supervisor_config_path }}/scripts"
+    
+  - name: config | Ensure Supervisor supervisor_exporter configuration is present.
+    template:
+      src: supervisor_exporter.ini.j2
+      dest: "{{ supervisor_config_path }}/conf.d/supervisor_exporter.ini"
+      mode: 0644
+    notify: restart supervisor
+
+  - name: config | Ensure supervisor_exporter script is present.
+    template:
+      src: supervisor_exporter.py.j2
+      dest: "{{ supervisor_config_path }}/scripts/supervisor_exporter.py"
+      mode: 0755
+    notify: restart supervisor
+  when: supervisor_exporter_enable | bool

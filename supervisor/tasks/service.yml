@@ -1,0 +1,14 @@
+---
+# author: lework
+
+- name: service | Ensure Supervisor is started.
+  service:
+    name: supervisord
+    state: started
+  when: supervisor_started
+
+- name: service | Ensure Supervisor is enabled at boot.
+  service:
+    name: supervisord
+    enabled: true
+  when: supervisor_enabled

@@ -14,9 +14,9 @@
 #   its users to monitor and control a number of processes on \
 #   UNIX-like operating systems.
 # processname: supervisord
-# config: {{ supervisor_conf_path }}/supervisord.conf
+# config: /etc/supervisord.conf
 # config: /etc/sysconfig/supervisord
-# pidfile: {{ supervisor_run_path }}/supervisord.pid
+# pidfile: /var/run/supervisord.pid
 #
 ### BEGIN INIT INFO
 # Provides: supervisord
@@ -39,12 +39,12 @@ fi
 # Path to the supervisorctl script, server binary,
 # and short-form for messages.
 supervisorctl=/usr/bin/supervisorctl
-supervisord=${SUPERVISORD-/usr/bin/supervisord}
+supervisord=${SUPERVISORD-{{ supervisor_bin_path }}}
 prog=supervisord
-pidfile={{ supervisor_run_path }}/supervisord.pid
-lockfile={{ supervisor_run_path }}/supervisord
+pidfile=${PIDFILE-/var/run/supervisord.pid}
+lockfile=${LOCKFILE-/var/lock/subsys/supervisord}
 STOP_TIMEOUT=${STOP_TIMEOUT-60}
-OPTIONS="{{ supervisor_conf_path }}/supervisord.conf"
+OPTIONS="${OPTIONS--c {{ supervisor_config_path }}/supervisord.conf}"
 RETVAL=0
 
 start() {

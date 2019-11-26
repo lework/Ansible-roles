@@ -1,46 +1,11 @@
 ---
 # author: lework
 
-- name: Check if supervisor local file is already configured.
-  stat: path={{ supervisor_bin }}
-  register: supervisor_bin_result
-  
-- name: Install pip.
-  easy_install: name=supervisor
-  
-- name: Install supervisor for pip.
-  pip: name=supervisor
-  when: not supervisor_bin_result.stat.exists
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
 
-- name: Create supervisor dir.
-  file: dest={{ item }} state=directory mode=755
-  with_items:
-    - "{{ supervisor_conf_path }}"
-    - "{{ supervisor_run_path }}"
-    - "{{ supervisor_log_path }}"
-    
-- name: Set supervisor config if configured.
-  template:
-    src: supervisord.conf.j2
-    dest: "{{ supervisor_conf_path }}/supervisord.conf"
+- include: install.yml
 
-- block: 
-  - name: Set supervisor start scripts if configured or centos6.
-    template:
-      src: supervisor.sh.j2
-      dest: /etc/rc.d/init.d/supervisor
-      mode: 755
+- include: config.yml
 
-  - name: Ensure supervisor is running for centos6.
-    service: name=openresty state=started enabled=yes
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
-
-- block: 
-  - name: Set supervisor start scripts if configured or centos7.
-    template:
-      src: supervisor.service.j2
-      dest: /etc/systemd/system/supervisor.service
-   
-  - name: Ensure supervisor is running for centos7.
-    systemd: name=supervisor state=started enabled=yes daemon_reload=yes
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"
+- include: service.yml

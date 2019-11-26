@@ -1,43 +1,54 @@
-; author: lework
-; Configuration for Airflow webserver and scheduler in Supervisor
+{% if supervisor_unix_http_server_enable %}
 [unix_http_server]
-file={{ supervisor_run_path }}/supervisord.sock
+file = {{ supervisor_unix_http_server_socket_path }}
+chown = {{ supervisor_user }}
+{% if supervisor_user and supervisor_password %}
+username = {{ supervisor_user }}
+password = {{ supervisor_password }}
+{% endif %}
+{% endif %}
+
+{%- if supervisor_inet_http_server_enable %}
+[inet_http_server]
+port = {{ supervisor_inet_http_server_port }}
+{% if supervisor_user and supervisor_password %}
+username = {{ supervisor_user }}
+password = {{ supervisor_password }}
+{% endif %}
+{% endif %}
 
 [supervisord]
-pidfile={{ supervisor_run_path }}/supervisord.pid
-logfile={{ supervisor_log_path }}/supervisord.log
+logfile={{ supervisor_log_path }}/supervisord.log   ; main log file; default $CWD/supervisord.log
+logfile_maxbytes=100MB             ; max main logfile bytes b4 rotation; default 50MB
+logfile_backups=10                 ; # of main logfile backups; 0 means none, default 10
+loglevel=info                      ; log level; default info; others: debug,warn,trace
+pidfile=/var/run/supervisord.pid   ; supervisord pidfile; default supervisord.pid
+nodaemon={{ supervisor_nodaemon }} ; start in foreground if true; default false
+minfds=10240                       ; min. avail startup file descriptors; default 1024
+minprocs=2000                      ; min. avail process descriptors;default 200
+;umask=022                         ; process file creation umask; default 022
+user={{ supervisor_user }}         ; setuid to this UNIX account at startup; recommended if root
+;identifier=supervisor             ; supervisord identifier, default is 'supervisor'
+;directory=/tmp                    ; default is not to cd during start
+;nocleanup=true                    ; don't clean up tempfiles at start; default false
+;childlogdir=/tmp                  ; 'AUTO' child log dir, default $TEMP
+;environment=KEY="value"           ; key value pairs to add to environment
+;strip_ansi=false                  ; strip ansi escape codes in logs; def. false
 
 [rpcinterface:supervisor]
 supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 
 [supervisorctl]
-serverurl=unix://{{ supervisor_run_path }}/supervisord.sock
+{% if supervisor_unix_http_server_enable %}
+serverurl = unix://{{ supervisor_unix_http_server_socket_path }}
+{% endif %}
+{% if supervisor_inet_http_server_enable %}
+serverurl = http://{{ supervisor_inet_http_server_port }}
+{% endif %}
+{% if supervisor_user and supervisor_password %}
+username = {{ supervisor_user }}
+password = {{ supervisor_password }}
+{% endif %}
 
-{% for p in supervisor_program %}
-[program:{{ p.name }}]
-process_name=%(program_name)s
-command={{ p.command }}
-directory={{ p.directory | d("/tmp") }}
-stopsignal={{ supervisor_stopsignal }}
-stopasgroup={{ p.stopasgroup | d("true") }}
-killasgroup={{ p.killasgroup | d("true") }}
-{% if p.user is defined %}
-user={{ p.user }}
-{% endif %}
-{% if p.env is defined %}
-environment={{ p.env }}
-{% elif supervisor_env != "" %}
-environment={{ supervisor_env }}
-{% endif %}
-startretries={{ p.startretries | d("3") }}
-startsecs={{ p.startsecs | d("5") }}
-stopwaitsecs={{ p.stopwaitsecs | d("10") }}
-autostart={{ p.autostart | d("true") }}
-autorestart={{ p.autorestart | d("true") }}
-stdout_logfile_maxbytes={{ p.stdout_logfile_maxbytes | d("50MB") }}
-stdout_logfile_backups={{ p.stdout_logfile_backups | d("10") }}
-stderr_logfile_maxbytes={{ p.stderr_logfile_maxbytes | d("50MB") }}
-stderr_logfile_backups={{ p.stderr_logfile_backups | d("10") }}
-stdout_logfile={{ supervisor_log_path }}/{{ p.name }}-stdout.log
-stderr_logfile={{ supervisor_log_path }}/{{ p.name }}-stderr.log
-{% endfor %}
+[include]
+files = {{ supervisor_config_path }}/conf.d/*.ini

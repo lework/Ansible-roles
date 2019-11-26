@@ -1,14 +1,87 @@
 ---
 # author: lework
 
-supervisor_conf_path: "/etc/supervisor"
-supervisor_run_path: "/var/run/supervisor"
-supervisor_log_path: "/var/log/supervisor"
+# pip 国内源
+supervisor_package_index: https://pypi.tuna.tsinghua.edu.cn/simple
 
-supervisor_bin: "/usr/bin/supervisorctl"
+# supervisor版本, 默认是最新版本
+supervisor_version: null
+supervisor_pip_package: 
+  - "{%if ansible_python.version.major == 3%}python3-pip{%else%}python-pip{%endif%}"
 
-supervisor_env: ""
-supervisor_stopsignal: "TERM"
-supervisor_program: []
-# [{ name: 'superset', command: '/usr/local/bin/superset runserver', user: 'superset' }]
+# supervisor的依赖包
+supervisor_supervisor_package:
+  - name: supervisor
+    version: "{% if not supervisor_version and ansible_python.version.major == 2 and ansible_python.version.micro < 7 %}3.4.0{%else%}{{supervisor_version}}{%endif%}"
+  - "{%- if ansible_python.version.major == 2 and ansible_python.version.micro < 7 -%}{{ '{\"name\": \"meld3\", \"version\": \"0.6.10\"}' | from_json }}{%- endif -%}"
 
+# 是否启动supervisor
+supervisor_started: true
+supervisor_enabled: true
+
+supervisor_config_path: /etc/supervisor
+supervisor_log_path: /var/log/supervisor
+
+supervisor_nodaemon: false
+
+# supervisor的运行用户和密码
+supervisor_user: root
+supervisor_password: ''
+
+# socket方式
+supervisor_unix_http_server_enable: true
+supervisor_unix_http_server_socket_path: /var/run/supervisor.sock
+
+# http方式
+supervisor_inet_http_server_enable: false
+supervisor_inet_http_server_port: '127.0.0.1:9001'
+
+# 定义supervisor管理的program
+supervisor_programs: []
+# - name: 'example'
+#   command: java -jar /tmp/example.jar
+# - name: 'apache'
+#   command: apache2ctl -c "ErrorLog /dev/stdout" -DFOREGROUND
+#   configuration: |
+#     autostart=true
+#     autorestart=true
+#     startretries=1
+#     startsecs=1
+#     redirect_stderr=true
+#     stderr_logfile=/var/log/apache-err.log
+#     stdout_logfile=/var/log/apache-out.log
+#     user=root
+#     killasgroup=true
+#     stopasgroup=true
+
+# 开启supervisor的健康检查, 详细config见脚本
+supervisor_healthCheck_enable: false
+supervisor_healthCheck_config: |
+    config:
+      # supervisordUrl: http://localhost:9001/RPC2
+      mail:
+        # host: 'smtp.test.com'
+        # port: '465'
+        # user: 'ops@test.com'
+        # pass: '123415'
+        # to_list: ['test@test.com']
+      wechat:
+        corpid: ""
+        secret: ""
+        agentid: ""
+        toparty: ""
+    example:
+      type: HTTP
+      method: GET
+      host: 127.0.0.1
+      port: 80
+      path: /test
+      periodSeconds: 5
+      timeoutSeconds: 5
+      failureThreshold: 2
+      successThreshold: 1
+      action: restart,wechat
+
+# 开启supervisor的Prometheus的metrics指标
+supervisor_exporter_enable: false
+supervisor_exporter_port: 8081
