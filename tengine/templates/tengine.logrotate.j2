@@ -1,11 +1,12 @@
-{{ tengine_access_log }} {
+{{ tengine_log_path }}/*.log {
     daily
     dateext
     missingok
     rotate 100
-    nocompress
+    compress
+    delaycompress
     sharedscripts
     postrotate
-        [ ! -f {{ tengine_pidfile }} ] || kill -USR1 `cat {{ tengine_pidfile }}`
+        [ ! -f {{ tengine_pid_file }} ] || kill -USR1 `cat {{ tengine_pid_file }}`
     endscript
 }

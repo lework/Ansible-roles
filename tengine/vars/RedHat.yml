@@ -1,0 +1,21 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - gcc-c++
+  - libtool
+  - make
+  - libtool
+  - zlib
+  - zlib-devel
+  - openssl
+  - openssl-devel
+  - pcre
+  - pcre-devel
+  - gd
+  - gd-devel
+  - libaio
+  - libxml2-devel 
+  - libxslt-devel
+  - geoip-devel

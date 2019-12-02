@@ -3,26 +3,41 @@
 
 - name: configure | Setup nginx.conf.
   template:
-    dest: "{{ tengine_conf_file_path }}"
+    dest: "{{ tengine_conf_file }}"
     src: nginx.conf.j2
     mode: 0644
     owner: "{{ tengine_user }}"
     group: "{{ tengine_group }}"
-  notify: Reload tengine.  
+  notify: restart tengine
 
-- name: configure | Setup tengine.sh file.
+- name: configure | Setup nginx_vhosts_conf.conf.
   template:
-    dest: "/etc/rc.d/init.d/tengine"
-    mode: 0755
-    src: tengine.sh.j2
+    dest: "{{ tengine_conf_path }}/conf.d/{{ item.server_name | d('default') }}.conf"
+    src: nginx_vhosts_conf.j2
+    mode: 0644
+    owner: "{{ tengine_user }}"
+    group: "{{ tengine_group }}"
+  with_items: "{{ tengine_vhosts }}"
+  when: tengine_vhosts | length > 0
+  notify: restart tengine
 
-- name: configure | Add tengine services.
-  shell: "chkconfig --add tengine && chkconfig tengine on"
+- name: configure | Setup nginx_vhosts_conf.conf.
+  template:
+    dest: "{{ tengine_conf_path }}/conf.d/00_upstreams.conf"
+    src: nginx_upstreams_conf.j2
+    mode: 0644
+    owner: "{{ tengine_user }}"
+    group: "{{ tengine_group }}"
+  when: tengine_upstreams | length > 0
+  notify: restart tengine
+
+- name: configure | Setup default.conf.
+  template:
+    dest: "{{ tengine_conf_path }}/conf.d/default.conf"
+    src: nginx_default_server_conf.j2
+    mode: 0644
+    owner: "{{ tengine_user }}"
+    group: "{{ tengine_group }}"
+  when: not tengine_upstreams and not tengine_proxys and not tengine_vhosts
+  notify: restart tengine
   
-- name: configure | Ensure tengine is running for centos6.
-  service: "name=tengine state=started enabled=yes"
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "6"
-  
-- name: configure | Ensure tengine is running for centos7.
-  systemd: "name=tengine state=started enabled=yes"
-  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == "7"

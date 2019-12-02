@@ -1,0 +1,17 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - make
+  - libpcre3
+  - libpcre3-dev
+  - openssl
+  - libssl-dev
+  - zlib1g
+  - zlib1g-dev
+  - libxml2-dev
+  - libxslt-dev
+  - libgd2-xpm-dev
+  - libgeoip1
+  - libgeoip-dev
