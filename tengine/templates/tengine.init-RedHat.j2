@@ -19,14 +19,14 @@
 # Check that networking is up.
 [ "$NETWORKING" = "no" ] && exit 0
 
-tengine="{{ software_install_path }}/tengine/sbin/nginx"
+tengine="{{ tengine_daemon }}"
 prog=$(basename $tengine)
 
 sysconfig="/etc/sysconfig/$prog"
 lockfile="/var/lock/subsys/tengine"
 pidfile="{{ tengine_pid_file }}"
 
-NGINX_CONF_FILE="{{ tengine_conf_file_path }}"
+NGINX_CONF_FILE="{{ tengine_conf_file }}"
 
 [ -f $sysconfig ] && . $sysconfig
 

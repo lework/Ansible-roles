@@ -1,7 +1,7 @@
 user  {{ tengine_user }};
 
 error_log  {{ tengine_error_log }};
-pid        {{ tengine_pidfile }};
+pid        {{ tengine_pid_file }};
 
 worker_processes  {{ tengine_worker_processes }};
 
@@ -12,6 +12,7 @@ events {
 {% if tengine_extra_conf_options %}
 {{ tengine_extra_conf_options }}
 {% endif %}
+
 http {
     include       {{ tengine_mime_file_path }};
     default_type  application/octet-stream;
@@ -47,23 +48,32 @@ http {
 {% if tengine_extra_http_options %}
     {{ tengine_extra_http_options|indent(4, False) }}
 {% endif %}
-{% if tengine_stream %}
+    include conf.d/*.conf;
 }
+
+
+{% if nginx_stream %}
 stream {
-{% endif %}
-{% for upstream in tengine_upstreams %}
+{% for upstream in nginx_stream.upstreams %}
     upstream {{ upstream.name }} {
-{% if upstream.strategy is defined %}
-        {{ upstream.strategy }};
-{% endif %}
 {% for server in upstream.servers %}
         server {{ server }};
 {% endfor %}
-{% if upstream.keepalive is defined %}
-        keepalive {{ upstream.keepalive }};
-{% endif %}
+    {{ upstream.extra_options | d('') }}
     }
+
 {% endfor %}
-{% include 'nginx_default_server_conf.j2' %}
-{% include 'nginx_vhosts_conf.j2' %}
+
+{% for server in nginx_stream.servers %}
+     server {
+        listen {{ server.listen }};
+        proxy_pass {{ server.proxy_pass }};
+        proxy_connect_timeout  {{ server.proxy_connect_timeout |d('1s') }};
+        proxy_timeout  {{ server.proxy_timeout |d('3s') }};
+        {{ server.extra_options | d('') }}
+    }
+
+{% endfor %}
+
 }
+{% endif %}

@@ -1,0 +1,18 @@
+[program:healthCheck]
+command={{ supervisor_config_path }}/scripts/healthCheck.py
+process_name=%(program_name)s
+numprocs=1
+directory={{ supervisor_config_path }}/scripts/
+autostart=true
+startsecs=2
+startretries=5
+autorestart=true
+stopsignal=TERM
+stopwaitsecs=3
+stopasgroup=true
+killasgroup=true
+user=root
+redirect_stderr=true
+stdout_logfile={{ supervisor_log_path }}/healthCheck.log
+stdout_logfile_maxbytes=200MB
+stdout_logfile_backups=10

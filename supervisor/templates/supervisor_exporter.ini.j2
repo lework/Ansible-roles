@@ -1,0 +1,19 @@
+[program:supervisor_exporter]
+command={{ supervisor_config_path }}/scripts/supervisor_exporter.py
+process_name=%(program_name)s
+numprocs=1
+directory={{ supervisor_config_path }}/scripts/
+autostart=true
+startsecs=2
+startretries=5
+autorestart=true
+stopsignal=TERM
+stopwaitsecs=3
+stopasgroup=true
+killasgroup=true
+user=root
+redirect_stderr=true
+stdout_logfile={{ supervisor_log_path }}/supervisor_exporter.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=3
+buffer_size=10

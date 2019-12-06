@@ -1,0 +1,14 @@
+---
+# author: lework
+
+- name: service | Ensure tengine is started.
+  service:
+    name: tengine
+    state: started
+  when: tengine_started
+
+- name: service | Ensure tengine is enabled at boot.
+  service:
+    name: tengine
+    enabled: true
+  when: tengine_enabled

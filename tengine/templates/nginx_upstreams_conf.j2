@@ -1,0 +1,13 @@
+
+{% for upstream in tengine_upstreams %}
+    upstream {{ upstream.name }} {
+{% if upstream.strategy is defined %}
+        {{ upstream.strategy }};
+{% endif %}
+{% for server in upstream.servers %}
+        server {{ server }};
+{% endfor %}
+}
+
+{% endfor %}
+

@@ -1,0 +1,21 @@
+[program:{{ item.name }}]
+command={{ item.command }}
+{% if item.configuration is defined %}
+{{ item.configuration }}
+{% else %}
+process_name=%(program_name)s
+numprocs=1
+autostart=true
+startsecs=2
+startretries=5
+autorestart=true
+stopsignal=TERM
+stopwaitsecs=3
+stopasgroup=true
+killasgroup=true
+user=root
+redirect_stderr=true
+stdout_logfile={{ supervisor_log_path }}/{{ item.name }}.log
+stdout_logfile_maxbytes=200MB
+stdout_logfile_backups=10
+{% endif %}

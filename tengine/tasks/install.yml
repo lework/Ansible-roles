@@ -12,7 +12,7 @@
   when: not tengine_file_result.stat.exists
   
 - name: install | Download tengine file.
-  get_url: url={{ tengine_file_url }} dest={{ software_files_path }} validate_certs=no
+  get_url: url={{ tengine_file_url }} dest={{ tengine_file_path }} validate_certs=no
   connection: local
   when: not tengine_file_result.stat.exists
 
@@ -28,22 +28,8 @@
 - name: install | Ensure gcc packages are installed.
   package:
     name: "{{ item }}"
-    state: installed
-  with_items:
-    - gcc
-    - gcc-c++
-    - libtool
-    - make
-    - libtool
-    - zlib
-    - zlib-devel
-    - openssl
-    - openssl-devel
-    - pcre
-    - pcre-devel
-    - gd
-    - gd-devel
-    - libaio
+    state: present
+  with_items: "{{ __package }}"
 
 - name: install | Create tengine group.
   group: name={{ tengine_group }}
@@ -55,11 +41,12 @@
   file: path={{ item }} state=directory owner={{ tengine_user }} group={{ tengine_group }}
   with_items:
    - "{{ software_install_path }}/tengine-{{ tengine_version }}"
+   - "{{ tengine_conf_path }}/conf.d"
    - "{{ tengine_temp_path }}/client"
-   - "{{ tengine_logpath }}"
+   - "{{ tengine_log_path }}"
 
 - name: install | Check if tengine bin file is already configured.
-  stat: path={{ software_install_path }}/tengine/sbin/nginx
+  stat: path={{ software_install_path }}/tengine-{{ tengine_version }}/sbin/nginx
   register: tengine_bin_result
 
 - name: install | Build an install tengine.
@@ -74,8 +61,25 @@
 - name: install | Set the owner of the tengine directory.
   file: path={{ software_install_path }}/tengine-{{ tengine_version }} state=directory owner={{ tengine_user }} group={{ tengine_group }} recurse=yes
 
-- name: install | Create tengine dir soft link.
-  file: src={{ software_install_path }}/tengine-{{ tengine_version }} dest={{ software_install_path }}/tengine owner={{ tengine_user }} group={{ tengine_group }} state=link
-  
-- name: install | Config environment variable.
-  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/tengine/sbin/:$PATH'
+- name: install | Create nginx soft link.
+  file: src={{ software_install_path }}/tengine-{{ tengine_version }}/sbin/nginx dest={{ tengine_daemon }} state=link
+
+- name: install | Copy Supervisor init file into place (for non-systemd systems).
+  template:
+    src: "tengine.init-{{ ansible_os_family }}.j2"
+    dest: /etc/init.d/tengine
+    owner: root
+    group: root
+    mode: 0755
+  when: "ansible_service_mgr != 'systemd'"
+  notify: restart tengine
+
+- name: install | Copy Supervisor unit file into place (for systemd systems).
+  template:
+    src: tengine.unit.j2
+    dest: /etc/systemd/system/tengine.service
+    owner: root
+    group: root
+    mode: 0644
+  when: "ansible_service_mgr == 'systemd'"
+  notify: restart tengine

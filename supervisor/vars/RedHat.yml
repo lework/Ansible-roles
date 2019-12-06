@@ -1,0 +1,5 @@
+---
+# author: lework
+
+supervisor_bin_path: "{%if ansible_distribution_major_version == '8'%}/usr/local/bin/supervisord{%else%}/usr/bin/supervisord{%endif%}"
+supervisorctl_bin_path: "{%if ansible_distribution_major_version == '8'%}/usr/local/bin/supervisorctl{%else%}/usr/bin/supervisorctl{%endif%}"

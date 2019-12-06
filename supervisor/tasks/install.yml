@@ -1,0 +1,39 @@
+---
+# author: lework
+
+- name: install | Ensure Pip is installed.
+  package:
+    name: "{{ supervisor_pip_package }}"
+    state: present
+
+- name: install | Check if supervisor local file is already configured."
+  stat: path={{ supervisor_bin_path }}
+  register: supervisor_bin_result
+  
+- name: install | Install supervisor for pip.
+  pip:
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    extra_args: "-i {{ supervisor_package_index }}"
+  with_items: "{{supervisor_supervisor_package}}"
+  when: not supervisor_bin_result.stat.exists and item
+
+- name: install | Copy Supervisor init file into place (for non-systemd systems).
+  template:
+    src: "supervisord.init-{{ ansible_os_family }}.j2"
+    dest: /etc/init.d/supervisord
+    owner: root
+    group: root
+    mode: 0755
+  when: "ansible_service_mgr != 'systemd'"
+  notify: restart supervisor
+
+- name: install | Copy Supervisor unit file into place (for systemd systems).
+  template:
+    src: supervisord.unit.j2
+    dest: /etc/systemd/system/supervisord.service
+    owner: root
+    group: root
+    mode: 0644
+  when: "ansible_service_mgr == 'systemd'"
+  notify: restart supervisor
