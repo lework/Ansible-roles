@@ -1,58 +1,11 @@
 ---
 # author: lework
 
-- name: Check if erlang local file is already configured.
-  stat: path={{ erlang_file_path }}
-  connection: local
-  register: erlang_file_result
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
 
-- name: Create software files directory.
-  file: path={{ software_files_path }} state=directory
-  connection: local
-  when: not erlang_file_result.stat.exists
+- include_tasks: install_source.yml
+  when: erlang_install_source
   
-- name: Download erlang file.
-  get_url: url={{ erlang_file_url }} dest={{ software_files_path }}
-  connection: local
-  when: not erlang_file_result.stat.exists
- 
-- name: Copy erlang file to agent.
-  unarchive:
-    src: "{{ erlang_file_path }}"
-    dest: "/tmp/"
-    creates: "/tmp/otp_src_{{ erlang_version }}"
-
-- name: Check if erlang bin file is already configured.
-  stat: path=/usr/local/lib/erlang/bin/erl
-  register: erlang_bin_file_result
-  
-- name: Ensure gcc packages are installed.
-  yum:
-    name: "{{ item }}"
-    state: installed
-  with_items:
-    - gcc
-    - gcc-c++
-    - libtool
-    - make
-    - libtool
-    - zlib
-    - zlib-devel
-    - openssl
-    - openssl-devel
-    - ncurses-devel
-  when: not erlang_bin_file_result.stat.exists
-
-- name: Build an install erlang.
-  shell: "./configure && make && make install" 
-  args:
-    chdir: "/tmp/otp_src_{{ erlang_version }}"
-  when: not erlang_bin_file_result.stat.exists
-   
-- name: erlang version.
-  command: erl -version
-  register: result
-  changed_when: false
-  ignore_errors: True
-
-- debug: var=result.stderr
+- include_tasks: install_package.yml
+  when: not erlang_install_source

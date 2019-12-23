@@ -1,0 +1,20 @@
+---
+# author: lework
+
+- name: install | Set up erlang package repository.
+  template: src={{ __repo }} dest={{ __repo_dest }}
+
+- name: install | Add the Erlang Solutions public key on Debian.
+  shell: wget -qO - https://packages.erlang-solutions.com/debian/erlang_solutions.asc | apt-key add -
+  when: ansible_os_family == 'Debian'
+
+- name: install | Add the Erlang Solutions public key on RedHat.
+  rpm_key:
+    state: present
+    key: https://packages.erlang-solutions.com/rpm/erlang_solutions.asc
+  when: ansible_os_family == 'RedHat'
+
+- name: install | Install erlang.
+  package:
+    name: erlang
+    state: present

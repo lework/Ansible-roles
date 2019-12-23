@@ -1,0 +1,17 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - gcc-c++
+  - libtool
+  - make
+  - zlib
+  - zlib-devel
+  - openssl
+  - openssl-devel
+  - ncurses-devel
+
+
+__repo: erlang-solutions.repo
+__repo_dest: /etc/yum.repos.d/
