@@ -1,6 +1,11 @@
 ---
 # author: lework
 
+- name: install | Ensure packages are installed.
+  package:
+    name: "{{ __package }}"
+    state: present
+
 - name: install | Check if rabbitmq local file is already configured.
   stat: path={{ rabbitmq_file_path }}
   connection: local
@@ -19,18 +24,39 @@
 - name: install | Confirm the existence of the installation directory.
   file: path={{ software_install_path }} state=directory
 
-- name: install | Copy rabbitmq file to agent.
-  unarchive:
-    src: "{{ rabbitmq_file_path }}"
-    dest: "{{ software_install_path }}"
-    creates: "{{ software_install_path }}/rabbitmq_server-{{ rabbitmq_version }}"
-    
-- name: Create rabbitmq dir soft link.
-  file: src={{ software_install_path }}/rabbitmq_server-{{ rabbitmq_version }} dest={{ software_install_path }}/rabbitmq state=link
-  
 - name: "install | Create {{ rabbitmq_user }} group."
   group: name={{ rabbitmq_user }}
 
 - name: "install | Create {{ rabbitmq_user }} user."
   user: name={{ rabbitmq_user }} group={{ rabbitmq_user }} shell=/sbin/nologin
-  
+
+- name: install | Copy rabbitmq file to agent.
+  unarchive:
+    src: "{{ rabbitmq_file_path }}"
+    dest: "{{ software_install_path }}"
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_user }}"
+    creates: "{{ software_install_path }}/rabbitmq_server-{{ rabbitmq_version }}"
+    
+- name: Create rabbitmq dir soft link.
+  file: src={{ software_install_path }}/rabbitmq_server-{{ rabbitmq_version }} dest={{ software_install_path }}/rabbitmq state=link
+
+- name: install | Copy rabbitmq-server init file into place (for non-systemd systems).
+  template:
+    src: "rabbitmq-server.init-{{ ansible_os_family }}.j2"
+    dest: /etc/init.d/rabbitmq-server
+    owner: root
+    group: root
+    mode: 0755
+  when: "ansible_service_mgr != 'systemd'"
+  notify: restart rabbitmq-server
+
+- name: install | Copy rabbitmq-server unit file into place (for systemd systems).
+  template:
+    src: rabbitmq-server.unit.j2
+    dest: /etc/systemd/system/rabbitmq-server.service
+    owner: root
+    group: root
+    mode: 0644
+  when: "ansible_service_mgr == 'systemd'"
+  notify: restart rabbitmq-server

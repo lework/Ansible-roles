@@ -4,28 +4,40 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-rabbitmq_version: "3.6.9"
+rabbitmq_version: "3.8.2"
 
 rabbitmq_file: "rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
 rabbitmq_file_path: "{{ software_files_path }}/{{ rabbitmq_file }}"
-rabbitmq_file_url: "https://www.rabbitmq.com/releases/rabbitmq-server/v{{ rabbitmq_version }}/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
+rabbitmq_file_url: "https://github.com/rabbitmq/rabbitmq-server/releases/download/v{{ rabbitmq_version }}/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.xz"
 
 
 rabbitmq_user: rabbitmq
-rabbitmq_nodename: rabbit
+rabbitmq_nodename: "rabbit@{{ ansible_hostname }}"
 rabbitmq_bindip: 0.0.0.0
 rabbitmq_nodeport: 5672
+rabbitmq_management_port: 15672
+
 rabbitmq_logdir: /var/log/rabbitmq
-rabbitmq_mnesiadir: /rabbitmq_data/mnesia
-rabbitmq_enabled: true
+rabbitmq_mnesiadir: /var/lib/rabbitmq/mnesia
+
+rabbitmq_vm: 512MiB
 
 rabbitmq_plugins: []
 #rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
 
 rabbitmq_server_users: []
 #rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
+
 rabbitmq_vhost: "/"
 rabbitmq_vhost_permission : "'.*' '.*' '.*'"
+
+rabbitmq_policy: 
+ - "all '^.*' '{\"ha-mode\": \"all\"}'"
+
 rabbitmq_cluster: false
-rabbitmq_policy: "all '^.*' '{\"ha-mode\": \"all\"}'"
 rabbitmq_cluster_ram: false
+rabbitmq_cluster_name: rabbitmq-cluster
+
+rabbitmq_cluster_discovery_classic: false
+
+rabbitmq_cookie: "rabbitmq-{% if rabbitmq_cluster %}cluster{% else %}sigle{% endif %}"
