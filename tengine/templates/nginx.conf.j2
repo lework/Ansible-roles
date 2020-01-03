@@ -54,7 +54,7 @@ http {
 
 {% if nginx_stream %}
 stream {
-{% for upstream in nginx_stream.upstreams %}
+{% for upstream in nginx_stream.upstreams | d([]) %}
     upstream {{ upstream.name }} {
 {% for server in upstream.servers %}
         server {{ server }};
