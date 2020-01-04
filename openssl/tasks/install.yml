@@ -31,7 +31,7 @@
 - name: install | Build an install openssl.
   shell: "{{ item }}" 
   with_items:
-    - "./config --prefix={{ software_install_path }}"
+    - "./config --prefix={{ software_install_path }} shared zlib"
     - make
     - make install
   args:
