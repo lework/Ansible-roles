@@ -1,0 +1,8 @@
+---
+# author: lework
+
+__package:
+  - pam-devel
+  - libselinux-devel
+  
+sshd_service_path: /usr/lib/systemd/system/sshd.service

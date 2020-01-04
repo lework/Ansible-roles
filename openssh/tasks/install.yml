@@ -1,0 +1,58 @@
+---
+# author: lework
+
+- name: install | Check if openssh local file is already configured.
+  stat: path={{ openssh_file_path }}
+  connection: local
+  register: openssh_file_result
+  
+- name: install | Download openssh file.
+  get_url: url={{ openssh_file_url }} dest={{ openssh_file_path }} validate_certs=no
+  connection: local
+  when: not openssh_file_result.stat.exists
+
+- name: install | Copy openssh file to agent.
+  unarchive:
+    src: "{{ openssh_file_path }}"
+    dest: "/tmp"
+    creates: "/tmp/openssh-{{ openssh_version }}"
+
+- name: install | Ensure packages are installed.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ __package }}"
+  
+- name: install | backup ssh config.
+  copy: src=/etc/ssh dest=/etc/ssh.bak remote_src=true
+  
+- name: install | set ssh key file permissions.
+  file: path={{ item }} mode="0600"
+  with_items:
+    - /etc/ssh/ssh_host_rsa_key
+    - /etc/ssh/ssh_host_ecdsa_key
+    - /etc/ssh/ssh_host_ed25519_key
+
+- name: install | Update SSH configuration to be standard setting.
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { regexp: "^#?Port", line: "Port {{ openssh_sshd_port }}" }
+    - { regexp: "^#?UseDNS", line: "UseDNS {{ openssh_sshd_use_dns }}" }
+    - { regexp: "^#?UsePAM", line: "UsePAM yes" }
+    - { regexp: "^#?PermitRootLogin", line: "PermitRootLogin {{ openssh_sshd_permit_root_login }}" }
+    - { regexp: "^PasswordAuthentication", line: "PasswordAuthentication {{ openssh_sshd_password_authentication }}" }
+    - { regexp: "^GSSAPIAuthentication", line: "#GSSAPIAuthentication no" }
+    - { regexp: "^GSSAPICleanupCredentials", line: "#GSSAPICleanupCredentials no" }
+    
+- name: install | Build an install openssh.
+  shell: "{{ item }}" 
+  with_items:
+    - "./configure --with-md5-passwords --with-pam --with-selinux --with-tcp-wrappers --prefix={{ software_install_path }} --with-privsep-path=/var/empty/sshd/ --sysconfdir=/etc/ssh --with-ssl-dir={{ openssh_ssl_dir }}"
+    - make
+    - make install
+  args:
+    chdir: "/tmp/openssh-{{ openssh_version }}/"

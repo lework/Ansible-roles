@@ -1,0 +1,18 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr"
+
+openssh_version: "8.1p1"
+
+openssh_file: "openssh-{{ openssh_version }}.tar.gz"
+openssh_file_path: "{{ software_files_path }}/{{ openssh_file }}"
+openssh_file_url: "https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/{{ openssh_file }}"
+
+openssh_ssl_dir: /usr/local/openssl
+
+openssh_sshd_port: 22
+openssh_sshd_use_dns: "no"
+openssh_sshd_permit_root_login: "yes"
+openssh_sshd_password_authentication: "yes"

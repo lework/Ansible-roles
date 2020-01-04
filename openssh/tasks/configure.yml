@@ -1,0 +1,28 @@
+---
+# author: lework
+
+- name: configure | Update openssh service setting.
+  lineinfile: >
+    dest={{ sshd_service_path }}
+    regexp={{ item.regexp }}
+    line={{ item.line }}
+    state=present
+  with_items:
+    - { regexp: "^Type=notify", line: "#Type=notify" }
+
+- name: configure | just force systemd to reread configs.
+  systemd:
+    daemon_reload: yes
+  when: "ansible_service_mgr == 'systemd'"
+
+- name: configure | Restart service sshd.
+  service:
+    name: sshd
+    state: restarted
+
+- name: configure | Get ssh version.
+  shell: ssh -V
+  register: ssh_version
+  
+- name: configure | print ssh version.
+  debug: var=ssh_version.stderr

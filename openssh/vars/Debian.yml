@@ -1,0 +1,8 @@
+---
+# author: lework
+
+__package:
+  - libpam0g-dev
+  - libselinux1-dev
+  
+sshd_service_path: /lib/systemd/system/ssh.service
