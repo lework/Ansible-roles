@@ -1,0 +1,10 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - make
+  - autoconf
+  - automake
+  - libtool
+  - libpam0g-dev
