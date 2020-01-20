@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- name: logrotate | Setup redis logrotate conf file.
+  template:
+    dest: "/etc/logrotate.d/redis"
+    src: redis.logrotate.j2
+  run_once: yes

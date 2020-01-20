@@ -1,0 +1,72 @@
+---
+# author: lework
+
+- name: install | Check if redis local file is already configured.
+  stat: path={{ redis_file_path }}
+  connection: local
+  register: redis_file_result
+
+- name: install | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not redis_file_result.stat.exists
+  
+- name: install | Download redis file.
+  get_url: url={{ redis_file_url }} dest={{ redis_file_path }} validate_certs=no
+  connection: local
+  when: not redis_file_result.stat.exists
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy redis file to agent.
+  unarchive:
+    src: "{{ redis_file_path }}"
+    dest: "/tmp"
+    creates: "/tmp/redis-{{ redis_version }}"
+
+- name: install | Ensure gcc packages are installed.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ __package }}"
+
+- name: install | Create redis group.
+  group: name={{ redis_group }}
+
+- name: install | Create redis user.
+  user: name={{ redis_user }} group={{ redis_group }} shell=/sbin/nologin createhome=no
+
+- name: install | Create redis work Directory.
+  file: path={{ item }} state=directory owner={{ redis_user }} group={{ redis_group }}
+  with_items:
+   - "{{ redis_logdir }}"
+   - "{{ redis_dbdir }}"
+   - "{{ redis_confdir }}"
+
+- name: install | Check if redis bin file is already configured.
+  stat: path={{ software_install_path }}/redis-{{ redis_version }}/bin/redis
+  register: redis_bin_result
+
+- name: install | Build an install redis.
+  shell: "make && make PREFIX={{ software_install_path }}/redis-{{ redis_version }} install" 
+  args:
+    chdir: "/tmp/redis-{{ redis_version }}/"
+    creates: "/usr/local/redis-{{ redis_version }}"
+  when: not redis_bin_result.stat.exists
+  
+- name: install | Create redis soft link.
+  file: src={{ software_install_path }}/redis-{{ redis_version }} dest={{ software_install_path }}/redis state=link
+
+- name: install | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/redis/bin/:$PATH'
+  run_once: yes
+
+- name: install | Copy redis unit file into place (for systemd systems).
+  template:
+    src: redis.service.j2
+    dest: "/lib/systemd/system/{% if redis_sentinel %}{{ redis_sentinel_daemon }}{% else %}{{ redis_daemon }}{% endif %}.service"
+    owner: root
+    group: root
+    mode: 0644
+  when: "ansible_service_mgr == 'systemd'"

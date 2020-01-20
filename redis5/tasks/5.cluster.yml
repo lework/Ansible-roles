@@ -1,0 +1,6 @@
+---
+# author: lework
+
+- name: cluster | Create cluster.
+  shell: "{{ software_install_path }}/redis/bin/redis-cli --cluster create {{ redis_cluster_replicas }}"
+  when: redis_cluster_replicas !=''

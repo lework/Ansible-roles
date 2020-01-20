@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- name: service | Enable disable Transparent Huge Pages service
+  systemd:
+    name: disable_thp
+    state: started
+    enabled: true
+
+- name: "service | Ensure {% if redis_sentinel %}{{ redis_sentinel_daemon }}{% else %}{{ redis_daemon }}{% endif %} is started."
+  service:
+    name: "{% if redis_sentinel %}{{ redis_sentinel_daemon }}{% else %}{{ redis_daemon }}{% endif %}"
+    state: started
+    enabled: true
+

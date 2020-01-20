@@ -1,0 +1,25 @@
+
+daemonize yes
+supervised systemd
+
+port {{ redis_port }}
+bind {{ redis_bind_interface }}
+pidfile /var/run/{{ redis_sentinel_daemon }}.pid
+
+logfile {{ redis_sentinel_log_file }}
+dir {{ redis_dir_path }}
+
+{% if redis_requirepass %}
+requirepass {{ redis_requirepass }}
+{% endif %}
+
+
+{% for m in redis_sentinel_monitors %}
+sentinel monitor {{ m.name | d('mycluster') }} {{ m.ip | d('127.0.0.1') }} {{ m.port | d('6379') }} {{ m.quorum | d('1') }}
+sentinel down-after-milliseconds {{ m.name | d('mycluster') }} 3000
+sentinel failover-timeout {{ m.name | d('mycluster') }} 6000
+sentinel parallel-syncs {{ m.name | d('mycluster') }} 1
+{% if m.masterauth %}
+sentinel auth-pass {{ m.name | d('mycluster') }} {{ m.masterauth }}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,24 @@
+[Unit]
+Description=Redis persistent key-value database
+After=network.target
+
+[Service]
+Type=notify
+{% if redis_sentinel %}
+ExecStart={{ software_install_path }}/redis/bin/redis-sentinel {{ redis_sentinel_conf_file }} --supervised systemd
+{% else %}
+ExecStart={{ software_install_path }}/redis/bin/redis-server {{ redis_conf_file }} --supervised systemd
+{% endif %}
+ExecStop={{ software_install_path }}/redis/bin/redis-cli -p {{ redis_port }} {% if redis_requirepass != '' %}-a {{ redis_requirepass }}{% endif %} shutdown
+User={{ redis_user }}
+Group={{ redis_user }}
+RuntimeDirectory={{ redis_user }}
+RuntimeDirectoryMode=0755
+#Restart=on-failure
+LimitCORE=infinity
+LimitNOFILE=102400
+LimitNPROC=10240
+
+
+[Install]
+WantedBy=multi-user.target
