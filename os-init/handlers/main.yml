@@ -1,5 +1,0 @@
----
-# author: lework
-
-- name: restart ntpd
-  service: "name=ntpd state=restarted"

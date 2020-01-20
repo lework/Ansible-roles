@@ -1,0 +1,26 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - make
+  - automake
+  - autoconf
+  - net-tools
+  - sysstat
+  - netcat
+  - lrzsz
+  - curl
+  - unzip
+  - sudo
+  - wget
+  - vim
+  - tree
+  - apt-transport-https
+  - bash-completion
+  
+__package_repo: 
+  - { src: "{{ ansible_distribution }}_{{ansible_distribution_major_version}}_sources.list", dest: "/etc/apt/sources.list" }
+  
+__bashrc_file: /etc/bash.bashrc
+__vimrc_file: /etc/vim/vimrc.local

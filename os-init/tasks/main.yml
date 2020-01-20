@@ -1,71 +1,35 @@
 ---
 # author: lework
 
-- block:
-  - name: Ensure ntp packages are installed.
-    yum: name=ntp state=installed
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags:
+   - always
 
-  - name: Update time on server.
-    shell: ntpdate 0.asia.pool.ntp.org && hwclock --systohc
-    ignore_errors: true
-    
-  - name: Change ntpd server on ntp.conf.
-    template: src=ntp.conf.j2 dest=/etc/ntp.conf backup=yes
-    notify: restart ntpd
-  tags: ntp
-  
-- name: Change nofile limits.
-  lineinfile: dest=/etc/security/limits.conf line={{ item }}
-  with_items:
-    - '* - nofile 165535'
-    - '* soft nofile 165535'
-    - '* hard nofile 165535'
-  tags: limits
 
-- name: Shutdwon selinux.
-  replace: dest=/etc/selinux/config regexp=^SELINUX=enforcing replace=SELINUX=disabled
-  tags: selinux
-  
-- block:
-  - name: Shutdown transparent hugepage.
-    shell: echo never >> /sys/kernel/mm/transparent_hugepage/enabled && echo never >>  /sys/kernel/mm/transparent_hugepage/defrag
-    
-  - lineinfile: dest=/etc/rc.local line={{ item }}
-    with_items:
-     - echo never >> /sys/kernel/mm/transparent_hugepage/enabled
-     - echo never >> /sys/kernel/mm/transparent_hugepage/defrag
-  tags: hugepage
-  
-- name: Shutdown iptables.
-  shell: chkconfig iptables off && /etc/init.d/iptables stop
-  tags: iptables
-  
-- name: Ensure gcc packages are installed.
-  yum:
-    name: "{{ item }}"
-    state: installed
-  with_items:
-    - gcc
-    - gcc-c++
-    - libtool
-    - make
-    - automake
-  tags: gcc
-  
-- name: Set vm.overcommit_memory to 1 in /etc/sysctl.conf.
-  sysctl:
-   name: vm.overcommit_memory
-   value: 1
-   state: present
-  tags: overcommit_memory
+- import_tasks: 1.shutdown.yml
+  tags:
+    - shutdown
+- import_tasks: 2.optimization.yml
+  tags:
+    - optimization
+- import_tasks: 3.env.yml
+  tags:
+    - env
+- import_tasks: 4.enable.yml
+  tags:
+    - enable
+- import_tasks: 5.setting.yml
+  tags:
+    - setting
+- import_tasks: 6.upgrade.yml
+  tags:
+    - upgrade
 
-- name: Set vm.swappiness to 1 in /etc/sysctl.conf.
-  sysctl:
-   name: vm.swappiness
-   value: 1
-   state: present
-  tags: swappiness
-
-- name : update bash
-  yum : name=bash state=latest
-  
+- name: reboot system
+  shell: "sleep 5;reboot"
+  async: 10
+  poll: 0
+  ignore_errors: yes
+  tags:
+    - reboot

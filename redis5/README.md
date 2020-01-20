@@ -11,7 +11,7 @@ Redis是一个使用ANSI C编写的开源、支持网络、基于内存、可选
 
 ## 要求
 
-此角色仅在RHEL及其衍生产品上运行。
+此角色在Debian和RHEL及其衍生产品上运行。
 
 ## 测试环境
 
@@ -121,11 +121,13 @@ redis_disabled_commands: []
 #  - FLUSHALL
 #  - KEYS
 ```
-    
+
 ## 依赖
 
+无
 
 ## github地址
+
 https://github.com/lework/Ansible-roles/tree/master/redis5
 
 ## Example Playbook

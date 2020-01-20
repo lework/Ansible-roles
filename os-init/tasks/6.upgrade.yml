@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- block:
+  - name: upgrade | Update all fractures to the latest version with yum.
+    yum:
+      update_only: yes
+    when: "ansible_pkg_mgr == 'yum'"
+      
+  - name: upgrade | Update all fractures to the latest version with apt.
+    apt:
+      upgrade: dist
+    when: "ansible_pkg_mgr == 'apt'"
+  tags:
+   - upgrade
