@@ -6,6 +6,7 @@
   with_items:
     - {name: 'vm.overcommit_memory', value: 1 }
     - {name: 'net.core.somaxconn', value: 65535 }
+  ignore_errors: yes
 
 - name: configure | Add disable Transparent Huge Pages service
   template:
