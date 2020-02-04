@@ -15,6 +15,13 @@
     - { regexp: "^GSSAPICleanupCredentials", line: "#GSSAPICleanupCredentials no" }
   tags:
    - sshd
+
+- name: env | ssh login banner.
+  copy:
+    src: zz-ssh-login-banner.sh
+    dest: /etc/profile.d/
+  tags:
+   - ssh-login-banner
       
 - name: setting | vim.
   blockinfile:
