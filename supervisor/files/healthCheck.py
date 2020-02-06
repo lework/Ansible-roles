@@ -207,7 +207,7 @@ class HealthCheck(object):
             except Exception as e:
                 self.log(program, "PID: Can't get pid from supervisor %s ", e)
         elif kind == 'name':
-            pscommand = "ps -A -o pid,cmd | grep '[%s]%s' | awk '{print $1}' | head -1"
+            pscommand = "ps -A -o pid,cmd |grep '[%s]%s' | awk '{print $1}' | head -1"
             exitcode, stdout, stderr = shell(pscommand % (program[0], program[1:]))
             if exitcode == 0:
                 pid = stdout.strip()
@@ -215,6 +215,7 @@ class HealthCheck(object):
                 self.log(program, "PID: Can't get pid from name %s ", stderr)
                 pid = 0
                 err = stderr
+
         elif kind == 'file':
             if pid_file:
                 try:
