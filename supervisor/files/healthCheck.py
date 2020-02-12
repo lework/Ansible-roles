@@ -117,8 +117,8 @@ def get_proc_rss(pid, cumulative=False):
 
         procs = []
         for line in data.splitlines():
-            pid, ppid, rss = map(int, line.split())
-            procs.append(ProcInfo(pid=pid, ppid=ppid, rss=rss))
+            p_pid, p_ppid, p_rss = map(int, line.split())
+            procs.append(ProcInfo(pid=p_pid, ppid=p_ppid, rss=p_rss))
 
         # 计算rss
         try:
@@ -274,7 +274,7 @@ class HealthCheck(object):
         elif check_type == 'cpu':
             check_method = self.cpu_check
 
-        while True:
+        while 1:
             if program not in check_state:
                 check_state[program] = {
                     'periodSeconds': 1,
@@ -299,7 +299,8 @@ class HealthCheck(object):
 
                 # 先判断成功次数
                 if check_state[program]['success'] >= successThreshold:
-                    if sendResolved and check_state[program]['failure'] > 0:
+                    # 只有开启恢复通知和检测失败并且执行操作后,才可以发送恢复通知
+                    if sendResolved and check_state[program]['action']:
                         # 只保留通知action
                         notice_action = ['email', 'wechat']
                         send_action = ','.join(list(set(action_type.split(',')) & set(notice_action)))
@@ -318,7 +319,7 @@ class HealthCheck(object):
 
                 # 再判断失败次数
                 if check_state[program]['failure'] >= failureThreshold:
-                    # 失败后, 只触发一次action，或者检测错误数可以整除2倍periodSeconds与initialDelaySeconds时触发(避免重启失败导致服务一直不可用)
+                    # 失败后, 只触发一次action, 或者检测错误数可以整除2倍periodSeconds与initialDelaySeconds时触发(避免重启失败导致服务一直不可用)
                     if not check_state[program]['action'] or (
                             check_state[program]['failure'] != 0 and check_state[program]['failure'] % (
                             (periodSeconds + initialDelaySeconds) * 2) == 0):
@@ -491,7 +492,7 @@ class HealthCheck(object):
         action_list = action_type.split(',')
 
         if 'restart' in action_list:
-            restart_result = self.action_supervistor_restart(program)
+            restart_result = self.action_supervisor_restart(program)
             msg += '\r\n Restart：%s' % restart_result
         elif 'exec' in action_list:
             exec_result = self.action_exec(program, action_exec_cmd)
@@ -502,7 +503,7 @@ class HealthCheck(object):
         if 'wechat' in action_list and self.wechat_config:
             self.action_wechat(program, action_type, msg, check_status)
 
-    def action_supervistor_restart(self, program):
+    def action_supervisor_restart(self, program):
         """
         通过supervisor的rpc接口重启进程
         :param program:
@@ -743,8 +744,8 @@ class HealthCheck(object):
             t.setDaemon(True)
             t.start()
 
-        while True:
-            pass
+        while 1:
+            time.sleep(0.1)
 
 
 if __name__ == '__main__':
@@ -785,7 +786,7 @@ cat1:                     # supervisor中配置的program名称
   type: mem               # 检查类型: http,tcp,mem,cpu  默认: http
   maxRss: 1024            # 内存阈值, 超过则为检测失败. 单位MB, 默认: 1024
   cumulative: True        # 是否统计子进程的内存, 默认: False
-  pidGet: supervistor     # 获取pid的方式: supervistor,name,file, 选择name时,按program名称搜索pid,选择file时,需指定pidFile 默认: supervistor
+  pidGet: supervisor      # 获取pid的方式: supervisor,name,file, 选择name时,按program名称搜索pid,选择file时,需指定pidFile 默认: supervisor
   pidFile: /var/run/t.pid # 指定pid文件的路径, 只在pidGet为file的时候有用
   periodSeconds: 10       # 检查的频率(以秒为单位), 默认: 5
   initialDelaySeconds: 10 # 首次检查等待的时间(以秒为单位), 默认: 1
@@ -799,7 +800,7 @@ cat1:                     # supervisor中配置的program名称
 cat2:                     # supervisor中配置的program名称
   type: cpu               # 检查类型: http,tcp,mem,cpu 默认: http
   maxCpu: 80              # CPU阈值, 超过则为检测失败. 单位% 默认: 90%
-  pidGet: supervistor     # 获取pid的方式: supervistor,name,file, 选择name时,按program名称搜索pid,选择file时,需指定pidFile 默认: supervistor
+  pidGet: supervisor      # 获取pid的方式: supervisor,name,file, 选择name时,按program名称搜索pid,选择file时,需指定pidFile 默认: supervisor
   pidFile: /var/run/t.pid # 指定pid文件的路径, 只在pidGet为file的时候有用
   periodSeconds: 10       # 检查的频率(以秒为单位), 默认: 5
   initialDelaySeconds: 10 # 首次检查等待的时间(以秒为单位), 默认: 1

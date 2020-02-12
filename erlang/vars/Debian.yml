@@ -1,0 +1,12 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - make
+  - openssl
+  - libssl-dev
+  
+
+__repo: erlang-solutions.list
+__repo_dest: /etc/apt/sources.list.d/

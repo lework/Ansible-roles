@@ -1,0 +1,23 @@
+listeners.tcp.default = {{ rabbitmq_nodeport }}
+num_acceptors.tcp = 10
+
+management.tcp.port = {{ rabbitmq_management_port }}
+management.tcp.ip   = 0.0.0.0
+management.http_log_dir = {{ rabbitmq_logdir }}/management_access
+#management.load_definitions = /etc/rabbitmq/rabbitmq-definitions.json
+	
+vm_memory_high_watermark.absolute = {{ rabbitmq_vm }}
+vm_memory_high_watermark_paging_ratio = 0.3
+
+{% if rabbitmq_cluster %}	
+cluster_name = {{ rabbitmq_cluster_name }}
+
+{% if rabbitmq_cluster_discovery_classic %}
+cluster_formation.peer_discovery_backend = rabbit_peer_discovery_classic_config
+{% for p in play_hosts %}
+cluster_formation.classic_config.nodes.{{ loop.index }} = rabbit@{{ hostvars[p].ansible_hostname }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+loopback_users.guest = true

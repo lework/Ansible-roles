@@ -1,0 +1,25 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - make
+  - automake
+  - autoconf
+  - net-tools
+  - sysstat
+  - lrzsz
+  - curl
+  - unzip
+  - sudo
+  - wget
+  - vim
+  - tree
+  - bash-completion
+  
+__package_repo: 
+  - { src: "{{ ansible_distribution }}_{{ansible_distribution_major_version}}_CentOS-Base.repo", dest: "/etc/yum.repos.d/CentOS-Base.repo" }
+  - { src: "{{ ansible_distribution }}_{{ansible_distribution_major_version}}_CentOS-epel.repo", dest: "/etc/yum.repos.d/epel.repo" }
+  
+__bashrc_file: /etc/bashrc
+__vimrc_file: /etc/vimrc

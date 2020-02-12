@@ -1,0 +1,43 @@
+---
+# author: lework
+
+- name: install | Check if google_authenticator local file is already configured.
+  stat: path={{ google_authenticator_file_path }}
+  connection: local
+  register: google_authenticator_file_result
+
+- name: install | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not google_authenticator_file_result.stat.exists
+  
+- name: install | Download google_authenticator file.
+  get_url: url={{ google_authenticator_file_url }} dest={{ google_authenticator_file_path }} validate_certs=no
+  connection: local
+  when: not google_authenticator_file_result.stat.exists
+
+- name: install | Copy google_authenticator file to agent.
+  unarchive:
+    src: "{{ google_authenticator_file_path }}"
+    dest: "/tmp"
+    creates: "/tmp/google-authenticator-libpam-{{ google_authenticator_version }}"
+
+- name: install | Ensure gcc packages are installed.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ __package }}"
+
+- name: install | Check if google_authenticator bin file is already configured.
+  stat: path={{ google_authenticator_pam }}
+  register: google_authenticator_pam_result
+
+- name: install | Build an install google_authenticator.
+  shell: "{{ item }}" 
+  with_items:
+    - autoreconf --install
+    - ./configure 
+    - make && make install
+  args:
+    chdir: "/tmp/google-authenticator-libpam-{{ google_authenticator_version }}"
+  when: not google_authenticator_pam_result.stat.exists

@@ -1,0 +1,7 @@
+---
+# author: lework
+
+__package:
+  - build-essential 
+  - checkinstall
+  - zlib1g-dev

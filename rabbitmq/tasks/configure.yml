@@ -10,52 +10,52 @@
 - name: configure | Config environment variable.
   lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/rabbitmq/sbin/:$PATH'
  
-- name: configure | Copy rabbitmq init.d script.
-  template:
-    src: "rabbitmq-server.sh.j2"
-    dest: "/etc/rc.d/init.d/rabbitmq-server"
-    mode: 0755
-    
-- name: configure | Setup hosts.
-  lineinfile: "dest=/etc/hosts line='{{ ansible_default_ipv4.address}} {{ ansible_hostname }}'"
-
-- name: configure | Setup server.properties file.
+- name: configure | Setup rabbitmq env file.
   template:
     dest: "{{ software_install_path }}/rabbitmq/etc/rabbitmq/rabbitmq-env.conf"
     mode: 0644
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_user }}"
     src: rabbitmq-env.conf.j2
+  notify: restart rabbitmq-server
 
-- name: configure | Add rabbitmq-server services.
-  shell: "chkconfig --add rabbitmq-server && chkconfig rabbitmq-server on"
+- name: configure | Setup rabbitmq conf file.
+  template:
+    dest: "{{ software_install_path }}/rabbitmq/etc/rabbitmq/rabbitmq.conf"
+    mode: 0644
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_user }}"
+    src: rabbitmq.conf.j2
+  notify: restart rabbitmq-server
 
-- name: configure | Enable rabbitmq plugins.
-  command: "/usr/local/rabbitmq/sbin/rabbitmq-plugins enable {{ item  }}"
-  with_items:
-   - "rabbitmq_management"
-   - "{{ rabbitmq_plugins }}"
+
+- name: configure | Setup rabbitmq plugins.
+  template:
+    dest: "{{ software_install_path }}/rabbitmq/etc/rabbitmq/enabled_plugins"
+    mode: 0644
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_user }}"
+    src: enabled_plugins.j2
+  notify: restart rabbitmq-server
+
+- name: configure | Set cookie to rabbitmq user.
+  shell: |
+     echo '{{ rabbitmq_cookie }}' > ~/.erlang.cookie
+     echo '{{ rabbitmq_cookie }}' > /home/{{ rabbitmq_user }}/.erlang.cookie
+     chown {{ rabbitmq_user }}.{{ rabbitmq_user }} /home/{{ rabbitmq_user }}/.erlang.cookie
+     chmod 600 ~/.erlang.cookie  /home/{{ rabbitmq_user }}/.erlang.cookie
+  notify: restart rabbitmq-server
 
 - name: configure | Ensure rabbitmq-server is running.
   service:
     name: rabbitmq-server
     state: started
     enabled: yes
-  when: rabbitmq_enabled
+  run_once: true
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ play_hosts }}"
+  loop_control:
+    pause: 2
 
 - wait_for: port={{ rabbitmq_nodeport }}
-
-- block:
-  - name: configure | Add rabbitmq users.
-    shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl add_user {{ item.user }} {{ item.pass }} && {{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_user_tags {{ item.user }} {{ item.role }}"
-    with_items:
-     - "{{ rabbitmq_server_users }}"
-
-  - name: configure | Set users virtual host permissions.
-    shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_permissions -p {{ rabbitmq_vhost }} {{item.user }} {{ rabbitmq_vhost_permission }}" 
-    with_items:
-     - "{{ rabbitmq_server_users }}"
-  become: true
-  become_user: "{{ rabbitmq_user }}"
-  become_method: su
-  become_flags: '-s /bin/sh'
-  ignore_errors: true
-  when: rabbitmq_server_users

@@ -8,36 +8,43 @@
 
 ## 测试环境
 
-ansible `2.5.2`
+ansible `2.9.1`
 
 python `2.7.5`
 
-os `Centos 7.4 X64`
+os `Centos 7.4 X64` `Debian 9.4 X64` 
 
 ## 角色变量
-    hostnames_file: "/etc/hosts"
-	ipnames: []
-	# [{'192.168.77.129': 'master'}, {'192.168.77.130': 'node1'}, {'192.168.77.131': 'node2'}]
-
+```
+hostnames_file: "/etc/hosts"
+ipnames: []
+# [{'192.168.77.130': 'node1'}, {'192.168.77.131': 'node2'}, {'192.168.77.132': 'node3'}]
+# or
+# '192.168.77.130': 'node1'
+# '192.168.77.131': 'node2'
+# '192.168.77.132': 'node3' 
+```
 ## 依赖
 
 
 ## github地址
-https://github.com/lework/Ansible-roles/tree/master/hostnames
+
+https://github.com/kuailemy123/Ansible-roles/tree/master/hostnames
 
 ## Example Playbook
-	
-    # 添加ip和主机名到/etc/hosts
-    - hosts: node1
-      roles:
-        - hostnames
+```yaml
+# 添加ip和主机名到/etc/hosts
+- hosts: node1
+  roles:
+    - hostnames
 
-    # 添加指定的ip和主机名到/etc/hosts
-    - hosts: node1 node2 node3
-      vars:
-        - ipnames:
-            '192.168.77.130': 'node1'
-            '192.168.77.131': 'node2'
-            '192.168.77.132': 'node3'
-      roles:
-        - hostnames
+# 添加指定的ip和主机名到/etc/hosts
+- hosts: node1 node2 node3
+  vars:
+    - ipnames:
+        '192.168.77.130': 'node1'
+        '192.168.77.131': 'node2'
+        '192.168.77.132': 'node3'
+  roles:
+    - hostnames
+```

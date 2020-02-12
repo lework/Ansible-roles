@@ -1,0 +1,95 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+redis_version: "5.0.7"
+
+redis_file: "redis-{{ redis_version }}.tar.gz"
+redis_file_path: "{{ software_files_path }}/{{ redis_file }}"
+redis_file_url: " http://download.redis.io/releases/{{ redis_file }}"
+
+redis_user: redis
+redis_group: redis
+redis_port: 6379
+redis_daemon: "redis{{ redis_port | default('') }}"
+
+
+redis_data_path: "/data/redis"
+redis_dir_path: "{{ redis_data_path }}/{{redis_port | default('6379')}}"
+redis_dbdir: "{{ redis_dir_path }}/data"
+redis_logdir: "{{ redis_dir_path }}/log"
+redis_confdir: "{{ redis_dir_path }}/conf"
+
+redis_log_file: "{{ redis_logdir }}/redis.log"
+redis_conf_file: "{{ redis_confdir }}/redis.conf"
+
+
+# redis配置
+redis_bind_interface: 0.0.0.0
+redis_timeout: 0
+redis_loglevel: notice
+redis_databases: 16
+redis_maxmemory: 1024MB
+redis_maxmemory_policy: volatile-ttl
+redis_maxclients: 6000
+redis_requirepass: ''
+redis_appendonly: 'yes'
+redis_save:
+  - ""
+#  - 900 1
+#  - 300 10
+#  - 60 10000
+
+redis_rdbcompression: "yes"
+redis_dbfilename: dump.rdb
+
+# 从服务器配置
+redis_slave: false
+redis_master_host: ''
+redis_master_port: ''
+
+
+# 集群配置
+redis_cluster: false
+redis_masterauth: ''
+redis_cluster_replicas: ''
+# redis_cluster_replicas: '127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7010 127.0.0.1:7011 127.0.0.1:7012 --cluster-replicas 1 -a 123456'
+# 上面有6个节点,程序会按照一定规则生成 3个master(主)3个slave(从)
+
+
+# 哨兵配置
+redis_sentinel: false
+redis_sentinel_daemon: "redis-sentinel{{ redis_port | default('') }}"
+redis_sentinel_log_file: "{{ redis_logdir }}/sentinel.log"
+redis_sentinel_conf_file: "{{ redis_confdir }}/sentinel.conf"
+redis_sentinel_monitors: 
+  - name: mymaster
+    ip: 127.0.0.1
+    port: 6379
+    quorum: 2
+    masterauth: 123456
+
+redis_rename_prefix: LE
+redis_rename_commands:
+  - FLUSHDB
+  - FLUSHALL
+  - KEYS
+  - SAVE
+  - RENAME
+#  - PEXPIRE
+#  - DEL
+#  - CONFIG
+#  - SHUTDOWN
+#  - BGREWRITEAOF
+#  - BGSAVE
+#  - SPOP
+#  - SREM
+#  - DEBUG
+# 前缀加个LE，重命名后变成LEFLUSHDB
+
+redis_disabled_commands: []
+#  - FLUSHDB
+#  - FLUSHALL
+#  - KEYS

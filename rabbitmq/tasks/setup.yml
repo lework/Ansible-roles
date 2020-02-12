@@ -1,0 +1,19 @@
+---
+# author: lework
+
+- name: setup | Add rabbitmq users.
+  shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl add_user {{ item.user }} {{ item.pass }} && {{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_user_tags {{ item.user }} {{ item.role }}"
+  run_once: "{{ rabbitmq_cluster }}"
+  with_items:
+   - "{{ rabbitmq_server_users }}"
+
+- name: setup | Set users virtual host permissions.
+  shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_permissions -p {{ rabbitmq_vhost }} {{item.user }} {{ rabbitmq_vhost_permission }}" 
+  run_once: "{{ rabbitmq_cluster }}"
+  with_items:
+   - "{{ rabbitmq_server_users }}"
+
+- name: setup | Set ha queues policy.
+  shell: "{{ software_install_path }}/rabbitmq/sbin/rabbitmqctl set_policy {{ item }}"
+  with_items: "{{rabbitmq_policy}}"
+  run_once: "{{ rabbitmq_cluster }}"

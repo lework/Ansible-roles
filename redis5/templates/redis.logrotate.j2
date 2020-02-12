@@ -1,0 +1,10 @@
+{{ redis_data_path }}/*/log/*.log {
+   weekly
+   rotate 10
+   copytruncate
+   delaycompress
+   compress
+   notifempty
+   missingok
+   su redis redis
+}

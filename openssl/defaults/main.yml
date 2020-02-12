@@ -1,0 +1,11 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local/openssl"
+
+openssl_version: "1.1.1d"
+
+openssl_file: "openssl-{{ openssl_version }}.tar.gz"
+openssl_file_path: "{{ software_files_path }}/{{ openssl_file }}"
+openssl_file_url: "https://www.openssl.org/source/{{ openssl_file }}"

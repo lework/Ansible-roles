@@ -3,7 +3,11 @@
 
 software_files_path: "/opt/software"
 
-erlang_version: "19.3"
+erlang_version: "22.2"
+
 erlang_file: "otp_src_{{ erlang_version }}.tar.gz"
 erlang_file_path: "{{ software_files_path }}/{{ erlang_file }}"
 erlang_file_url: "http://erlang.org/download/{{ erlang_file }}"
+
+
+erlang_install_source: false

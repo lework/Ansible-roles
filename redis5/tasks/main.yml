@@ -1,0 +1,12 @@
+---
+# author: lework
+
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- include_tasks: install.yml
+- include_tasks: configure.yml 
+- include_tasks: logrotate.yml
+- include_tasks: service.yml
+- include_tasks: cluster.yml
+  when: redis_cluster

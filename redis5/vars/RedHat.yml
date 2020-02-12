@@ -1,0 +1,6 @@
+---
+# author: lework
+
+__package:
+  - gcc
+  - make

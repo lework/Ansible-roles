@@ -1,0 +1,1 @@
+deb http://mirrors.tuna.tsinghua.edu.cn/erlang-solutions/debian {{ ansible_distribution_release |d('stretch')}} contrib

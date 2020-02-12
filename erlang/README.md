@@ -15,30 +15,42 @@ Erlang(['ə:læŋ])是一种通用的面向并发的编程语言，它由瑞典�
 
 ## 测试环境
 
-ansible `2.2.1.0`
-os `Centos 6.7 X64`
+ansible `2.9.1`
+
+python `2.7.5`
+
+os `Centos 7.4 X64` `Debian 9.4 X64` 
 
 ## 角色变量
-	software_files_path: "/opt/software"
+```
+software_files_path: "/opt/software"
 
-	erlang_version: "19.3"
-	erlang_file: "otp_src_{{ erlang_version }}.tar.gz"
-	erlang_file_path: "{{ software_files_path }}/{{ erlang_file }}"
-	erlang_file_url: "http://erlang.org/download/{{ erlang_file }}"
+erlang_version: "22.2"
+
+erlang_file: "otp_src_{{ erlang_version }}.tar.gz"
+erlang_file_path: "{{ software_files_path }}/{{ erlang_file }}"
+erlang_file_url: "http://erlang.org/download/{{ erlang_file }}"
+
+
+erlang_install_source: false
+```
 
 ## 依赖
 
-gcc
+- gcc
 
 ## github地址
 https://github.com/lework/Ansible-roles/tree/master/erlang
 
 ## Example Playbook
+```yaml
+# 默认安装
+- hosts: node1
+  roles:
+    - erlang
 
-    - hosts: node1
-      roles:
-        - erlang
-	
-    - hosts: node1
-      roles:
-        - { role: erlang, erlang_version: '19.3' }
+# 指定版本安装
+- hosts: node1
+  roles:
+    - { role: erlang, erlang_version: '22.2', erlang_install_source: true }
+```

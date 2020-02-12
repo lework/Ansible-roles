@@ -1,0 +1,28 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+
+google_authenticator_version: "1.08"
+
+google_authenticator_file: "google-authenticator-libpam-{{ google_authenticator_version }}.tar.gz"
+google_authenticator_file_path: "{{ software_files_path }}/{{ google_authenticator_file }}"
+google_authenticator_file_url: "https://github.com/google/google-authenticator-libpam/archive/{{ google_authenticator_version }}.tar.gz"
+
+google_authenticator_step_size: 30
+google_authenticator_rate_limit: 3
+google_authenticator_rate_time: 30
+
+google_authenticator_command: | 
+  google-authenticator \
+  --time-based \
+  --step-size={{ google_authenticator_step_size }} \
+  --rate-limit={{ google_authenticator_rate_limit }} \
+  --rate-time={{ google_authenticator_rate_time }} \
+  --minimal-window \
+  --disallow-reuse \
+  --force \
+  --quiet
+google_authenticator_user: "{{ ansible_user_id | d('root')}}"
+
+google_authenticator_pam: /usr/local/lib/security/pam_google_authenticator.so

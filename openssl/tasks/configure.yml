@@ -1,0 +1,21 @@
+---
+# author: lework
+
+- name: configure | set openssl ld conf.
+  template: src=openssl-ld.conf dest=/etc/ld.so.conf.d/
+
+- name: configure | Create openssl soft link.
+  file: src={{ item.src }} dest={{ item.dest }} state=link
+  with_items:
+    - {'src': '{{ software_install_path }}/bin/openssl' , 'dest': '/usr/bin/openssl' }
+    - {'src': '{{ software_install_path }}/include/openssl' , 'dest': '/usr/include/openssl' }
+
+- name: configure | reload the dynamic link.
+  shell: ldconfig -v
+
+- name: configure | Get openssl version.
+  shell: openssl version
+  register: openssl_version
+  
+- name: configure | print openssl version.
+  debug: var=openssl_version.stdout

@@ -1,0 +1,63 @@
+
+daemonize yes
+supervised systemd
+
+port {{ redis_port }}
+bind {{ redis_bind_interface }}
+pidfile /var/run/{{ redis_daemon }}.pid
+
+timeout {{ redis_timeout }}
+tcp-backlog 511
+tcp-keepalive 300
+
+loglevel notice
+logfile {{ redis_log_file }}
+
+databases {{ redis_databases }}
+
+maxclients {{ redis_maxclients }}
+maxmemory {{ redis_maxmemory }}
+maxmemory-policy {{ redis_maxmemory_policy }}
+
+dir {{ redis_dbdir }}
+
+appendonly {{ redis_appendonly }}
+appendfilename "appendonly.aof"
+appendfsync everysec
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+aof-load-truncated yes
+aof-use-rdb-preamble yes
+
+{% for save in redis_save %}
+save {{ save }}
+{% endfor %}
+rdbcompression {{ redis_rdbcompression }}
+dbfilename {{ redis_dbfilename }}
+
+{% if redis_requirepass %}
+requirepass {{ redis_requirepass }}
+{% endif %}
+
+{% if redis_masterauth %}
+masterauth {{ redis_masterauth }}
+{% endif %}
+
+{% if redis_slave %}
+slaveof {{ redis_master_host | d('127.0.0.1') }} {{ redis_master_port | d('6379') }}
+{% endif %}
+
+{% if redis_cluster %}
+cluster-enabled yes
+cluster-config-file {{ redis_confdir }}/nodes.conf
+cluster-node-timeout 5000
+{% endif %}
+
+
+{% for r in redis_rename_commands %}
+rename-command {{ r }}  "{{ redis_rename_prefix }}{{ r }}"
+{% endfor %}
+
+{% for d in redis_disabled_commands %}
+rename-command {{ d }} ""
+{% endfor %}

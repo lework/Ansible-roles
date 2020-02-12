@@ -1,0 +1,58 @@
+---
+# author: lework
+
+- name: setting | sshd.
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { regexp: "^#?UseDNS", line: "UseDNS no" }
+    - { regexp: "^#?UsePAM", line: "UsePAM yes" }
+    - { regexp: "^PasswordAuthentication", line: "PasswordAuthentication yes" }
+    - { regexp: "^GSSAPIAuthentication", line: "#GSSAPIAuthentication no" }
+    - { regexp: "^GSSAPICleanupCredentials", line: "#GSSAPICleanupCredentials no" }
+  tags:
+   - sshd
+
+- name: env | ssh login banner.
+  copy:
+    src: zz-ssh-login-banner.sh
+    dest: /etc/profile.d/
+  tags:
+   - ssh-login-banner
+      
+- name: setting | vim.
+  blockinfile:
+    path: "{{ __vimrc_file }}"
+    backup: yes
+    create: yes
+    marker: '" ansible os-init {mark}'
+    block: |
+      set autowrite
+      set cursorline
+      set syntax=on
+      set noeb
+      set autoindent
+      set cindent
+      set shiftwidth=4
+      set softtabstop=4 
+      set tabstop=4
+      set expandtab
+      set number
+      set history=1000
+      set ignorecase
+      set showmatch
+      set matchtime=1
+      set enc=utf-8
+      set nobackup
+      set noswapfile    
+  tags:
+   - vim
+      
+- name: setting | cpu
+  shell: cpupower frequency-set -g performance
+  ignore_errors: yes
+  tags:
+   - cpu

@@ -1,0 +1,38 @@
+---
+# author: lework
+
+- name: install | Check if openssl local file is already configured.
+  stat: path={{ openssl_file_path }}
+  connection: local
+  register: openssl_file_result
+  
+- name: install | Download openssl file.
+  get_url: url={{ openssl_file_url }} dest={{ openssl_file_path }} validate_certs=no
+  connection: local
+  when: not openssl_file_result.stat.exists
+
+- name: install | Copy openssl file to agent.
+  unarchive:
+    src: "{{ openssl_file_path }}"
+    dest: "/tmp"
+    creates: "/tmp/openssl-{{ openssl_version }}"
+
+- name: install | Uninstall system comes with OpenSSL.
+  package:
+    name: openssl
+    state: absent
+
+- name: install | Ensure packages are installed.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ __package }}"
+
+- name: install | Build an install openssl.
+  shell: "{{ item }}" 
+  with_items:
+    - "./config --prefix={{ software_install_path }} shared zlib"
+    - make
+    - make install
+  args:
+    chdir: "/tmp/openssl-{{ openssl_version }}/"

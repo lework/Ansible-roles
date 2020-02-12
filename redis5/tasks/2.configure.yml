@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: configure | Set vm.overcommit_memory to 1 in /etc/sysctl.conf.
+  sysctl: name={{ item.name }} value={{ item.value }} state=present
+  with_items:
+    - {name: 'vm.overcommit_memory', value: 1 }
+    - {name: 'net.core.somaxconn', value: 65535 }
+  ignore_errors: yes
+
+- name: configure | Add disable Transparent Huge Pages service
+  template:
+    src: disable_thp.service.j2
+    dest: /etc/systemd/system/disable_thp.service
+    owner: root
+    group: root
+    backup: false
+
+- name: configure | Ensure Redis is configured.
+  template:
+    src: "{% if redis_sentinel %}sentinel.conf.j2{% else %}redis.conf.j2{% endif %}"
+    dest: "{% if redis_sentinel %}{{ redis_sentinel_conf_file }}{% else %}{{ redis_conf_file }}{% endif %}"
+    mode: 0644
+    owner: "{{ redis_user }}"
+    group: "{{ redis_user }}"

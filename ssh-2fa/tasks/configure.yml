@@ -1,0 +1,34 @@
+---
+# author: lework
+
+- name: configure | Setup sshd config.
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^[#]?ChallengeResponseAuthentication\\s+no"
+    line: "ChallengeResponseAuthentication yes"
+    backup: yes
+  notify: restart sshd
+  
+- name: configure | Setup sshd pam.
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: "auth\\s+required.*"
+    line: "auth required {{ google_authenticator_pam }}"
+    backup: yes
+  notify: restart sshd
+
+- name: configure | Initialization Google Authenticator.
+  shell: "{{ google_authenticator_command }}"
+  become: yes
+  become_method: su
+  become_user: "{{ google_authenticator_user }}"
+  
+- name: configure | Get Google Authenticator token.
+  shell: head -n 1 ~/.google_authenticator
+  register: google_authenticator_token
+  become: yes
+  become_method: su
+  become_user: "{{ google_authenticator_user }}"
+  
+- name: configure | Print Google Authenticator token.
+  debug: msg={{ google_authenticator_token.stdout }}
