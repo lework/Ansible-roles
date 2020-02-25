@@ -1,9 +1,9 @@
 ---
 # author: lework
 
-java_home: "/usr/java/jdk1.8.0_131"
+java_home: "/usr/java/jdk1.8.0_241"
 
-java_file: "jdk-8u131-linux-x64.tar.gz"
+java_file: "jdk-8u241-linux-x64.tar.gz"
 java_file_path: "{{ software_files_path }}/{{ java_file }}"
-java_install_path: "{{ software_install_path }}/jdk1.8.0_131"
-java_file_url: "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+java_install_path: "{{ software_install_path }}/jdk1.8.0_241"
+java_file_url: "http://download.oracle.com/otn-pub/java/jdk/8u241-b07/1f5b5a70bf22433b84d0e960903adac8/jdk-8u241-linux-x64.tar.gz"
