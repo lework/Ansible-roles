@@ -1,0 +1,4 @@
+[jenkins]
+name=Jenkins
+baseurl=http://pkg.jenkins.io/redhat/
+gpgcheck=1

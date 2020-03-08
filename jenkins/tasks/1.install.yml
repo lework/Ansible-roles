@@ -1,0 +1,75 @@
+---
+# author: lework
+
+
+- block:
+  - name: install | Check if RPM packages local file is already configured.
+    stat: path={{ software_files_path }}/{{ jenkins_file }}
+    register: __reg_file_result
+  
+  - name: install | Create software files path.
+    file: path={{ software_files_path }} state=directory
+    when: not __reg_file_result.stat.exists
+  
+  - name: install | Download packages file.
+    get_url: url={{ jenkins_packages_url }} dest={{ software_files_path }} validate_certs=no
+    when: not __reg_file_result.stat.exists
+  connection: local
+  run_once: yes
+  when: jenkins_version is defined
+
+
+- name: install | Ensure dependencies are installed.
+  package: name={{ __package }}  state=present
+
+
+- block:
+  - name: install | Copy the jenkins installation package to the client.
+    copy:
+      src: "{{ software_files_path }}/{{ jenkins_file }}"
+      dest: "/tmp/{{ jenkins_file }}"
+  
+  - name: install | Check Jenkins installation package.
+    stat:
+      path: "/tmp/{{ jenkins_file }}"
+    register: __reg_specific_version
+  when: jenkins_version is defined
+
+
+- block:
+  - name: install | Add Jenkins repository. 
+    copy:
+      src: "{{ __repo_file }}"
+      dest: "{{ __repo_path }}"
+
+  - name: install | Copy Jenkins repo GPG key to the client.
+    copy:
+      src: jenkins.io.key
+      dest: /tmp/jenkins.io.key
+  when: jenkins_version is undefined
+
+
+# Setup UpdateCenter mirror.
+- name: install | Create Jenkins Update Center rootCAs directory.
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+   - "{{ jenkins_home }}/update-center-rootCAs"
+  when: jenkins_updates_url | default(false)
+
+- name: install | Copy the UpdateCenter root certificate to the client.
+  copy:
+    src: update-center.crt
+    dest: "{{ jenkins_home }}/update-center-rootCAs/update-center.crt"
+  when: jenkins_updates_url | default(false)
+
+
+# install tasks.
+- include_tasks: 1.install-{{ ansible_os_family }}.yml
+
+
+- name: install | Ensure Jenkins is installed.
+  package:
+    name: jenkins
+    state: present

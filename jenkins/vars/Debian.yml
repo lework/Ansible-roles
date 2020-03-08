@@ -1,0 +1,21 @@
+---
+# author: lework
+
+
+__package:
+  - curl
+  - gnupg
+  - initscripts
+  - libselinux1
+  - apt-transport-https
+
+__repo_file: jenkins.list
+__repo_path: /etc/apt/sources.list.d/
+
+
+jenkins_file: "jenkins_{{ jenkins_version }}_all.deb"
+jenkins_packages_url: "https://mirrors.cloud.tencent.com/jenkins/debian/{{ jenkins_file }}"
+
+jenkins_init_file: /etc/default/jenkins
+jenkins_http_port_param: HTTP_PORT
+jenkins_java_options_env_var: JAVA_ARGS

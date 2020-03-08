@@ -1,0 +1,22 @@
+---
+# author: lework
+
+
+__package:
+  - curl
+  - libselinux-python
+  - initscripts
+  
+__repo_file: jenkins.repo
+__repo_path: /etc/yum.repos.d/
+
+
+jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
+
+jenkins_file: "jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
+jenkins_packages_url: "https://mirrors.cloud.tencent.com/jenkins/redhat/{{ jenkins_file }}"
+
+jenkins_init_file: /etc/sysconfig/jenkins
+jenkins_http_port_param: JENKINS_PORT
+jenkins_java_options_env_var: JENKINS_JAVA_OPTIONS
+

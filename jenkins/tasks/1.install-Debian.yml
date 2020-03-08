@@ -1,0 +1,31 @@
+---
+# author: lework
+
+
+- name: install_debian | Set services do not start at installation.
+  blockinfile:
+    path: /usr/sbin/policy-rc.d
+    mode: u+x
+    create: yes
+    block: |
+      #!/bin/sh
+      exit 0
+
+- name: install_debian | Install our specific version of Jenkins.
+  apt:
+    deb: "/tmp/{{ jenkins_file }}"
+    state: present
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  when: jenkins_version is defined and __reg_specific_version.stat.exists
+
+- block:
+  - name: install_debian | Add Jenkins apt repository key.
+    apt_key:
+      file: /tmp/jenkins.io.key
+      state: present
+  - name: install_debian | update apt repository cache.
+    apt:
+      update_cache: yes
+  when: jenkins_version is undefined
+

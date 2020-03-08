@@ -10,88 +10,157 @@ github: https://github.com/jenkinsci/jenkins
 
 ## 要求
 
-此角色仅在RHEL及其衍生产品上运行。
+此角色在Debian和RHEL及其衍生产品上运行。
 
 ## 测试环境
 
-ansible `2.2.1.0`
-os `Centos 6.7 X64`
+ansible主机
+
+    ansible: 2.9.1
+    os: Centos 7.4 X64
+    python: 2.7.5
+
+ansible管理主机
+
+    os: Centos 7, Debian 9, Debian 10
 
 ## 角色变量
-    software_files_path: "/opt/software"
 
-    jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
-    jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
-    jenkins_pkg_url: https://pkg.jenkins.io/redhat
+**默认变量**
 
-    # jenkins_version: 2.46
+```yaml
+software_files_path: "/opt/software"
 
-    jenkins_home: /var/lib/jenkins
-    jenkins_hostname: localhost
-    jenkins_http_port: 8080
-    jenkins_jar_location: "{{ software_files_path }}/jenkins-cli.jar"
-    jenkins_url_prefix: ""
-    jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
+jenkins_version: "2.223"
 
-    jenkins_admin_username: admin
-    jenkins_admin_password: admin
+jenkins_home: /var/lib/jenkins
+jenkins_hostname: localhost
+jenkins_http_port: 8080
+jenkins_jar_location: "{{ jenkins_home }}/jenkins-cli.jar"
+jenkins_url_prefix: ""
+jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
 
-    jenkins_init_file: /etc/sysconfig/jenkins
-    jenkins_init_changes:
-      - option: "JENKINS_ARGS"
-        value: "--prefix={{ jenkins_url_prefix }}"
-      - option: "JENKINS_JAVA_OPTIONS"
-        value: "{{ jenkins_java_options }}"
-        
-    jenkins_plugins_recommended:    
-      - ant
-      - msbuild
-      - gradle
-      - maven-plugin
-      - nodejs
-      - antisamy-markup-formatter
-      - build-timeout
-      - cloudbees-folder
-      - credentials-binding
-      - email-ext
-      - git
-      - subversion
-      - ldap
-      - mailer
-      - matrix-auth
-      - pam-auth
-      - pipeline-stage-view
-      - ssh-slaves
-      - publish-over-ssh
-      - windows-slaves
-      - timestamper
-      - workflow-aggregator
-      - ws-cleanup
-      
-    jenkins_plugins_extra: []
+jenkins_admin_username: admin
+jenkins_admin_password: admin
 
+jenkins_updates_url: "https://cdn.jsdelivr.net/gh/lework/jenkins-update-center/updates/tencent/update-center.json"
+
+jenkins_init_changes:
+  - option: "JENKINS_ARGS"
+    value: "--prefix={{ jenkins_url_prefix }}"
+  - option: "{{ jenkins_java_options_env_var }}"
+    value: "{{ jenkins_java_options }}"
+  
+jenkins_plugins_recommended:    
+  - ant
+  - msbuild
+  - gradle
+  - maven-plugin
+  - nodejs
+  - antisamy-markup-formatter
+  - build-timeout
+  - cloudbees-folder
+  - credentials-binding
+  - email-ext
+  - git
+  - git-parameter
+  - subversion
+  - ldap
+  - matrix-auth
+  - pam-auth
+  - pipeline-stage-view
+  - ssh-slaves
+  - publish-over-ssh
+  - windows-slaves
+  - timestamper
+  - workflow-aggregator
+  - ws-cleanup
+  - ansible
+  - ansicolor
+  - multiple-scms
+  - role-strategy
+  - show-build-parameters
+  
+jenkins_plugins_extra: []
+```
+
+**Debian 变量**
+```yaml
+__package:
+  - curl
+  - gnupg
+  - initscripts
+  - libselinux1
+  - apt-transport-https
+
+__repo_file: jenkins.list
+__repo_path: /etc/apt/sources.list.d/
+
+
+jenkins_file: "jenkins_{{ jenkins_version }}_all.deb"
+jenkins_packages_url: "https://mirrors.cloud.tencent.com/jenkins/debian/{{ jenkins_file }}"
+
+jenkins_init_file: /etc/default/jenkins
+jenkins_http_port_param: HTTP_PORT
+jenkins_java_options_env_var: JAVA_ARGS
+```
+
+**RedHat 变量**
+```yaml
+__package:
+  - curl
+  - libselinux-python
+  - initscripts
+  
+__repo_file: jenkins.repo
+__repo_path: /etc/yum.repos.d/
+
+
+jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
+
+jenkins_file: "jenkins-{{ jenkins_version }}-1.1.noarch.rpm"
+jenkins_packages_url: "https://mirrors.cloud.tencent.com/jenkins/redhat/{{ jenkins_file }}"
+
+jenkins_init_file: /etc/sysconfig/jenkins
+jenkins_http_port_param: JENKINS_PORT
+jenkins_java_options_env_var: JENKINS_JAVA_OPTIONS
+```
 
 ## 依赖
-Java (2.53以上版本需要1.8+)
+
+- java (2.53以上版本需要1.8+)
 
 ## github地址
+
 https://github.com/lework/Ansible-roles/tree/master/jenkins
 
 ## Example Playbook
-    - hosts: node1
-      roles:
-        - jenkins
-        
-    - hosts: node1
-      vars：
-       - jenkins_version: 2.46
-       - jenkins_http_port： 8888
-       - jenkins_plugins_extra：
-           - display-console-output
-           - ansible
-      roles:
-        - jenkins
-        
+
+```yaml
+# 默认安装
+- hosts: node1
+  roles:
+    - { role: java ,java_version: "1.8" }
+    - jenkins
+	
+# 指定变量
+- hosts: node1
+  vars:
+   - jenkins_version: 2.223
+   - jenkins_admin_password: 123456
+   - jenkins_http_port： 8888
+   - jenkins_plugins_extra：
+      - display-console-output
+      - ansible
+  roles:
+   - { role: java ,java_version: "1.8" }
+   - jenkins
+```
+
 ## 使用
-service jenkins
-Usage: /etc/init.d/jenkins {start|stop|status|try-restart|restart|force-reload|reload|probe}
+
+```bash
+systemctl status jenkins
+systemctl start jenkins
+systemctl stop jenkins
+```

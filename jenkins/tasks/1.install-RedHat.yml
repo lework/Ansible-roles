@@ -1,0 +1,15 @@
+---
+# author: lework
+
+
+- name: install_redhat |  Add Jenkins repo GPG key.
+  rpm_key:
+    state: present
+    key: "/tmp/jenkins.io.key"
+  when: jenkins_version is undefined
+  
+- name: install_redhat |  Install our specific version of Jenkins.
+  package:
+    name: "/tmp/{{ jenkins_file }}"
+    state: present
+  when: jenkins_version is defined and  __reg_specific_version.stat.exists

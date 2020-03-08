@@ -1,14 +1,19 @@
 ---
 # author: lework
 
-# Setup/install tasks.
-- include: install.yml
+
+# Variable setup.
+- name: Include OS-Specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+  
+# install tasks.
+- include_tasks: 1.install.yml
 
 # Configure Jenkins init configure.
-- include: configure.yml
+- include_tasks: 2.configure.yml
 
 # Update Jenkins and install configured plugins.
-- include: plugins.yml
+- include_tasks: 3.plugins.yml
 
 # Clear temporary files.
-- include: clear.yml
+- include_tasks: 4.clear.yml

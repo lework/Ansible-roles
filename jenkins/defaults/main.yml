@@ -3,29 +3,26 @@
 
 software_files_path: "/opt/software"
 
-jenkins_repo_url: https://pkg.jenkins.io/redhat/jenkins.repo
-jenkins_repo_key_url: https://pkg.jenkins.io/redhat/jenkins.io.key
-jenkins_pkg_url: https://mirror.tuna.tsinghua.edu.cn/jenkins/redhat
-
-# jenkins_version: "2.46"
+jenkins_version: "2.223"
 
 jenkins_home: /var/lib/jenkins
 jenkins_hostname: localhost
 jenkins_http_port: 8080
-jenkins_jar_location: "{{ software_files_path }}/jenkins-cli.jar"
+jenkins_jar_location: "{{ jenkins_home }}/jenkins-cli.jar"
 jenkins_url_prefix: ""
 jenkins_java_options: "-Djenkins.install.runSetupWizard=false"
 
 jenkins_admin_username: admin
 jenkins_admin_password: admin
 
-jenkins_init_file: /etc/sysconfig/jenkins
+jenkins_updates_url: "https://cdn.jsdelivr.net/gh/lework/jenkins-update-center/updates/tencent/update-center.json"
+
 jenkins_init_changes:
   - option: "JENKINS_ARGS"
     value: "--prefix={{ jenkins_url_prefix }}"
-  - option: "JENKINS_JAVA_OPTIONS"
+  - option: "{{ jenkins_java_options_env_var }}"
     value: "{{ jenkins_java_options }}"
-    
+  
 jenkins_plugins_recommended:    
   - ant
   - msbuild
@@ -41,7 +38,6 @@ jenkins_plugins_recommended:
   - git-parameter
   - subversion
   - ldap
-  - mailer
   - matrix-auth
   - pam-auth
   - pipeline-stage-view
