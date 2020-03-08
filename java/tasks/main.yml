@@ -42,6 +42,13 @@
   file: "src={{ java_install_path }} dest={{ java_home }} state=link"
   when: not java_soft_link_result.stat.exists
 
+- name: Create java bin soft link.
+  file: "src={{ java_install_path }}/bin/{{ item }} dest=/usr/bin/{{ item }} state=link"
+  with_items:
+    - java
+    - javac
+  when: not java_soft_link_result.stat.exists
+  
 # Environment setup.
 - name: Set JAVA_HOME if configured.
   template:
