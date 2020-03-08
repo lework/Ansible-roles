@@ -142,7 +142,7 @@ https://github.com/lework/Ansible-roles/tree/master/jenkins
   roles:
     - { role: java ,java_version: "1.8" }
     - jenkins
-	
+
 # 指定变量
 - hosts: node1
   vars:
