@@ -4,6 +4,8 @@
 - block:
   - name: upgrade | Update all fractures to the latest version with yum.
     yum:
+      name: '*'
+      state: latest
       update_only: yes
     when: "ansible_pkg_mgr == 'yum'"
       

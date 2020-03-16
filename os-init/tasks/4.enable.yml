@@ -13,7 +13,7 @@
   - name: enable | journald Directory.
     file: path={{ item }} state=directory
     with_items:
-     - " /var/log/journal"
+     - "/var/log/journal"
      - "/etc/systemd/journald.conf.d"
 
   - name: optimization | journald conf.

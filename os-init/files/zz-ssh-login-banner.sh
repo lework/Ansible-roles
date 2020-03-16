@@ -84,7 +84,8 @@ CPU_INFO="${cpu} ${cpup}P ${cpuc}C ${cpun}L"
 MEM_INFO="$(cat /proc/meminfo | grep MemFree | awk {'print int($2/1024)'})MB (Free) / $(cat /proc/meminfo | grep MemTotal | awk {'print int($2/1024)'})MB (Total)"
 
 # network
-IP_INFO="$(ip a | grep glo | awk '{print $2}' | head -1 | cut -f1 -d/) and $(curl -s ip.cip.cc)"
+# extranet_ip="and $(curl -s ip.cip.cc)"
+IP_INFO="$(ip a | grep glo | awk '{print $2}' | head -1 | cut -f1 -d/) ${extranet_ip:-}"
 
 #clear
 echo "$(tput setaf 2)
