@@ -262,7 +262,6 @@ class HealthCheck(object):
         initialDelaySeconds = config.get('initialDelaySeconds', self.initialDelaySeconds)
         sendResolved = config.get('sendResolved', self.sendResolved)
         action_type = config.get('action', 'restart')
-        action_exec_cmd = config.get('execCmd')
 
         check_type = config.get('type', 'HTTP').lower()
         check_method = self.http_check
@@ -324,10 +323,10 @@ class HealthCheck(object):
                             check_state[program]['failure'] != 0 and check_state[program]['failure'] % (
                             (periodSeconds + initialDelaySeconds) * 2) == 0):
                         action_param = {
+						    'config': config,
                             'action_type': action_type,
                             'check_status': check_status,
-                            'msg': check_result.get('msg', ''),
-                            'action_exec_cmd': action_exec_cmd
+                            'msg': check_result.get('msg', '')
                         }
                         self.action(program, **action_param)
                         check_state[program]['action'] = True
@@ -485,9 +484,9 @@ class HealthCheck(object):
         """
         action_type = args.get('action_type')
         msg = args.get('msg')
-        action_exec_cmd = args.get('action_exec_cmd')
         check_status = args.get('check_status')
-
+        config = args.get('config')
+		
         self.log(program, 'Action: %s', action_type)
         action_list = action_type.split(',')
 
@@ -495,8 +494,15 @@ class HealthCheck(object):
             restart_result = self.action_supervisor_restart(program)
             msg += '\r\n Restart：%s' % restart_result
         elif 'exec' in action_list:
+            action_exec_cmd = config.get('action_exec_cmd')
             exec_result = self.action_exec(program, action_exec_cmd)
             msg += '\r\n Exec：%s' % exec_result
+        elif 'kill' in action_list:
+            pid_get = config.get('pidGet', 'supervisor')
+            pid_file = config.get('pidFile', )
+            pid, err = self.get_pid(program, pid_get, pid_file)
+            kill_result = self.action_kill(program, pid)
+            msg += '\r\n Kill：%s' % kill_result
 
         if 'email' in action_list and self.mail_config:
             self.action_email(program, action_type, msg, check_status)
@@ -561,6 +567,30 @@ class HealthCheck(object):
         else:
             result = 'Failed to exec %s, exiting: %s' % (program, exitcode)
             self.log(program, "Action: exec result %s", result)
+
+        return result
+		
+    def action_kill(self, program, pid):
+        """
+        杀死进程
+        :param program:
+        :param pid:
+        :return:
+        """ 
+        self.log(program, 'Action: kill')
+        result = 'success'
+		
+        if int(pid) < 3:
+            return 'Failed to kill %s, pid: %s '% (program, pid)
+		  
+        cmd = "kill -9 %s" % pid
+        exitcode, stdout, stderr = shell(cmd)
+
+        if exitcode == 0:
+            self.log(program, "Action: kill result success")
+        else:
+            result = 'Failed to kill %s, pid: %s exiting: %s' % (program, pid, exitcode)
+            self.log(program, "Action: kill result %s", result)
 
         return result
 
@@ -741,9 +771,15 @@ class HealthCheck(object):
             t = threading.Thread(target=self.check, args=(item,))
             threads.append(t)
         for t in threads:
-            t.setDaemon(True)
-            t.start()
-
+            try:
+                t.setDaemon(True)
+                t.start()
+            except Exception, e:
+                print('Exception in ' + t.getName() + ' (catch by main)')
+                print(t.exc_traceback)
+                t.setDaemon(True)
+                t.start()
+                
         while 1:
             time.sleep(0.1)
 
