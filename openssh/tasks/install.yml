@@ -4,11 +4,19 @@
 - name: install | Check if openssh local file is already configured.
   stat: path={{ openssh_file_path }}
   connection: local
+  run_once: yes
   register: openssh_file_result
   
+- name: install | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  run_once: yes
+  when: not openssh_file_result.stat.exists
+
 - name: install | Download openssh file.
   get_url: url={{ openssh_file_url }} dest={{ openssh_file_path }} validate_certs=no
   connection: local
+  run_once: yes
   when: not openssh_file_result.stat.exists
 
 - name: install | Copy openssh file to agent.
@@ -51,7 +59,11 @@
 - name: install | Build an install openssh.
   shell: "{{ item }}" 
   with_items:
-    - "./configure --with-md5-passwords --with-pam --with-selinux --with-tcp-wrappers --prefix={{ software_install_path }} --with-privsep-path=/var/empty/sshd/ --sysconfdir=/etc/ssh --with-ssl-dir={{ openssh_ssl_dir }}"
+    - "./configure --prefix={{ software_install_path }} --with-privsep-path=/var/empty/sshd/ 
+       --sysconfdir=/etc/ssh --with-ssl-dir={{ openssh_ssl_dir }} 
+       --with-default-path=/usr/local/bin:/bin:/usr/bin 
+       --with-superuser-path=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin 
+       --with-pam --with-selinux --disable-strip --with-md5-passwords --with-tcp-wrappers"
     - make
     - make install
   args:

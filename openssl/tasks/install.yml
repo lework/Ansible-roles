@@ -4,11 +4,19 @@
 - name: install | Check if openssl local file is already configured.
   stat: path={{ openssl_file_path }}
   connection: local
+  run_once: yes
   register: openssl_file_result
+
+- name: install | Create software directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  run_once: yes
+  when: not openssl_file_result.stat.exists
   
 - name: install | Download openssl file.
   get_url: url={{ openssl_file_url }} dest={{ openssl_file_path }} validate_certs=no
   connection: local
+  run_once: yes
   when: not openssl_file_result.stat.exists
 
 - name: install | Copy openssl file to agent.
