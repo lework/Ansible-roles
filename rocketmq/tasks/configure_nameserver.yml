@@ -1,0 +1,44 @@
+---
+# author: floyd
+
+- name: configure | Create rocketmq required Directory.
+  file: path={{ item }} state=directory owner={{ rocketmq_user }} group={{ rocketmq_group }}
+  with_items:
+   - "{{ rocketmq_log_dir }}"
+
+- name: configure | Setup rocketmq nameserver config yml file.
+  template:
+    dest: "{{ rocketmq_nameserver_conf_file }}"
+    mode: 0644
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: rocketmq_nameserver.conf.j2
+
+   
+- name: configure | Setup rocketmq runserver.sh file.
+  template:
+    dest: "{{ rocketmq_home_dir }}/bin/runserver.sh"
+    mode: 0755
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: runserver.sh.j2
+    
+
+- name: configure | Setup rocketmq nameserver systemd file.
+  template:
+    dest: "/lib/systemd/system/{{ rocketmq_nameserver_servicename }}.service"
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    mode: 0644
+    src: rocketmq_nameserver.systemd.j2
+
+- name: configure | Ensure rocketmq nameserver  is started and enabled on boot.
+  service: "name={{ rocketmq_nameserver_servicename }} state=started enabled=yes"
+
+- name: configure | Setup rocketmq nameserver service.sh file for quick start restart operation.
+  template:
+    dest: "{{ rocketmq_home_dir }}/{{ rocketmq_nameserver_servicename }}.sh"
+    mode: 0755
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: service_nameserver.sh.j2

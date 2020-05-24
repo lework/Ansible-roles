@@ -1,0 +1,27 @@
+#jinja2:lstrip_blocks: True
+#!/bin/bash
+mode=$1 #start or reload or stop
+case "${mode}" in
+    'start')
+      systemctl start {{ rocketmq_nameserver_servicename }}
+      ;;
+
+    'stop')
+      systemctl stop {{ rocketmq_nameserver_servicename }}
+      ;;
+
+    'restart')
+      systemctl restart {{ rocketmq_nameserver_servicename }}
+      ;;
+
+    'status')
+      systemctl status {{ rocketmq_nameserver_servicename }}
+      ;;
+
+    *)
+      # usage
+      basename=`basename "$0"`
+      echo "Usage: $basename  {start|stop|restart|status}"
+      exit 1
+    ;;
+esac

@@ -1,0 +1,17 @@
+---
+# author: floyd
+- name: Check if rocketmq base dir is already existed.
+  stat: path={{ rocketmq_home_dir }}
+  register: rocket_homedir_result
+
+- include: install.yml
+  when: not rocket_homedir_result.stat.exists
+
+- include: configure_os.yml
+
+- include: configure_nameserver.yml
+  when: rocketmq_play == 'nameserver'
+
+- include: configure_broker.yml
+  when: rocketmq_play != 'nameserver'
+  
