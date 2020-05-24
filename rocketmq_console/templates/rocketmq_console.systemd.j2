@@ -1,0 +1,14 @@
+[Unit]
+Description=Rocketmq console server: {{ rocketmq_console_servicename }}
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+User={{ rocketmq_console_user }}
+Group={{ rocketmq_console_group }}
+Type=forking
+Environment=PrivateTmp=true
+ExecStart=/usr/bin/nohup sh -ac '. /etc/profile.d/java_home.sh; {{ rocketmq_console_homedir }}/runconsole.sh -jar {{ rocketmq_console_program }} --server.port={{ rocketmq_console_listen_port }} --rocketmq.config.namesrvAddr="{{ rocketmq_namesrvAddr }}"  > {{ rocketmq_console_logfile }} 2>&1 &'
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target

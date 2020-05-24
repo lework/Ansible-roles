@@ -1,0 +1,63 @@
+---
+# author: floyd
+
+
+- name: Check if rocketmq_console local file is already build.
+  stat: path={{ rocketmq_console_file_path }}
+  connection: local
+  register: rocketmq_console_file_result
+
+- fail: 
+    msg: "{{ rocketmq_console_file_path }} is not find ,Please build it!"
+  when: not rocketmq_console_file_result.stat.exists
+  
+
+- name: Confirm the existence of the installation directory.
+  file: path={{ rocketmq_console_homedir }} state=directory
+
+- name: configure | Create rocketmq console required Directory.
+  file: path={{ item }} state=directory owner={{ rocketmq_console_user }} group={{ rocketmq_console_group }}
+  with_items:
+   - "{{ rocketmq_console_logdir }}"
+
+- name: install | Create rocketmq group.
+  group: name={{ rocketmq_console_group }}
+  when: createuser
+
+- name: install | Create rocketmq user.
+  user: name={{ rocketmq_console_user }} group={{ rocketmq_console_group }} shell=/sbin/nologin createhome=no
+  when: createuser
+
+- name: Copy rocketmq file to agent
+  copy:
+    src: "{{ rocketmq_console_file_path }}"
+    dest: "{{ rocketmq_console_homedir }}/{{ rocketmq_console_file }}"
+    owner: "{{ rocketmq_console_user }}"
+    group: "{{ rocketmq_console_group }}"
+
+- name: configure | Setup rocketmq runconsole.sh file.
+  template:
+    dest: "{{ rocketmq_console_homedir }}/runconsole.sh"
+    mode: 0755
+    owner: "{{ rocketmq_console_user }}"
+    group: "{{ rocketmq_console_group }}"
+    src: runconsole.sh.j2
+
+- name: configure | Setup rocketmq console systemd file.
+  template:
+    dest: "/lib/systemd/system/{{ rocketmq_console_servicename }}.service"
+    owner: "{{ rocketmq_console_user }}"
+    group: "{{ rocketmq_console_group }}"
+    mode: 0644
+    src: rocketmq_console.systemd.j2
+
+- name: configure | Ensure rocketmq console is started and enabled on boot.
+  service: "name={{ rocketmq_console_servicename }} state=started enabled=yes"
+
+- name: configure | Setup rocketmq console service.sh file for quick start restart operation.
+  template:
+    dest: "{{ rocketmq_console_homedir }}/{{ rocketmq_console_servicename }}.sh"
+    mode: 0755
+    owner: "{{ rocketmq_console_user }}"
+    group: "{{ rocketmq_console_group }}"
+    src: service.sh.j2

@@ -1,0 +1,26 @@
+---
+# author: floyd
+
+software_files_path: "/root/ansible/software"
+software_install_path: "/base"
+
+rocketmq_console_version: "1.0.1"
+rocketmq_console_file: "rocketmq-console-ng-1.0.1.jar"
+rocketmq_console_file_path: "{{ software_files_path }}/{{ rocketmq_console_file }}"
+rocketmq_console_homedir: "{{ software_install_path }}/rocketmq_console"
+
+rocketmq_console_user: "cash"
+rocketmq_console_group: "{{ rocketmq_console_user }}"
+createuser: false
+
+rocketmq_console_program: "{{ rocketmq_console_homedir }}/{{ rocketmq_console_file }}"
+
+rocketmq_console_logdir: "{{ rocketmq_console_homedir }}/logs"
+rocketmq_console_logfile: "{{ rocketmq_console_logdir }}/rocketmq_console.log"
+
+rocketmq_console_servicename: "rocketmq_console"
+rocketmq_console_heap_opts: "-Xms1g -Xmx1g -Xmn512m"
+rocketmq_console_listen_port: "8080"
+
+rocketmq_namesrvAddr: "127.0.0.1:9876"
+
