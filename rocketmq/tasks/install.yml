@@ -1,0 +1,58 @@
+---
+# author: floyd
+
+- name: install | Check if rocketmq local file is already configured.
+  stat: path={{ rocketmq_file_path }}
+  connection: local
+  register: rocketmq_file_result
+
+- name: install | Create software files path directory.
+  file: path={{ software_files_path }} state=directory
+  connection: local
+  when: not rocketmq_file_result.stat.exists
+
+- name: install | Download rocketmq file.
+  get_url: url={{ rocketmq_file_url }} dest={{ software_files_path }} validate_certs=no
+  connection: local
+  when: not rocketmq_file_result.stat.exists
+
+
+- name: install | Create rocketmq group.
+  group: name={{ rocketmq_group }}
+  when: createuser
+
+- name: install | Create rocketmq user.
+  user: name={{ rocketmq_user }} group={{ rocketmq_group }} shell=/sbin/nologin createhome=no
+  when: createuser
+
+- name: install | Check if software install path already created.
+  stat: path="{{ software_install_path }}"
+  register: software_install_path_result
+
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory owner={{ rocketmq_user }} group={{ rocketmq_user }}
+  when: not software_install_path_result.stat.exists
+
+  
+- name: install | Copy rocketmq file to agent.
+  unarchive:
+    src: "{{ rocketmq_file_path }}"
+    dest: "{{ software_install_path }}"
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    creates: "{{ software_install_path }}/{{ rocketmq_bin_file | replace('.zip','') }}"
+
+- name: install | Check if rockeqmq remote soft link is already configured.
+  stat: path={{ rocketmq_home_dir }}
+  register: rocketmq_soft_link_result
+
+- name: install | Create rocketmq dir soft link.
+  file: "src={{ rocketmq_bin_file | replace('.zip','') }} dest={{ rocketmq_home_dir }} state=link owner={{ rocketmq_user }} group={{ rocketmq_group }}"
+  when: not rocketmq_soft_link_result.stat.exists
+
+- name: install | Config environment variable.
+  lineinfile: dest=/etc/profile line='export PATH={{ rocketmq_home_dir }}/bin/:$PATH'
+
+- name: install | Config nameserver environment variable.
+  lineinfile: dest=/etc/profile line="export NAMESRV_ADDR='{{ rocketmq_namesrvAddr }}'"
+

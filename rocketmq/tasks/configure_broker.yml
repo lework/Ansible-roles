@@ -1,0 +1,56 @@
+---
+# author: floyd
+
+    
+- name: configure | Create rocketmq required Directory.
+  file: path={{ item }} state=directory owner={{ rocketmq_user }} group={{ rocketmq_group }}
+  with_items:
+   - "{{ rocketmq_storePathRootDir }}"
+   - "{{ rocketmq_storePathCommitLog }}"
+   - "{{ rocketmq_storePathConsumeQueue }}"
+   - "{{ rocketmq_storePathIndex }}"
+   - "{{ rocketmq_log_dir }}"
+
+- name: configure | Setup rocketgmq broker config yml file.
+  template:
+    dest: "{{ rocketmq_broker_conf_file }}"
+    mode: 0644
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: rocketmq_broker.conf.j2
+
+- name: configure | Setup rocketmq runbroker.sh file.
+  template:
+    dest: "{{ rocketmq_home_dir }}/bin/runbroker.sh"
+    mode: 0755
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: runbroker.sh.j2
+    
+- name: configure | Setup rocketmq mqadmin file.
+  template:
+    dest: "{{ rocketmq_home_dir }}/bin/mqadmin"
+    mode: 0755
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: mqadmin.j2
+
+
+- name: configure | Setup rocketmq broker systemd file.
+  template:
+    dest: "/lib/systemd/system/{{ rocketmq_broker_servicename }}.service"
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    mode: 0644
+    src: rocketmq_broker.systemd.j2
+
+- name: configure | Ensure rocketmq broker  is started and enabled on boot.
+  service: "name={{ rocketmq_broker_servicename }} state=started enabled=yes"
+
+- name: configure | Setup rocketmq broker service.sh file for quick start restart operation.
+  template:
+    dest: "{{ rocketmq_home_dir }}/{{ rocketmq_broker_servicename }}.sh"
+    mode: 0755
+    owner: "{{ rocketmq_user }}"
+    group: "{{ rocketmq_group }}"
+    src: service_broker.sh.j2

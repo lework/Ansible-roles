@@ -1,0 +1,62 @@
+---
+# author: floyd
+
+- name: configure | Set Maximum map count.
+  sysctl:
+   name: vm.max_map_count
+   value: "{{ rocketmq_max_map_count }}"
+   state: present
+
+- name: configure | Set vm overcommit_memory to 1.
+  sysctl:
+   name: vm.overcommit_memory
+   value: 1
+   state: present
+
+- name: configure | Set vm drop_caches to 1.
+  sysctl:
+   name: vm.drop_caches
+   value: 1
+   state: present
+
+- name: configure | Set vm zone_reclaim_mode to 0.
+  sysctl:
+   name: vm.zone_reclaim_mode
+   value: 0
+   state: present
+
+- name: configure | Set vm dirty_writeback_centisecs to 360000.
+  sysctl:
+   name: vm.dirty_writeback_centisecs
+   value: 360000
+   state: present
+
+- name: configure | Set vm dirty_background_ratio to 50.
+  sysctl:
+   name: vm.dirty_background_ratio
+   value: 50
+   state: present
+
+- name: configure | Set vm dirty_ratio to 50.
+  sysctl:
+   name: vm.dirty_ratio
+   value: 50
+   state: present
+
+- name: configure | Set vm page-cluster to 3.
+  sysctl:
+   name: vm.page-cluster
+   value: 3
+   state: present
+
+- name: Disable all swap files.
+  shell: swapoff -a
+  become: yes
+
+- name: Change nofile limits.
+  lineinfile: dest=/etc/security/limits.conf line={{ item }}
+  with_items:
+    - "{{ rocketmq_user }}  soft  memlock  unlimited"
+    - "{{ rocketmq_user }}  hard  memlock  unlimited"
+    - "{{ rocketmq_user }} soft nofile {{ rocketmq_max_open_files }}"
+    - "{{ rocketmq_user }} hard nofile {{ rocketmq_max_open_files }}"

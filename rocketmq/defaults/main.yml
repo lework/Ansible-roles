@@ -1,0 +1,72 @@
+---
+# author: floyd
+
+software_files_path: "/root/ansible/software"
+software_install_path: "/base"
+
+rocketmq_version: "4.5.2"
+rocketmq_name: "rocketmq"
+
+rocketmq_bin_file: "rocketmq-all-{{ rocketmq_version }}-bin-release.zip"
+rocketmq_file_url: "https://archive.apache.org/dist/rocketmq/{{ rocketmq_version }}/rocketmq-all-{{ rocketmq_version }}-bin-release.zip"
+rocketmq_file_path: "{{ software_files_path }}/{{ rocketmq_bin_file }}"
+rocketmq_home_dir: "{{ software_install_path }}/{{ rocketmq_name }}"
+
+rocketmq_user: "cash"
+rocketmq_group: "{{ rocketmq_user }}"
+createuser: false
+
+rocketmq_listenPort: "10911"
+rocketmq_haListenPort: "10912"
+rocketmq_brokerClusterName: "rocketmq-cluster"
+rocketmq_brokerName: "broker-a"
+rocketmq_brokerId: "{{ brokerID }}"
+
+rocketmq_brokerRole: "SYNC_MASTER"
+rocketmq_flushDiskType: "ASYNC_FLUSH"
+rocketmq_checkTransactionMessageEnable: false
+rocketmq_sendMessageThreadPoolNums: "128"
+rocketmq_pullMessageThreadPoolNums: "128"
+
+rocketmq_conf_dir: "{{ rocketmq_home_dir }}/conf"
+rocketmq_broker_conf_filename: "{{ rocketmq_brokerName }}_{{ rocketmq_brokerRole }}_{{ rocketmq_brokerId }}.properties"
+rocketmq_broker_conf_file: "{{ rocketmq_conf_dir }}/{{ rocketmq_broker_conf_filename }}"
+
+rocketmq_broker_servicename: "rocketmq_{{ rocketmq_brokerName }}_{{ rocketmq_brokerRole }}_{{ rocketmq_brokerId }}"
+
+rocketmq_nameserver_port: 9876
+rocketmq_nameserver_servicename: "rocketmq_nameserver"
+rocketmq_nameserver_conf_file: "{{ rocketmq_conf_dir }}/rocketmq_nameserver.conf"
+
+rocketmq_log_dir: "{{ rocketmq_home_dir }}/logs"
+rocketmq_broker_logfile: "{{ rocketmq_log_dir }}/{{ rocketmq_broker_servicename }}.log"
+rocketmq_nameserver_logfile: "{{ rocketmq_log_dir }}/{{ rocketmq_nameserver_servicename }}.log"
+
+rocketmq_namesrvAddr: "172.20.10.85:9876;172.20.10.86:9876"
+rocketmq_defaultTopicQueueNums: "4"
+rocketmq_autoCreateTopicEnable: true
+rocketmq_autoCreateSubscriptionGroup: true
+rocketmq_deleteWhen: "04"
+rocketmq_fileReservedTime: "120"
+rocketmq_mapedFileSizeCommitLog: "1073741824"
+rocketmq_mapedFileSizeConsumeQueue: "300000"
+rocketmq_diskMaxUsedSpaceRatio: "88"
+
+rocketmq_storePathRootDir: "{{ rocketmq_home_dir }}/store/{{ rocketmq_broker_servicename }}"
+rocketmq_storePathCommitLog: "{{ rocketmq_storePathRootDir }}/commitlog"
+rocketmq_storePathConsumeQueue: "{{ rocketmq_storePathRootDir }}/consumequeue"
+rocketmq_storePathIndex: "{{ rocketmq_storePathRootDir }}/index"
+rocketmq_storeCheckpoint: "{{ rocketmq_storePathRootDir }}/checkpoint"
+rocketmq_abortFile: "{{ rocketmq_storePathRootDir }}/abort"
+rocketmq_maxMessageSize: "65536"
+rocketmq_flushCommitLogLeastPages: "4"
+rocketmq_flushConsumeQueueLeastPages: "2"
+rocketmq_flushCommitLogThoroughInterval: "10000"
+rocketmq_flushConsumeQueueThoroughInterval: "60000"
+
+
+rocketmq_max_map_count: 655360
+rocketmq_max_open_files: 655350
+#rocketmq_max_processes: 4096
+rocketmq_broker_heap_opts: "-Xms1g -Xmx1g -Xmn512m"
+rocketmq_nameserver_heap_opts: "-Xms1g -Xmx1g -Xmn512m"

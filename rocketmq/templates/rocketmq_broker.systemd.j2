@@ -1,0 +1,15 @@
+[Unit]
+Description=Rocketmq Broker server: {{ rocketmq_broker_servicename }}
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+User={{ rocketmq_user }}
+Group={{ rocketmq_group }}
+Type=forking
+Environment=ROCKETMQ_HOME={{ rocketmq_home_dir }}
+Environment=PrivateTmp=true
+ExecStart=/usr/bin/nohup sh -ac '. /etc/profile.d/java_home.sh; {{ rocketmq_home_dir }}/bin/runbroker.sh org.apache.rocketmq.broker.BrokerStartup -c {{ rocketmq_broker_conf_file }} > {{ rocketmq_broker_logfile }} 2>&1 &'
+ExecStop={{ rocketmq_home_dir }}/bin/mqshutdown broker
+
+[Install]
+WantedBy=multi-user.target
