@@ -85,7 +85,7 @@ https://github.com/lework/Ansible-roles/tree/master/rabbitmq
 - hosts: node1
   vars:
    - rabbitmq_version: "3.7.23"
-   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
+   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_amqp1_0', 'rabbitmq_mqtt']
    - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
   roles:
    - erlang
@@ -99,7 +99,7 @@ https://github.com/lework/Ansible-roles/tree/master/rabbitmq
        '192.168.77.130': 'node1'
        '192.168.77.131': 'node2'
        '192.168.77.132': 'node3'
-   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
+   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_amqp1_0', 'rabbitmq_mqtt']
    - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
    - rabbitmq_cluster: true
   roles:
@@ -115,7 +115,7 @@ https://github.com/lework/Ansible-roles/tree/master/rabbitmq
        '192.168.77.140': 'node1'
        '192.168.77.141': 'node2'
        '192.168.77.142': 'node3'
-   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_mqtt']
+   - rabbitmq_plugins: ['rabbitmq_top', 'rabbitmq_amqp1_0', 'rabbitmq_mqtt']
    - rabbitmq_server_users: [{user: 'test', pass: '123456', role: 'administrator'}]
    - rabbitmq_cluster: true
    - rabbitmq_cluster_discovery_classic: true
