@@ -1,0 +1,9 @@
+---
+# author: lework
+
+- name: restart consul
+  systemd:
+    name: consul
+    state: restarted
+  when:
+    - ansible_service_mgr == "systemd"

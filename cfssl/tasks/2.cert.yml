@@ -1,0 +1,67 @@
+---
+# author: lework
+
+- name: cert | Create ca directory.
+  file:
+    dest: "{{ cfssl_ca_path }}"
+    state: directory
+    mode: 0755
+
+- name: cert | copy cfssl config to agent.
+  template:
+    src: cfssl-config.json.j2
+    dest: "{{ cfssl_ca_path }}/cfssl-config.json"
+
+- name: cert | copy ca csr to agent.
+  template:
+    src: ca-csr.json.j2
+    dest: "{{ cfssl_ca_path }}/ca-csr.json"
+
+- name: cert | copy csr to agent.
+  template:
+    src: csr.json.j2
+    dest: "{{ cfssl_ca_path }}/csr.json"
+
+- name: cert | Generating certificate authority.
+  shell: cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+  args:
+   chdir: "{{ cfssl_ca_path }}"
+   creates: "{{ cfssl_ca_path }}/ca.pem"
+
+- name: cert | Generating server certificate.
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=cfssl-config.json \
+    -hostname="{{ cfssl_server_hostname }},localhost,127.0.0.1" csr.json  \
+    | cfssljson -bare server
+  args:
+   chdir: "{{ cfssl_ca_path }}"
+   creates: "{{ cfssl_ca_path }}/server.pem"
+
+- name: cert | Generating client certificate.
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=cfssl-config.json \
+    -hostname="{{ cfssl_client_hostname }},localhost,127.0.0.1" csr.json  \
+    | cfssljson -bare client
+  args:
+   chdir: "{{ cfssl_ca_path }}"
+   creates: "{{ cfssl_ca_path }}/client.pem"
+   
+- name: cert | Generating server and client certificate.
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=cfssl-config.json \
+    -hostname="{{ cfssl_server_hostname }},{{ cfssl_client_hostname }},localhost,127.0.0.1" csr.json  \
+    | cfssljson -bare dev
+  args:
+   chdir: "{{ cfssl_ca_path }}"
+   creates: "{{ cfssl_ca_path }}/dev.pem"
+   
+- name: cert | Generating user certificates.
+  shell: |
+    cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=cfssl-config.json \
+    -profile=client csr.json  | cfssljson -bare user && \
+    openssl pkcs12 -export -inkey user-key.pem -in user.pem -out user.pfx -password pass:
+  args:
+   chdir: "{{ cfssl_ca_path }}"
+   creates: "{{ cfssl_ca_path }}/user.pem"
+  environment:
+    - PATH: "{{ cfssl_bin_path }}:{{  ansible_env.PATH }}"

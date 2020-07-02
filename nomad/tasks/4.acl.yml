@@ -1,0 +1,28 @@
+---
+# author: lework
+
+- name: acl | generate the nomad bootstrap token.
+  shell: >
+    source {{ nomad_env_file }} &&
+    nomad acl bootstrap | awk '/Secret ID.*/ {print $4}'
+  environment:
+    - PATH: "{{ nomad_bin_path }}:{{  ansible_env.PATH }}"
+  register: nomad_bootstrap_token
+  changed_when: false
+  run_once: true
+  until: nomad_bootstrap_token.stdout != ''
+  retries: 10
+  delay: 5
+
+- block:
+  - name: acl | Set the bootstrap token as an environment variable.
+    lineinfile: 
+     dest: "{{ nomad_env_file }}"
+     create: yes
+     line: export NOMAD_TOKEN={{ nomad_bootstrap_token.stdout }}
+
+  - name: acl | Show bootstrap token.
+    debug: "msg={{ nomad_bootstrap_token.stdout }}"
+    run_once: true
+  when: nomad_bootstrap_token.stdout | length > 0
+  

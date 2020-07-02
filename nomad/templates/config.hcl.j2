@@ -1,0 +1,99 @@
+name = "{{ nomad_node_name }}"
+region = "{{ nomad_region }}"
+datacenter = "{{ nomad_datacenter }}"
+
+enable_debug = {{ nomad_debug | bool | lower }}
+
+bind_addr = "{{ nomad_bind_addr }}"
+
+advertise {
+    http = "{{ nomad_advertise_addr }}:{{ nomad_http_port }}"
+    rpc = "{{ nomad_advertise_addr }}:{{ nomad_rpc_port }}"
+    serf = "{{ nomad_advertise_addr }}:{{ nomad_serf_port }}"
+}
+
+ports {
+    http = {{ nomad_http_port }}
+    rpc = {{ nomad_rpc_port }}
+    serf = {{ nomad_serf_port }}
+}
+
+data_dir = "{{ nomad_data_path }}"
+plugin_dir = "{{ nomad_plugin_path }}"
+
+log_level = "{{ nomad_log_level }}"
+enable_syslog = {{ nomad_syslog_enable | bool | lower }}
+log_json = "{{ nomad_log_json }}"
+log_file = "{{ nomad_log_file }}"
+log_rotate_bytes = "{{ nomad_log_rotate_bytes }}"
+log_rotate_duration = "{{ nomad_log_rotate_duration }}"
+log_rotate_max_files = "{{ nomad_log_rotate_max_files }}"
+
+{% if nomad_server | bool %}
+server {
+    enabled          = true
+    bootstrap_expect = {{ nomad_bootstrap_expect }}
+    server_join {
+        retry_join = {{ nomad_retry_join | to_json}}
+    }
+    encrypt = "{{ nomad_encrypt }}"
+}
+{% endif %}
+
+{% if nomad_client | bool %}
+client {
+  enabled       = true
+  servers = {{ nomad_client_servers | to_json}}
+}
+{% endif %}
+
+{% if nomad_consul_enable | bool %}
+consul {
+    # The address to the Consul agent.
+    address = "{{ nomad_consul_address }}"
+    token = "{{ nomad_consul_token }}"
+    # The service name to register the server and client with Consul.
+    server_service_name = "{{ nomad_consul_servers_service_name }}"
+    client_service_name = "{{ nomad_consul_clients_service_name }}"
+    tags = {{ nomad_consul_tags | to_json }}
+
+    # Enables automatically registering the services.
+    auto_advertise = true
+
+    # Enabling the server and client to bootstrap using Consul.
+    server_auto_join = true
+    client_auto_join = true
+}
+{% endif %}
+
+
+{% if nomad_tls_enable | bool %}
+tls {
+    http = true
+    rpc = true
+    ca_file = "{{ nomad_tls_path }}/{{ nomad_tls_ca_file | basename }}"
+    cert_file = "{{ nomad_tls_path }}/{{ nomad_tls_cert_file | basename }}"
+    key_file = "{{ nomad_tls_path }}/{{ nomad_tls_key_file | basename }}"
+    verify_server_hostname = {{ nomad_tls_verify_server_hostname | bool | lower }}
+    verify_https_client = {{ nomad_tls_verify_https_client | bool| lower }}
+}
+{% endif %}
+
+{% if nomad_acl_enable | bool %}
+acl {
+    enabled = {{ nomad_acl_enable | bool | lower }}
+    token_ttl = "{{ nomad_acl_token_ttl }}"
+    policy_ttl = "{{ nomad_acl_policy_ttl }}"
+{% if nomad_acl_replication_token != '' %}
+    replication_token = "{{ nomad_acl_replication_token }}"
+{% endif %}
+}
+{% endif %}
+
+{% if nomad_telemetry_enable | bool %}
+telemetry {
+  publish_allocation_metrics = true
+  publish_node_metrics       = true
+  prometheus_metrics         = true
+}
+{% endif %}

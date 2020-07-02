@@ -1,0 +1,14 @@
+backend "consul" {
+  address = "{{ vault_consul }}"
+  path = "{{ vault_consul_path }}"
+  service = "{{ vault_consul_service }}"
+  {% if vault_consul_token is defined and vault_consul_token %}
+  token = "{{ vault_consul_token }}"
+  {% endif %}
+  scheme = "{{ vault_consul_scheme }}"
+  {% if vault_backend_tls_enable | bool %}
+  tls_cert_file = "{{ vault_tls_path }}/{{ vault_backend_tls_cert_file | basename }}"
+  tls_key_file = "{{ vault_tls_path }}/{{ vault_backend_tls_key_file | basename }}"
+  tls_ca_file="{{ vault_tls_path }}/{{ vault_backend_tls_ca_file | basename }}"
+  {% endif %}
+}

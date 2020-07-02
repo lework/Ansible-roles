@@ -1,0 +1,39 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if consul local file is already configured.
+    stat: path={{ consul_file_path }}
+    register: consul_file_result
+  
+  - name: install | Create software file directory.
+    file: path={{ software_files_path }} state=directory
+    when: not consul_file_result.stat.exists
+  
+  - name: install | Download Consul package.
+    get_url: url={{ consul_file_url }} dest={{ software_files_path }}
+    when: not consul_file_result.stat.exists
+  connection: local
+  run_once: yes
+  
+- name: install | Install Dependent packages.
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - unzip
+
+- name: install | Copy consul file to agent.
+  unarchive:
+    src: "{{ consul_file_path }}"
+    dest: "{{ consul_bin_path }}"
+    creates: "{{ consul_bin_path }}/consul"
+
+- name: "install | Create {{ consul_group }} group."
+  group: name={{ consul_group }}
+
+- name: "install | Create {{ consul_user }} user."
+  user: name={{ consul_user }} group={{ consul_user }} comment="Consul user" shell=/sbin/nologin
+
+- name: "install | Enable autocompletion."
+  lineinfile: "dest=/etc/bashrc line='complete -C {{ consul_bin_path }}/consul consul'"

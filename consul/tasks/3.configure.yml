@@ -1,0 +1,53 @@
+---
+# author: lework
+
+- name: configure | Create consul Directory.
+  file: path={{ item }} state=directory  owner={{ consul_user }}  group={{ consul_group }}
+  with_items:
+   - "{{ consul_data_path }}"
+   - "{{ consul_config_path }}"
+   - "{{ consul_log_path }}"
+
+- name: configure | Create consul config.
+  copy:
+    dest: "{{ item.dest }}"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    content: "{{ lookup('template', 'templates/config.json.j2') | to_nice_json }}"
+  with_items:
+    - dest: "{{ consul_config_path }}/bootstrap.json"
+      when: "{{ consul_bootstrap | bool }}"
+    - dest: "{{ consul_config_path }}/server.json"
+      when: "{{ consul_server | bool }}"
+    - dest: "{{ consul_config_path }}/client.json"
+      when: "{{ consul_server | bool == false }}"
+  when:
+    - item.when
+  notify: restart consul
+
+- name: configure | Config environment variable.
+  lineinfile:
+    dest: "{{ consul_env_file }}"
+    create: yes
+    line: |
+      export CONSUL_HTTP_SSL={{ consul_tls_enable | bool }}
+      export CONSUL_HTTP_ADDR="127.0.0.1:{% if consul_tls_enable | bool %}{{ consul_https_port }}{%else%}{{ consul_http_port }}{%endif%}"
+
+- name: configure | Create consul systemd service.
+  template:
+    src: consul.service.j2
+    dest: /etc/systemd/system/consul.service
+    mode: 0644
+    owner: root
+    group: root
+  when:
+    - ansible_service_mgr == "systemd"
+
+- name: configure | Enable consul at startup (systemd)
+  systemd:
+    name: consul
+    state: started
+    daemon_reload: yes
+    enabled: yes
+  when:
+    - ansible_service_mgr == "systemd"

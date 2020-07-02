@@ -3,31 +3,63 @@
 
 software_files_path: "/opt/software"
 
-consul_version: "0.7.5"
+consul_version: "1.8.0"
 
 consul_file: "consul_{{ consul_version }}_linux_amd64.zip"
 consul_file_path: "{{ software_files_path }}/{{ consul_file }}"
 consul_file_url: "https://releases.hashicorp.com/consul/{{ consul_version }}/{{ consul_file }}"
 
 consul_user: "consul"
+consul_group: "consul"
+
 consul_server_port: 8300
-consul_rpc_port: 8400
 consul_http_port: 8500
+consul_https_port: 8501
 consul_dns_port: 8600
 consul_ip_bind: "{{ ansible_default_ipv4.address }}"
 consul_client_bind: "0.0.0.0"
 
+consul_bin_path: "/usr/local/sbin"
 consul_home: "/consul_data"
-consul_datadir: "{{ consul_home }}/data"
-consul_confdir: "{{ consul_home }}/conf"
-consul_dc: "dc1"
-consul_loglevel: "INFO"
-consul_server: true
+consul_data_path: "{{ consul_home }}/data"
+consul_config_path: "{{ consul_home }}/config"
+consul_log_path: "{{ consul_home }}/log"
+consul_env_file: "/etc/profile.d/consul.sh"
+
+# log
+consul_log_file: "consul.log"
+consul_log_level: "INFO"
+consul_log_rotate_bytes: "52428800"
+consul_log_rotate_duration: "24h"
+consul_log_rotate_max_files: "7"
+consul_syslog_enable: false
+consul_syslog_facility: "local0"
+
+consul_datacenter: "dc1"
 consul_ui: true
 consul_nodename: "{{ ansible_hostname }}"
 
-consul_bootstrap_expect: 1
+consul_server: true
+consul_retry_join: ["{{ consul_ip_bind }}"]
 consul_bootstrap: false
-consul_dev: false
-consul_encrypt: false
-consul_start_join: []
+consul_bootstrap_expect: "{{ consul_retry_join | length }}"
+consul_encrypt: "{{ consul_retry_join | to_uuid | regex_replace('-', '') | b64encode }}"
+
+# acl
+consul_acl_enable: false
+consul_acl_ttl: "30s"
+consul_acl_token_persistence: true
+consul_acl_down_policy: "extend-cache"
+consul_acl_default_policy: "deny"
+consul_acl_token: ""
+consul_acl_agent_token: ""
+consul_acl_agent_master_token: ""
+
+# tls
+consul_tls_enable: false
+consul_tls_path: "{{ consul_home }}/ssl"
+consul_tls_ca_crt: "consul-agent-ca.pem"
+consul_tls_server_crt: "{{ consul_dc }}-server-consul-0.pem"
+consul_tls_server_key: "{{ consul_dc }}-server-consul-0-key.pem"
+consul_tls_client_crt: "{{ consul_dc }}-client-consul-0.pem"
+consul_tls_client_key: "{{ consul_dc }}-client-consul-0-key.pem"

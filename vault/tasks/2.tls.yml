@@ -1,0 +1,46 @@
+---
+# author: lework
+
+- name: tls | Create SSL directory.
+  file:
+    dest: "{{ vault_tls_path }}"
+    state: directory
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: 0755
+
+- name: tls | Copy certificate.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ vault_tls_path }}/"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: 0644
+  loop:
+    - "{{ vault_tls_ca_file }}"
+    - "{{ vault_tls_cert_file }}"
+    - "{{ vault_tls_key_file }}"
+  when: not (vault_tls_disable | bool)
+
+- name: tls | Copy backend certificate.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ vault_tls_path }}/"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: 0644
+  loop:
+    - "{{ vault_backend_tls_ca_file }}"
+    - "{{ vault_backend_tls_cert_file }}"
+    - "{{ vault_backend_tls_key_file }}"
+  when: vault_backend_tls_enable | bool
+
+- name: tls | set the vault ca as an environment variable.
+  lineinfile:
+    dest: "{{ vault_env_file }}"
+    create: yes
+    line: |
+      export VAULT_CACERT={{ vault_tls_path }}/{{ vault_tls_ca_file | basename }}
+      export VAULT_CLIENT_CERT={{ vault_tls_path }}/{{ vault_tls_cert_file | basename }}
+      export VAULT_CLIENT_KEY={{ vault_tls_path }}/{{ vault_tls_key_file | basename }}
+  when: not (vault_tls_disable | bool)

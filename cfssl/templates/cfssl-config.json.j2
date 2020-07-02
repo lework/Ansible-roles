@@ -1,0 +1,43 @@
+{
+    "signing": {
+        "default": {
+            "expiry": "{{ cfssl_ca_expiry }}",
+            "usages": [
+                "signing",
+                "digital signature",
+                "key encipherment",
+                "server auth",
+                "client auth"
+            ]
+        },
+        "profiles": {
+            "peer": {
+                "expiry": "{{ cfssl_ca_expiry }}",
+                "usages": [
+                    "signing",
+                    "digital signature",
+                    "key encipherment",
+                    "server auth"
+                ]
+            },
+            "server": {
+                "expiry": "{{ cfssl_ca_expiry }}",
+                "usages": [
+                    "signing",
+                    "digital signature",
+                    "key encipherment",
+                    "server auth"
+                ]
+            },
+            "client": {
+                "expiry": "{{ cfssl_ca_expiry }}",
+                "usages": [
+                    "signing",
+                    "digital signature",
+                    "key encipherment",
+                    "client auth"
+                ]
+            }
+        }
+    }
+}

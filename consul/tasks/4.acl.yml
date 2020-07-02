@@ -1,0 +1,96 @@
+---
+# author: lework
+
+- name: acl | Generate the Consul bootstrap token.
+  shell: >
+    source {{ consul_env_file }} &&
+    consul acl bootstrap | awk '/SecretID.*/ {print $2}'
+  environment:
+    - PATH: "{{ consul_bin_path }}:{{  ansible_env.PATH }}"
+  register: consul_bootstrap_token
+  changed_when: false
+  run_once: true
+  until: consul_bootstrap_token.stdout != ''
+  retries: 10
+  delay: 5
+
+- block:
+  - name: acl | Set the bootstrap token as an environment variable.
+    lineinfile: 
+     dest: "{{ consul_env_file }}"
+     create: yes
+     line: export CONSUL_HTTP_TOKEN={{ consul_bootstrap_token.stdout }}
+    run_once: false
+
+  - name: acl | Generate the Consul node ACL policy.
+    shell: |
+     source {{ consul_env_file }} && \
+     consul acl policy create \
+     -name node-policy \
+     -description 'Node Token Policy' \
+     -rules -<<EOF
+     agent_prefix "" {
+      policy = "write"
+     }
+     node_prefix "" {
+      policy = "write"
+     }
+     service_prefix "" {
+      policy = "read"
+     }
+     session_prefix "" {
+      policy = "read"
+     }
+     EOF
+  
+  - name: acl | Create the node token.
+    shell: >
+      source {{ consul_env_file }} &&
+      consul acl token create 
+      -description 'node token'
+      -policy-name node-policy | awk '/SecretID.*/ {print $2}'
+    register: consul_node_token
+  
+  - name: acl | Add the node token.
+    shell: >
+      source {{ consul_env_file }} &&
+      consul acl set-agent-token
+      agent "{{ consul_node_token.stdout }}"
+    when:
+      - consul_node_token.stdout | length > 0
+
+  - name: acl | Generate the Consul agent ACL policy.
+    shell: |
+      source {{ consul_env_file }} && \
+      consul acl policy create \
+      -name agent-policy \
+      -description "Agent Token Policy" \
+      -rules -<<EOF
+      node_prefix "" {
+       policy = "write"
+      }
+      service_prefix "" {
+       policy = "read"
+      }
+      EOF
+  - name: acl | Create the agent token.
+    shell: >
+      source {{ consul_env_file }} &&
+      consul acl token create 
+      -description 'Agent Token'
+      -policy-name agent-policy | awk '/SecretID.*/ {print $2}'
+    register: consul_agent_token
+
+  - name: acl | Show bootstrap token.
+    debug: "msg={{ consul_bootstrap_token.stdout }}"
+
+  - name: acl | Show node token.
+    debug: "msg={{ consul_node_token.stdout }}"
+
+  - name: acl | Show agent token.
+    debug: "msg={{ consul_agent_token.stdout }}"
+  run_once: true
+  environment:
+    - PATH: "{{ consul_bin_path }}:{{  ansible_env.PATH }}"
+  when: consul_bootstrap_token.stdout | length > 0
+  

@@ -1,0 +1,74 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+
+nomad_version: "0.11.3"
+
+nomad_file: "nomad_{{ nomad_version }}_linux_amd64.zip"
+nomad_file_path: "{{ software_files_path }}/{{ nomad_file }}"
+nomad_file_url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/{{ nomad_file }}"
+
+nomad_http_port: 4646
+nomad_rpc_port: 4647
+nomad_serf_port: 4648
+nomad_bind_addr: "{{ ansible_default_ipv4.address }}"
+nomad_advertise_addr: "{{ ansible_default_ipv4.address }}"
+
+# path
+nomad_bin_path: "/usr/local/sbin"
+nomad_home: "/nomad_data"
+nomad_data_path: "{{ nomad_home }}/data"
+nomad_config_path: "{{ nomad_home }}/config"
+nomad_log_path: "{{ nomad_home }}/log"
+nomad_plugin_path: "{{ nomad_home }}/plugin"
+nomad_env_file: "/etc/profile.d/nomad.sh"
+
+nomad_datacenter: "dc1"
+nomad_region: "global"
+nomad_log_level: "INFO"
+nomad_syslog_enable: true
+nomad_node_name: "{{ ansible_hostname }}"
+nomad_debug: false
+
+nomad_log_json: false
+nomad_log_file: "{{ nomad_log_path }}/nomad.log"
+nomad_log_rotate_bytes: 104857600
+nomad_log_rotate_duration: "24h"
+nomad_log_rotate_max_files: 10
+
+nomad_server: true
+nomad_retry_join: ["127.0.0.1"]
+
+nomad_client: false
+nomad_client_servers: ["127.0.0.1"]
+
+nomad_bootstrap: false
+nomad_bootstrap_expect: "{{ nomad_retry_join | length }}"
+nomad_encrypt: "{{ nomad_retry_join | to_uuid | regex_replace('-', '') | b64encode }}"
+
+# acl
+nomad_acl_enable: false
+nomad_acl_token_ttl: "30s"
+nomad_acl_policy_ttl: "30s"
+nomad_acl_replication_token: ""
+
+# tls
+nomad_tls_enable: false
+nomad_tls_path: "{{ nomad_home }}/ssl"
+nomad_tls_ca_file: ""
+nomad_tls_cert_file: ""
+nomad_tls_key_file: ""
+nomad_tls_verify_server_hostname: true
+nomad_tls_verify_https_client: true
+
+# consul
+nomad_consul_enable: false
+nomad_consul_address: "localhost:8500"
+nomad_consul_token: ""
+nomad_consul_servers_service_name: "nomad-servers"
+nomad_consul_clients_service_name: "nomad-clients"
+nomad_consul_tags: {}
+
+# telemetry
+nomad_telemetry_enable: true

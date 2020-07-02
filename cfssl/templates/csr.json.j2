@@ -1,0 +1,15 @@
+{
+    "key": {
+        "algo": "{{ cfssl_key_algo }}",
+        "size": {{ cfssl_key_size }}
+    },
+    "names": [
+        {
+            "C": "CN",
+            "ST": "Shanghai",
+            "L": "Shanghai",
+            "O": "{{ cfssl_project }}",
+            "OU": "{{ cfssl_project}} Service"
+        }
+    ]
+}

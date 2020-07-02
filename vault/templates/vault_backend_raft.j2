@@ -1,0 +1,29 @@
+storage "raft" {
+  path = "{{ vault_data_path }}"
+  node_id = "{{ vault_raft_node_id }}"
+  {% for node in vault_raft_retry_join -%}
+  retry_join {
+  {% if node.leader_api_addr | default('', true) %}
+  leader_api_addr="{{ node.leader_api_addr }}"
+  {% endif -%}
+  {% if node.leader_ca_cert_file | default('', true) %}
+  leader_ca_cert_file="{{ node.leader_ca_cert_file }}"
+  {% endif -%}
+  {% if node.leader_client_cert_file | default('', true) %}
+  leader_client_cert_file="{{ node.leader_client_cert_file }}"
+  {% endif -%}
+  {% if node.leader_client_key_file | default('', true) %}
+  leader_client_key_file="{{ node.leader_client_key_file }}"
+  {% endif -%}
+  {% if node.leader_ca_cert | default('', true) %}
+  leader_ca_cert="{{ node.leader_ca_cert }}"
+  {% endif -%}
+  {% if node.leader_client_cert | default('', true) %}
+  leader_client_cert="{{ node.leader_client_cert }}"
+  {% endif -%}
+  {% if node.leader_client_key | default('', true) %}
+  leader_client_key="{{ node.leader_client_key }}"
+  {% endif -%}
+  }
+  {% endfor %}
+}

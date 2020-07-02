@@ -1,0 +1,49 @@
+---
+# author: lework
+
+- name: configure | Create nomad Directory.
+  file: path={{ item }} state=directory
+  with_items:
+   - "{{ nomad_data_path }}"
+   - "{{ nomad_config_path }}"
+   - "{{ nomad_log_path }}"
+   - "{{ nomad_plugin_path }}"
+
+- name: configure | Create nomad config.
+  template:
+    src: config.hcl.j2
+    dest: "{{ item.dest }}"
+  with_items:
+    - dest: "{{ nomad_config_path }}/server.hcl"
+      when: "{{ nomad_server | bool }}"
+    - dest: "{{ nomad_config_path }}/client.hcl"
+      when: "{{ nomad_server | bool == false }}"
+  when:
+    - item.when
+  notify: restart nomad
+
+- name: configure | Config environment variable.
+  lineinfile:
+    dest: "{{ nomad_env_file }}"
+    create: yes
+    line: |
+      export NOMAD_ADDR="http://{{ nomad_bind_addr }}:{{ nomad_http_port }}"
+
+- name: configure | Create nomad systemd service.
+  template:
+    src: nomad.service.j2
+    dest: /etc/systemd/system/nomad.service
+    mode: 0644
+    owner: root
+    group: root
+  when:
+    - ansible_service_mgr == "systemd"
+
+- name: configure | Enable nomad at startup (systemd)
+  systemd:
+    name: nomad
+    state: started
+    daemon_reload: yes
+    enabled: yes
+  when:
+    - ansible_service_mgr == "systemd"

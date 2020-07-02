@@ -1,0 +1,65 @@
+---
+# author: lework
+
+- name: tls | Create SSL directory.
+  file:
+    dest: "{{ consul_tls_path }}"
+    state: directory
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0755
+
+- block:
+  - name: tls | Initialize the built-in CA.
+    shell: consul tls ca create -days=3650
+    args:
+     chdir: "{{ consul_tls_path }}"
+     creates: "{{ consul_tls_path }}/{{ consul_tls_ca_crt }}"
+
+  - name: tls | Create the server certificates.
+    shell: consul tls cert create -server -dc={{ consul_datacenter }} -days=3650
+    args:
+     chdir: "{{ consul_tls_path }}"
+
+  - name: tls | Generate a client certificate.
+    shell: consul tls cert create -client -dc={{ consul_datacenter }} -days=3650
+    args:
+     chdir: "{{ consul_tls_path }}"
+
+  - name: tls | Generate a cli certificate.
+    shell: consul tls cert create -cli -dc={{ consul_datacenter }} -days=3650
+    args:
+     chdir: "{{ consul_tls_path }}"
+
+  - name: tls | Find consul pem.
+    find: paths={{ consul_tls_path }} patterns='*.pem'
+    register: consul_ca_file_fetch
+
+  - name: tls | Fetch consul pem.
+    fetch: src={{ item.path }} dest=consul_ca_files/ flat=yes
+    loop: "{{ consul_ca_file_fetch.files }}"
+
+  - name: acl | Set the bootstrap token as an environment variable.
+    lineinfile:
+      dest: "{{ consul_env_file }}"
+      create: yes
+      line: |
+        export CONSUL_CACERT={{ consul_tls_path }}/{{ consul_tls_ca_crt | basename }}
+        export CONSUL_CLIENT_CERT={{ consul_tls_path }}/{{ consul_tls_server_crt | basename }}
+        export CONSUL_CLIENT_KEY={{ consul_tls_path }}/{{ consul_tls_server_key | basename }}
+  environment:
+    - PATH: "{{ consul_bin_path }}:{{ ansible_env.PATH }}"
+  when:
+    - consul_server | bool
+
+- name: tls | Copy certificate.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ consul_tls_path }}/"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0644
+  loop:
+    - "{{ consul_tls_ca_crt }}"
+    - "{% if consul_server | bool %}{{ consul_tls_server_crt }}{%else%}{{ consul_tls_client_crt }}{%endif%}"
+    - "{% if consul_server | bool %}{{ consul_tls_server_key }}{%else%}{{ consul_tls_client_key }}{%endif%}"

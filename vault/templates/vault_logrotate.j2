@@ -1,0 +1,11 @@
+{{ vault_log_path }}/*.log
+{
+    missingok
+    rotate {{ vault_logrotate_freq }}
+    daily
+    dateext
+    compress
+    postrotate
+        /bin/systemctl reload vault 2> /dev/null || true
+    endscript
+}

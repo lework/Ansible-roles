@@ -1,0 +1,85 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+
+vault_version: "1.4.2"
+
+vault_file: "vault_{{ vault_version }}_linux_amd64.zip"
+vault_file_path: "{{ software_files_path }}/{{ vault_file }}"
+vault_file_url: "https://releases.hashicorp.com/vault/{{ vault_version }}/{{ vault_file }}"
+
+vault_user: "vault"
+vault_group: "vault"
+
+vault_port: 8200
+vault_cluster_port: 8201
+vault_max_lease_ttl: "768h"
+vault_default_lease_ttl: "768h"
+
+
+vault_address: "0.0.0.0"
+vault_protocol: "{% if vault_tls_disable %}http{% else %}https{% endif %}"
+
+vault_cluster_address: "{{ ansible_default_ipv4.address }}"
+vault_api_address: "{{ ansible_default_ipv4.address }}"
+
+vault_cluster_addr: "{{ vault_protocol }}://{{ vault_cluster_address }}:{{ vault_cluster_port }}"
+vault_api_addr: "{{ vault_protocol }}://{{ vault_api_address }}:{{ vault_port }}"
+
+vault_cluster_disable: false
+
+
+vault_bin_path: "/usr/local/sbin"
+vault_home: "/vault_data"
+vault_data_path: "{{ vault_home }}/data"
+vault_config_path: "{{ vault_home }}/config"
+vault_log_path: "{{ vault_home }}/log"
+vault_plugin_path: "{{ vault_home }}/plugins"
+
+vault_env_file: "/etc/profile.d/vault.sh"
+vault_init_file: "~/vault.initkey"
+
+# log
+vault_log_level: "DEBUG"
+vault_logrotate_freq: 7
+
+vault_cluster_name: dc1
+vault_ui: true
+vault_audit_enable: true
+vault_telemetry_enabled: false
+
+
+# tls
+vault_tls_disable: true
+vault_tls_path: "{{ vault_home }}/ssl"
+vault_tls_ca_file: ""
+vault_tls_cert_file: ""
+vault_tls_key_file: ""
+vault_tls_require_and_verify_client_cert: false
+vault_tls_disable_client_certs: false
+
+
+# backend
+vault_backend: raft
+
+vault_backend_tls_enable: false
+vault_backend_tls_cert_file: ""
+vault_backend_tls_key_file: ""
+vault_backend_tls_ca_file: ""
+
+# consul
+vault_consul: 127.0.0.1:8500
+vault_consul_path: vault
+vault_consul_service: vault
+vault_consul_scheme: http
+vault_consul_token:
+
+# raft
+vault_raft_node_id: "{{ ansible_hostname }}"
+vault_raft_retry_join: []
+  # - leader_api_addr:
+  #   leader_ca_cert_file:
+  #   leader_client_cert_file:
+  #   leader_client_key_file:
+

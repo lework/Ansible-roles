@@ -1,0 +1,27 @@
+---
+# author: lework
+
+- name: tls | Create SSL directory.
+  file:
+    dest: "{{ nomad_tls_path }}"
+    state: directory
+    mode: 0755
+
+- name: tls | Copy certificate.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ nomad_tls_path }}/"
+    mode: 0644
+  loop:
+    - "{{ nomad_tls_ca_file }}"
+    - "{{ nomad_tls_cert_file }}"
+    - "{{ nomad_tls_key_file }}"
+
+- name: tls | Set the nomad ca as an environment variable.
+  lineinfile:
+    dest: "{{ nomad_env_file }}"
+    create: yes
+    line: |
+      export NOMAD_CACERT={{ nomad_tls_path }}/{{ nomad_tls_ca_file | basename }}
+      export NOMAD_CLIENT_CERT={{ nomad_tls_path }}/{{ nomad_tls_cert_file | basename  }}
+      export NOMAD_CLIENT_KEY={{ nomad_tls_path }}/{{ nomad_tls_key_file | basename  }}

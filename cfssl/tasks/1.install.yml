@@ -1,0 +1,34 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if cfssl local file is already configured.
+    stat: path={{ item.path }}
+    loop: "{{ cfssl_download_list }}"
+    register: cfssl_local_file_result
+  
+  - name: install | Create software file directory.
+    file: path={{ software_files_path }} state=directory
+  
+  - name: install | Download cfssl package.
+    get_url: url={{ item.url }} dest={{ item.path }}
+    loop: "{{ cfssl_download_list }}"
+    loop_control:
+      extended: yes
+    when: not cfssl_local_file_result.results[ansible_loop.index0].stat.exists
+  connection: local
+  run_once: yes
+  
+- name: install | Install Dependent packages.
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - openssl
+
+- name: install | Copy cfssl file to agent.
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ cfssl_bin_path }}/{{ item.path | basename }}"
+    mode: "u+x"
+  loop: "{{ cfssl_download_list }}"

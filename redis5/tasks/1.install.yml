@@ -60,7 +60,6 @@
 
 - name: install | Config environment variable.
   lineinfile: dest=/etc/profile line='export PATH={{ software_install_path }}/redis/bin/:$PATH'
-  run_once: yes
 
 - name: install | Copy redis unit file into place (for systemd systems).
   template:

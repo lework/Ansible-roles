@@ -1,0 +1,39 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if vault local file is already configured.
+    stat: path={{ vault_file_path }}
+    register: vault_file_result
+  
+  - name: install | Create software file directory.
+    file: path={{ software_files_path }} state=directory
+    when: not vault_file_result.stat.exists
+  
+  - name: install | Download vault package.
+    get_url: url={{ vault_file_url }} dest={{ software_files_path }}
+    when: not vault_file_result.stat.exists
+  connection: local
+  run_once: yes
+  
+- name: install | Install Dependent packages.
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - unzip
+
+- name: install | Copy vault file to agent.
+  unarchive:
+    src: "{{ vault_file_path }}"
+    dest: "{{ vault_bin_path }}"
+    creates: "{{ vault_bin_path }}/vault"
+
+- name: "install | Create {{ vault_group }} group."
+  group: name={{ vault_group }}
+
+- name: "install | Create {{ vault_user }} user."
+  user: name={{ vault_user }} group={{ vault_user }} comment="vault user" shell=/sbin/nologin
+
+- name: "install | Enable autocompletion."
+  lineinfile: "dest=/etc/bashrc line='complete -C {{ vault_bin_path }}/vault vault'"

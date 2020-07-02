@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- import_tasks: 1.install.yml
+- import_tasks: 2.tls.yml
+  when: not (vault_tls_disable | bool) or vault_backend_tls_enable | bool
+- import_tasks: 3.configure.yml

@@ -1,0 +1,9 @@
+---
+# author: lework
+
+- name: restart vault
+  systemd:
+    name: vault
+    state: restarted
+  when:
+    - ansible_service_mgr == "systemd"

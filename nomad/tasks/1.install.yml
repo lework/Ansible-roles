@@ -1,0 +1,33 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if nomad local file is already configured.
+    stat: path={{ nomad_file_path }}
+    register: nomad_file_result
+  
+  - name: install | Create software file directory.
+    file: path={{ software_files_path }} state=directory
+    when: not nomad_file_result.stat.exists
+  
+  - name: install | Download nomad package.
+    get_url: url={{ nomad_file_url }} dest={{ software_files_path }}
+    when: not nomad_file_result.stat.exists
+  connection: local
+  run_once: yes
+  
+- name: install | Install Dependent packages.
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - unzip
+
+- name: install | Copy nomad file to agent.
+  unarchive:
+    src: "{{ nomad_file_path }}"
+    dest: "{{ nomad_bin_path }}"
+    creates: "{{ nomad_bin_path }}/nomad"
+
+- name: "install | Enable autocompletion."
+  lineinfile: "dest=/etc/bashrc line='complete -C {{ nomad_bin_path }}/nomad nomad'"

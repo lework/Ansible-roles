@@ -1,0 +1,115 @@
+---
+# author: lework
+
+- name: configure | Create vault Directory.
+  file: path={{ item }} state=directory  owner={{ vault_user }}  group={{ vault_group }}
+  with_items:
+   - "{{ vault_data_path }}"
+   - "{{ vault_config_path }}"
+   - "{{ vault_log_path }}"
+   - "{{ vault_plugin_path }}"
+
+- name: configure | Create vault config.
+  template:
+    src: vault.hcl.j2
+    dest: "{{ vault_config_path }}/vault.hcl"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+
+- name: configure | Create vault logrotate.
+  template:
+    src: vault_logrotate.j2
+    dest: /etc/logrotate.d/vault
+
+- name: configure | Config environment variable.
+  lineinfile:
+    dest: "{{ vault_env_file }}"
+    create: yes
+    line: |
+      export VAULT_ADDR="{{ vault_protocol }}://127.0.0.1:{{ vault_port }}"
+
+- name: configure | Create vault systemd service.
+  template:
+    src: vault.service.j2
+    dest: /etc/systemd/system/vault.service
+    mode: 0644
+    owner: root
+    group: root
+  when:
+    - ansible_service_mgr == "systemd"
+
+- name: configure | Enable vault at startup (systemd)
+  systemd:
+    name: vault
+    state: started
+    daemon_reload: yes
+    enabled: yes
+  when:
+    - ansible_service_mgr == "systemd"
+
+- block:
+  - name: configure | Initializing vault.
+    shell: |
+     source {{ vault_env_file }} && \
+     vault operator init | tee {{ vault_init_file }}
+    run_once: yes
+    register: vault_init_key
+  
+  - name: configure | Unseal vault node.
+    shell: |
+     source {{ vault_env_file }} && \
+     vault operator unseal $(printf '%s' "{{ vault_init_key.stdout }}" | awk '/Unseal Key 1:.*/ {print $4}' ) && \
+     vault operator unseal $(printf '%s' "{{ vault_init_key.stdout }}" | awk '/Unseal Key 2:.*/ {print $4}' ) && \
+     vault operator unseal $(printf '%s' "{{ vault_init_key.stdout }}" | awk '/Unseal Key 3:.*/ {print $4}' )
+    register: vault_unseal_result
+    until: vault_unseal_result.rc == 0
+    retries: 10
+    delay: 5
+    when: vault_init_key.stdout != ""
+    throttle: 1
+  
+  - name: configure | Get vault token.
+    shell: |
+     source {{ vault_env_file }} && \
+     printf '%s' "{{ vault_init_key.stdout }}" | awk '/Initial Root Token:.*/ {print $4}'
+    register: vault_init_token
+    when: vault_init_key.stdout != ""
+    run_once: yes
+  
+  - name: configure | Show vault token.
+    debug: var=vault_init_token.stdout
+    when: vault_init_key.stdout != "" and vault_init_token.stdout != ""
+    run_once: yes
+    
+  - name: configure | Set vault token to  environment variable.
+    lineinfile:
+      dest: "{{ vault_env_file }}"
+      create: yes
+      line: |
+        export VAULT_TOKEN="{{ vault_init_token.stdout}}"
+    when: vault_init_key.stdout != "" and vault_init_token.stdout != ""
+
+  - name: configure | Open Audit Log. 
+    shell: |
+     source {{ vault_env_file }} && \
+     vault audit enable file file_path={{ vault_log_path }}/audit.log && \
+     vault policy write audit-policy -<<EOF
+       # 'sudo' capability is required to manage audit devices
+       path "sys/audit/*"
+       {
+         capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+       }
+       
+       # To list enabled audit devices, 'sudo' capability is required
+       path "sys/audit"
+       {
+         capabilities = ["read", "sudo"]
+       }
+     EOF
+    run_once: yes
+    when:
+     - vault_init_key.stdout != ""
+     - vault_init_token.stdout != ""
+     - vault_audit_enable | bool
+  environment:
+    - PATH: "{{ vault_bin_path }}:{{ ansible_env.PATH }}" 

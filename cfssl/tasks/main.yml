@@ -1,0 +1,11 @@
+---
+# author: lework
+
+- import_tasks: 1.install.yml
+  tags:
+    - install
+- import_tasks: 2.cert.yml
+  tags:
+    - cert
+  when: 
+    - cfssl_cert | bool
