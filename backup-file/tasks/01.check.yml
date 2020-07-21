@@ -11,7 +11,7 @@
   run_once: yes
   
 - name: check | Get backup directory information.
-  find: paths={{ item }} file_type=file
+  find: paths={{ item }} file_type=any
   register: reg_backup_directory_info
   loop: "{{ backup_file_path }}"
 
