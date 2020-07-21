@@ -1,0 +1,26 @@
+---
+# author: lework
+
+- name: clean | Keep the number of backup files in the remote tmp directory.
+  shell: ls -c ./* | tail -n +{{ backup_file_tmp_keep | int + 1}} | xargs rm -fv
+  args:
+    chdir: "{{ backup_file_tmp_path | d('/tmp')}}"
+  register: reg_delete_tmp_file
+
+- block:
+  - name: clean | Keep the number of classify.
+    shell: ls -c ./  | tail -n +{{ backup_file_classify_keep | int + 1}} | xargs rm -rfv
+    args:
+      chdir: "{{ backup_file_project_home | d('/tmp')}}"
+    register: reg_delete_classify_file
+  
+  - name: clean | Keep the number of backup files in the classify directory.
+    shell: > 
+      for i in $(ls | awk -F'_{{ '%Y' | strftime }}' '{print $1}' |sort |uniq); do
+        ls -c ./${i}* | tail -n +{{ backup_file_keep | int + 1}} | xargs rm -fv;
+      done
+    args:
+      chdir: "{{ backup_file_save_path | d('/tmp')}}"
+    register: reg_delete_file
+  connection: local
+  run_once: yes

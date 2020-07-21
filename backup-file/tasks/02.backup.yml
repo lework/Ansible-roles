@@ -1,0 +1,17 @@
+---
+# author: lework
+
+- name: backup | Archive backup directory.
+  archive:
+    path: "{{ backup_file_path }}"
+    dest: "{{ backup_file_tmp_path}}/{{ backup_file_name }}"
+    format: "{{ backup_file_format }}"
+    force_archive: yes
+  register: reg_backup_file_archive_info  
+ 
+- name: backup | Copy file to local.
+  fetch:
+    src: "{{ hostvars[inventory_hostname]['reg_backup_file_archive_info']['dest'] }}"
+    dest: "{{ backup_file_save_path}}/"
+    flat: yes
+  register: reg_backup_file_copy_info

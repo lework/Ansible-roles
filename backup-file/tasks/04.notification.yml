@@ -1,0 +1,27 @@
+---
+# author: lework
+
+- block: 
+  - name: notification | Get backup stats info.
+    set_fact:
+      stats_info: "{{ lookup('template', 'stats_email.html.j2') }}"
+  
+  - name: notification | Send stats report by email.
+    mail:
+      host: "{{ mail_host }}"
+      port: "{{ mail_port }}"
+      username: "{{ mail_username }}"
+      password: "{{ mail_password }}"
+      from: "{{ mail_username }}"
+      to: "{{ mail_to }}"
+      subject: "{{ mail_subject }}"
+      body: "{{ stats_info }}"
+      subtype: html
+  when:
+  - mail_host != ""
+  - mail_port != ""
+  - mail_username != ""
+  - mail_password != ""
+  - mail_to | length > 0
+  connection: local
+  run_once: yes

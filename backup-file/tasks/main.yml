@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- import_tasks: 01.check.yml
+- import_tasks: 02.backup.yml
+- import_tasks: 03.clean.yml
+- import_tasks: 04.notification.yml

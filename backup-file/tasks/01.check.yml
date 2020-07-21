@@ -1,0 +1,24 @@
+---
+# author: lework
+
+- name: check | Check if the backup_file_path is configured.
+  fail: msg="backup_file_path is empty."
+  when: backup_file_path | length  == 0
+
+- name: check | Ensure that the backup file storage directory exists.
+  file: path={{ backup_file_save_path }} state=directory
+  connection: local
+  run_once: yes
+  
+- name: check | Get backup directory information.
+  find: paths={{ item }} file_type=file
+  register: reg_backup_directory_info
+  loop: "{{ backup_file_path }}"
+
+- name: check | Check backup file path is it empty.
+  fail: msg="backup file path is empty."
+  loop: "{{ reg_backup_directory_info.results }}"
+  when: item.matched | int  == 0
+
+- name: check | Ensure that the backup file tmp directory exists.
+  file: path={{ backup_file_tmp_path }} state=directory
