@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- import_tasks: setup_package.yml
+  when: not (openjdk_setup_binary | bool)
+  
+- import_tasks: setup_binary.yml
+  when: openjdk_setup_binary | bool
+
+
+- name: Get java version.
+  shell: ". /etc/profile; javac -version"
+  register: result
+  changed_when: false
+  ignore_errors: True
+
+- name: Java version.
+  debug: "msg={{ result.stdout }}"

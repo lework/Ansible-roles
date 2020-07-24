@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__openjdk_packages: 
+  - "openjdk-{{ openjdk_package_version }}-jre"
