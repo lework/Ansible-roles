@@ -1,0 +1,7 @@
+---
+# author lework
+
+- name: restart heartbeat
+  service:
+    name: "heartbeat-elastic"
+    state: restarted

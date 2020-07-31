@@ -1,0 +1,15 @@
+---
+# author: lework
+
+__package:
+  - apt-transport-https
+  
+__package_repo: 
+  - { src: "elastic.list", dest: "/etc/apt/sources.list.d/elastic.list" }
+
+__package_signing_key: >
+  apt-key list 2>/dev/null | grep elasticsearch > /dev/null
+  || wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+__package_file: metricbeat-{{ metricbeat_version }}-amd64.deb
+__package_file_url: https://artifacts.elastic.co/downloads/beats/metricbeat/{{ __package_file }}

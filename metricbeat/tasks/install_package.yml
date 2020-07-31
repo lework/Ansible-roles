@@ -1,0 +1,36 @@
+---
+# author: lework
+
+- block:
+  - name: install_package | Check if metricbeat local file is already configured.
+    stat: path={{ software_files_path }}/{{ __package_file }}
+    register: reg_metricbeat_file_result
+  
+  - name: install_package | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_metricbeat_file_result.stat.exists
+  
+  - name: install_package | Download metricbeat file.
+    get_url: url={{ __package_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_metricbeat_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install_package | Copy metricbeat file to agent.
+  copy:
+    src: "{{ software_files_path }}/{{ __package_file }}"
+    dest: "/tmp/"
+
+- name: install_package | Install metricbeat rpm from a local file.
+  yum:
+    name: "/tmp/{{ __package_file }}"
+    state: present
+  when: ansible_pkg_mgr | d() == 'yum'
+
+- name: install_package | Install metricbeat deb from a local file.
+  apt: 
+    deb: "/tmp/{{ __package_file }}"
+    state: present
+  environment:
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  when: ansible_pkg_mgr | d() == 'apt'

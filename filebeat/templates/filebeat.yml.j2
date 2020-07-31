@@ -1,3 +1,2 @@
-{% if filebeat_config %}
-{{ filebeat_config | replace("'","")}}
-{% endif %}
+
+{{ filebeat_conf | to_nice_yaml(indent=2) }}

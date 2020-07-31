@@ -4,31 +4,33 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-logstash_version: "5.4.1"
+logstash_version: "7.8.1"
 
-logstash_file: "logstash-{{ logstash_version }}.tar.gz"
-logstash_file_path: "{{ software_files_path }}/{{ logstash_file }}"
-logstash_file_url: "https://artifacts.elastic.co/downloads/logstash/{{ logstash_file }}"
+logstash_service_status: started
+logstash_service_enabled: yes
 
-logstash_user: logstash
-logstash_group: logstash
+logstash_repo_install: true
 
-logstash_home_dir: "/usr/local/logstash"
-logstash_log_dir: "/var/log/logstash"
-logstash_pid_dir: "/var/run/logstash"
-logstash_conf_dir: "{{ logstash_home_dir }}/config"
-logstash_data_dir: "{{ logstash_home_dir }}/data"
-logstash_pipeline_dir: "{{ logstash_home_dir }}/pipeline"
-logstash_pipeline_file: "{{ logstash_service_name }}.conf"
+logstash_conf_path: /etc/logstash/
 
-logstash_node_name: ""
-logstash_service_name: "logstash"
-logstash_service_start: false
+logstash_conf:
+  pipeline.ordered: auto
+  http.enabled: true
+  http.host: 0.0.0.0
+  http.port: 9600-9700
+  path.data: /var/lib/logstash
+  path.logs: /var/log/logstash
 
-logstash_install_plugins: []
-logstash_config: ""
+logstash_conf_file: ""
 
-logstash_heap_ms: "256m"
-logstash_heap_mx: "1g"
-logstash_jvm_options: ""
-logstash_java_home: ""
+logstash_pipeline_conf:
+   - pipeline.id: main
+     path.config: "/etc/logstash/conf.d/*.conf"  
+
+logstash_pipeline: []
+logstash_pipeline_file: []
+
+logstash_jvm_heapsize: "1g"
+
+logstash_plugin: []
+logstash_plugin_file: []

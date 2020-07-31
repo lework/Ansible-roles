@@ -1,26 +1,28 @@
 ---
 # author: lework
 
-- name: configure | Create kibana Directory.
-  file: path={{ item }} state=directory owner={{ kibana_user }} group={{ kibana_group }}
-  with_items:
-   - "{{ kibana_pid_dir }}"
-   - "{{ kibana_log_dir }}"
-   
-- name: configure | Setup kibana yml file.
+- name: configure | Setup kibana configuration file.
   template:
-    dest: "{{ kibana_conf_dir }}/{{ kibana_conf_file }}"
-    mode: 0644
-    owner: "{{ kibana_user }}"
-    group: "{{ kibana_group }}"
     src: kibana.yml.j2
-    
-- name: configure | Setup kibana init file.
-  template:
-    dest: "/etc/init.d/{{ kibana_service_name }}"
-    mode: 0755
-    src: kibana.init.j2
-    
-- name: configure | Ensure kibana is started and enabled on boot.
-  service: "name={{ kibana_service_name }} state=started enabled=yes"
-  when: kibana_service_start
+    dest: "{{ kibana_conf_path }}/kibana.yml"
+    backup: yes
+  notify: restart kibana
+  when:
+    - kibana_conf is defined
+    - kibana_conf != ""
+
+- name: configure | Copy kibana configuration file.
+  copy:
+    src: "{{ kibana_conf_file }}"
+    dest: "{{ kibana_conf_path }}/kibana.yml"
+    backup: yes
+  notify: restart kibana
+  when:
+    - kibana_conf_file is defined
+    - kibana_conf_file != ""
+   
+- name: configure | Manage kibana services.
+  service:
+    name: kibana
+    state: "{{ kibana_service_status }}"
+    enabled: "{{ kibana_service_enabled }}"

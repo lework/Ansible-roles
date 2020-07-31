@@ -1,0 +1,43 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+metricbeat_version: "7.8.1"
+
+metricbeat_service_status: started
+metricbeat_service_enabled: yes
+
+metricbeat_repo_install: true
+
+metricbeat_conf_path: /etc/metricbeat/
+
+metricbeat_conf:
+  metricbeat.config.modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+  setup.template.settings:
+    index.number_of_shards: 0
+    index.codec: best_compression
+  fields:
+    env: staging
+  output.elasticsearch:
+    hosts:  ["localhost:9200"]
+  http.enabled: false
+  http.host: 0.0.0.0
+  http.port: 5066
+  
+metricbeat_conf_file: ""
+
+metricbeat_module_conf:
+  - name: elasticsearch
+    conf:
+      - module: elasticsearch
+        metricsets:
+          - node
+          - node_stats
+        period: 10s
+        hosts: ["http://localhost:9200"]
+
+metricbeat_setup: false

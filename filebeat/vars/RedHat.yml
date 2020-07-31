@@ -1,0 +1,14 @@
+---
+# author: lework
+
+__package: []
+  
+__package_repo: 
+  - { src: "elastic.repo", dest: "/etc/yum.repos.d/elastic.repo" }
+
+__package_signing_key: >
+  rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep elasticsearch > /dev/null
+  || rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+__package_file: filebeat-{{ filebeat_version }}-x86_64.rpm
+__package_file_url: https://artifacts.elastic.co/downloads/beats/filebeat/{{ __package_file }}

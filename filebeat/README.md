@@ -11,34 +11,56 @@ github: https://github.com/elastic/beats
 
 ## 要求
 
-此角色仅在RHEL及其衍生产品上运行。
+此角色仅在RHEL或Debian及其衍生产品上运行。
 
 ## 测试环境
 
-ansible `2.3.0.0`
-os `Centos 6.7 X64`
-python `2.6.6`
+ansible `2.9.10`
+os `Centos 7.7 X64`
+python `2.7.5`
 
 ## 角色变量
-    software_files_path: "/opt/software"
-    software_install_path: "/usr/local"
+```yaml
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
 
-    filebeat_version: "5.4.1"
+filebeat_version: "7.8.0"
 
-    filebeat_file: "filebeat-{{ filebeat_version }}-linux-x86_64.tar.gz"
-    filebeat_file_path: "{{ software_files_path }}/{{ filebeat_file }}"
-    filebeat_file_url: "https://artifacts.elastic.co/downloads/beats/filebeat/{{ filebeat_file }}"
+filebeat_service_status: started
+filebeat_service_enabled: yes
 
-    filebeat_pid_dir: "/var/run/filebeat"
-    filebeat_home_dir: "/usr/local/filebeat"
-    filebeat_log_dir: "/var/log/filebeat"
-    filebeat_conf_dir: "{{ filebeat_home_dir }}/conf"
-    filebeat_data_dir: "{{ filebeat_home_dir }}/data"
+filebeat_repo_install: true
 
-    filebeat_service_name: "filebeat"
-    filebeat_service_start: false
-    filebeat_conf_file: "{{ filebeat_service_name }}.yml"
-    filebeat_config : ""
+filebeat_conf_path: /etc/filebeat/
+
+filebeat_conf:
+  filebeat.config.modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+  setup.template.settings:
+    index.number_of_shards: 0
+    index.codec: best_compression
+  fields:
+    env: staging
+  output.elasticsearch:
+    hosts:  ["localhost:9200"]
+  http.enabled: false
+  http.host: 0.0.0.0
+  http.port: 5066
+  
+filebeat_conf_file: ""
+
+filebeat_module_conf:
+  - name: system
+    conf:
+      - module: system
+        syslog:
+          enabled: true
+        auth:
+          enabled: true
+
+filebeat_setup: false
+```
 
 ## 依赖
 
@@ -49,83 +71,75 @@ https://github.com/lework/Ansible-roles/tree/master/filebeat
 
 ## Example Playbook
 
-    #安装filebeat,监听mysql慢日志：
-    - hosts: node1
-      vars:
-       - filebeat_config: |
-           'filebeat.prospectors:
-             - input_type: log
-               paths:
-                 - /var/log/mysql/mysql-slow.log.20170301
-               document_type: mysql-slow
-               tail_file: false
-           output.logstash:
-             hosts: ["localhost:5044"]
-           processors:
-             - drop_fields:
-                 fields: ["input_type", "beat", "offset", "source"] 
-           logging.to_files: true
-           logging.files:
-             path: /var/log/filebeat
-             name: filebeat-mysql-slow
-             rotateeverybytes: 104857600
-             keepfiles: 7'
-       - filebeat_service_start: true
-      roles:
-       - filebeat
-       
-      #多实例部署
-      - hosts: node1
-        vars:
-         - filebeat_config_1: |
-            'filebeat.prospectors:
-               - input_type: log
-                 paths:
-                   - /var/log/mysql/mysql-slow.log.20170301
-                 document_type: mysql-slow
-                 tail_file: false
-             output.logstash:
-               hosts: ["localhost:5044"]
-             processors:
-               - drop_fields:
-                 fields: ["input_type", "beat", "offset", "source"] 
-             logging.to_files: true
-             logging.files:
-               path: /var/log/filebeat
-               name: filebeat-mysql-slow
-               rotateeverybytes: 104857600
-               keepfiles: 7'
-         - filebeat_config_2: |
-            'filebeat.prospectors:
-               - input_type: log
-                 paths:
-                   - /var/log/nginx/access.log*
-                 document_type: nginx
-                 tail_files: true
-                 json.keys_under_root: true
-                 json.add_error_key: true
-             output.logstash:
-             hosts: ["localhost:5044"]
+> 默认使用repo方式安装
 
-             processors:
-               - drop_fields:
-                 fields: ["input_type", "beat", "offset", "source"] 
-             logging.to_files: true
-             logging.files:
-               path: /var/log/filebeat-nginx
-               name: filebeat
-               rotateeverybytes: 104857600
-               keepfiles: 7'
-         - filebeat_service_start: true
-        roles:
-         - { role: filebeat, filebeat_config: "{{filebeat_config_1}}", filebeat_service_name: "filebeat-mysqlslow" }
-         - { role: filebeat, filebeat_config: "{{filebeat_config_2}}", filebeat_service_name: "filebeat-nginx" }
+### 默认安装
 
+```yaml
+---
 
-
-## 使用
-
+- hosts: node
+  roles:
+  - filebeat
 ```
-service filebeat-nginx
-Usage: /etc/init.d/filebeat-nginx {start|stop|status|restart|condrestart}
+
+### 使用package包安装
+
+> 默认是安装 `7.8.1` 版本文件，指定版本需指定 `__package_file` 和 `__package_file_url`
+
+```yaml
+---
+
+- hosts: node
+  vars:
+    - filebeat_repo_install: false
+    - __package_file: filebeat-7.8.0-x86_64.rpm
+    - __package_file_url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.8.0-x86_64.rpm
+  roles:
+  - filebeat
+```
+
+### 指定配置
+
+```yaml
+---
+
+- hosts: node
+  vars:
+    - filebeat_conf:
+        filebeat.config.modules:
+          path: ${path.config}/modules.d/*.yml
+          reload.enabled: false
+        setup.template.settings:
+          index.number_of_shards: 0
+          index.codec: best_compression
+        fields:
+          env: staging
+        output.elasticsearch:
+          hosts:  ["localhost:9200"]
+        http.enabled: false
+        http.host: 0.0.0.0
+        http.port: 5066
+    - filebeat_module_conf:
+      - name: system
+        conf:
+          - module: system
+            syslog:
+              enabled: true
+            auth:
+              enabled: true
+  roles:
+  - filebeat
+```
+
+### 指定配置文件
+
+```yaml
+---
+
+- hosts: node
+  vars:
+    - filebeat_conf_file: filebeat-conf.yml
+  roles:
+  - filebeat
 ```

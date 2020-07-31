@@ -1,0 +1,17 @@
+---
+# author: lework
+
+
+- name: install_repo | Set package repository.
+  copy: "src={{ item.src }} dest={{ item.dest }}"
+  loop: "{{ __package_repo }}"
+
+- name: install_repo | Install signing key.
+  shell: "{{ __package_signing_key }}"
+
+- name: install_repo | Update apt cache.
+  apt: update_cache=true cache_valid_time=600
+  when: "ansible_pkg_mgr == 'apt'"
+
+- name: install_repo | Install elasticsearch package.
+  package: name=elasticsearch

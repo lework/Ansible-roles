@@ -1,0 +1,45 @@
+---
+# author: lework
+
+- name: configure | Setup heartbeat configuration file.
+  template:
+    src: heartbeat.yml.j2
+    dest: "{{ heartbeat_conf_path }}/heartbeat.yml"
+    mode: 0644
+    backup: yes
+  notify: restart heartbeat
+  when:
+    - heartbeat_conf is defined
+    - heartbeat_conf != ""
+
+- name: configure | Copy heartbeat configuration file.
+  copy:
+    src: "{{ heartbeat_conf_file }}"
+    dest: "{{ heartbeat_conf_path }}/heartbeat.yml"
+    backup: yes
+  notify: restart heartbeat
+  when:
+    - heartbeat_conf_file is defined
+    - heartbeat_conf_file != ""
+    
+- name: configure | Configure heartbeat monitors.
+  copy:
+    content: |
+      {{ item.conf | to_nice_yaml(indent=2) }}
+    dest: "{{ heartbeat_conf_path }}/monitors.d/{{ item.name }}.yml"
+    backup: yes
+  notify: restart heartbeat
+  loop: "{{ heartbeat_monitor_conf }}"
+  when:
+    - heartbeat_monitor_conf is defined
+    - heartbeat_monitor_conf != ""
+
+- name: configure | Setup Elasticsearch index template and pipelines.
+  shell: heartbeat setup
+  when: heartbeat_setup | bool
+
+- name: configure | Manage heartbeat services.
+  service:
+    name: "heartbeat-elastic"
+    state: "{{ heartbeat_service_status }}"
+    enabled: "{{ heartbeat_service_enabled }}"

@@ -1,0 +1,30 @@
+---
+# author: lework
+
+- name: plugin | Copy elasticsearch plugin file to agent.
+  copy: 
+    src: "{{ item }}"
+    dest: "/tmp/"
+  loop: "{{ elasticsearch_plugin_file }}"
+  when: elasticsearch_plugin_file | length > 0
+
+- name: plugin | Get list of installed plugins.
+  shell: "{{ __elasticsearch_home }}/bin/elasticsearch-plugin list"
+  register: reg_plugins_list
+  environment:
+    ES_PATH_CONF: "{{ elasticsearch_conf_path }}"
+    ES_INCLUDE: "{{ __elasticsearch_default_file }}"
+
+- name: plugin | Install elasticsearch plugin.
+  shell: "{{ __elasticsearch_home }}/bin/elasticsearch-plugin install {{ item }} --batch --silent"
+  register: reg_plugin_installed
+  changed_when: reg_plugin_installed.rc == 0
+  environment:
+    ES_PATH_CONF: "{{ elasticsearch_conf_path }}"
+    ES_INCLUDE: "{{ __elasticsearch_default_file }}"
+  loop: "{{ elasticsearch_plugin + (elasticsearch_plugin_file | map('basename')| map('regex_replace', '(.*)', 'file:///tmp/\\1') | list)}}"
+  when: "item not in reg_plugins_list.stdout_lines"
+  notify: restart elasticsearch
+  until: reg_plugin_installed.rc == 0
+  retries: 5
+  delay: 5

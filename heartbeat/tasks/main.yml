@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+  
+- name: Install dependent package.
+  package: name={{ __package }}
+  when: __package | length > 0
+
+- import_tasks: install_repo.yml
+  when: heartbeat_repo_install | bool
+- import_tasks: install_package.yml
+  when:
+    - not (heartbeat_repo_install | bool)
+    - __package_file is defined and __package_file != ""
+
+- import_tasks: configure.yml

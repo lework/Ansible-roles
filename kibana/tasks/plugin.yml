@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: plugin | Copy kibana plugin file to agent.
+  copy: 
+    src: "{{ item }}"
+    dest: "/tmp/"
+  loop: "{{ kibana_plugin_file }}"
+  when: kibana_plugin_file | length > 0
+
+- name: plugin | Install kibana plugin.
+  shell: "/usr/share/kibana/bin/kibana-plugin --allow-root install {{ item }}"
+  loop: "{{ kibana_plugin + (kibana_plugin_file | map('basename')| map('regex_replace', '(.*)', 'file:///tmp/\\1') | list )}}"
+  ignore_errors: yes
+  when: (kibana_plugin | length > 0) or (kibana_plugin_file | length > 0)
+  notify: restart kibana

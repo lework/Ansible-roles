@@ -1,0 +1,16 @@
+---
+# author: lework
+
+- name: plugin | Copy logstash plugin file to agent.
+  copy: 
+    src: "{{ item }}"
+    dest: "/tmp/"
+  loop: "{{ logstash_plugin_file }}"
+  when: logstash_plugin_file | length > 0
+
+- name: plugin | Install logstash plugin.
+  shell: "/usr/share/logstash/bin/logstash-plugin install {{ item }}"
+  loop: "{{ logstash_plugin + (logstash_plugin_file | map('basename')| map('regex_replace', '(.*)', 'file:///tmp/\\1') | list )}}"
+  ignore_errors: yes
+  when: (logstash_plugin | length > 0) or (logstash_plugin_file | length > 0)
+  notify: restart logstash

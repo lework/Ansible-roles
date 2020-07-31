@@ -1,0 +1,44 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+heartbeat_version: "7.8.1"
+
+heartbeat_service_status: started
+heartbeat_service_enabled: yes
+
+heartbeat_repo_install: true
+
+heartbeat_conf_path: /etc/heartbeat/
+
+heartbeat_conf:
+  heartbeat.config.monitors:
+    path: ${path.config}/monitors.d/*.yml
+    reload.enabled: true
+    reload.period: 10s
+  setup.template.settings:
+    index.number_of_shards: 0
+    index.codec: best_compression
+    _source.enabled: false
+  output.elasticsearch:
+    hosts: ["localhost:9200"]
+  name: "{{ ansible_hostname | d(inventory_hostname)}}"
+  logging.level: info
+  http.enabled: false
+  http.host: 0.0.0.0
+  http.port: 5066
+  
+heartbeat_conf_file: ""
+
+heartbeat_monitor_conf:
+  - name: http
+    conf:
+      - type: http
+        id: es-monitor
+        name: "es Monitor"
+        urls: ["http://localhost:9200"]
+        schedule: '@every 10s'
+
+heartbeat_setup: false

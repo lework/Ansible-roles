@@ -1,0 +1,118 @@
+---
+# author: lework
+
+- name: ssl | Create certificate Directories.
+  become: yes
+  file:
+    path: "{{ elasticsearch_ssl_certificate_path }}"
+    state: directory
+    owner: "{{ elasticsearch_user }}"
+    group: "{{ elasticsearch_group }}"
+    mode: "2750"
+
+- block:
+  - name: ssl | Generate certutil request config file.
+    copy:
+      content: |
+        instances:
+          {% for i in ansible_play_hosts_all %}
+          - name: "{{ hostvars[i].ansible_hostname }}"
+              ip: ["{{ hostvars[i].ansible_default_ipv4.address }}", "127.0.0.1"]
+              dns: ["{{ hostvars[i].ansible_hostname }}", "localhost"]
+          {% endfor %}
+      dest: "{{ elasticsearch_ssl_certificate_path }}/instances.yml"
+  
+  - name: ssl | Generate certificates.
+    shell: >
+      {{ __elasticsearch_home }}/bin/elasticsearch-certutil cert --silent
+      --in {{ elasticsearch_ssl_certificate_path }}/instances.yml
+      --keep-ca-key --ca-pass "" --pass "" --days 3650
+      --out {{ elasticsearch_ssl_certificate_path }}/certs.zip
+    environment:
+      ES_PATH_CONF: "{{ elasticsearch_conf_path }}"
+      ES_INCLUDE: "{{ __elasticsearch_default_file }}"
+    args:
+      creates: "{{ elasticsearch_ssl_certificate_path }}/certs.zip"
+  
+  - name: ssl | Unzip certificates file.
+    unarchive:
+      src: "{{ elasticsearch_ssl_certificate_path }}/certs.zip"
+      dest: "{{ elasticsearch_ssl_certificate_path }}/"
+      remote_src: yes
+
+  - name: ssl | Find PKCS#12 file.
+    find:
+      paths: "{{ elasticsearch_ssl_certificate_path }}/"
+      patterns: '*.p12'
+      recurse: true
+    register: reg_elasticsearch_cert_file_fetch
+  
+  - name: ssl | Fetch elasticsearch PKCS#12 file.
+    fetch: src={{ item.path }} dest=elasticsearch_cert_files/ flat=yes
+    loop: "{{ reg_elasticsearch_cert_file_fetch.files }}"
+  run_once: yes
+  when: elasticsearch_ssl_cert_generate | bool
+
+- name: ssl | Copy SSL/TLS keystore and truststore.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ elasticsearch_ssl_certificate_path }}/{{ item | basename}}"
+    owner: "{{ elasticsearch_user }}"
+    group: "{{ elasticsearch_group }}"
+    mode: "0640"
+  when: item != ""
+  notify: restart elasticsearch
+  loop:
+    - "{{ elasticsearch_ssl_keystore }}"
+    - "{{ elasticsearch_ssl_truststore }}"
+
+- name: ssl | Copy SSL/TLS key and certificate.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ elasticsearch_ssl_certificate_path }}/{{ item | basename}}"
+    owner: "{{ elasticsearch_user }}"
+    group: "{{ elasticsearch_group }}"
+    mode: "0640"
+  when: item != ""
+  notify: restart elasticsearch
+  loop:
+    - "{{ elasticsearch_ssl_key }}"
+    - "{{ elasticsearch_ssl_certificate }}"
+
+- name: ssl | Copy SSL Certificate Authority.
+  become: yes
+  copy:
+    src: "{{ elasticsearch_ssl_certificate_authority }}"
+    dest: "{{ elasticsearch_ssl_certificate_path }}/{{ elasticsearch_ssl_certificate_authority | basename }}"
+    owner: "{{ elasticsearch_user }}"
+    group: "{{ elasticsearch_group }}"
+    mode: "0640"
+  notify: restart elasticsearch
+  when: (elasticsearch_ssl_certificate_authority is defined) and (elasticsearch_ssl_certificate_authority|length > 0)
+
+- name: ssl | Set keystore password.
+  become: yes
+  shell: echo "{{ elasticsearch_ssl_keystore_password }}" | {{ __elasticsearch_home }}/bin/elasticsearch-keystore add -x -f 'xpack.security.{{ item }}.ssl.keystore.secure_password'
+  no_log: True
+  when: elasticsearch_ssl_keystore_password != ""
+  loop:
+    - http
+    - transport
+
+- name: ssl | Set truststore password.
+  become: yes
+  shell: echo "{{ elasticsearch_ssl_truststore_password }}" | {{ __elasticsearch_home }}/bin/elasticsearch-keystore add -x -f 'xpack.security.{{ item }}.ssl.truststore.secure_password'
+  no_log: True
+  when: elasticsearch_ssl_truststore_password != ""
+  loop:
+    - http
+    - transport
+
+- name: ssl | Set key password.
+  become: yes
+  shell: echo "{{ elasticsearch_ssl_key_password }}" | {{ __elasticsearch_home }}/bin/elasticsearch-keystore add -x -f 'xpack.security.{{ item }}.ssl.secure_key_passphrase'
+  no_log: True
+  when: elasticsearch_ssl_key_password != ""
+  loop:
+    - http
+    - transport

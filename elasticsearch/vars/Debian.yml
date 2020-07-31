@@ -1,0 +1,20 @@
+---
+# author: lework
+
+__package:
+  - unzip
+  - apt-transport-https
+  
+__package_repo: 
+  - { src: "elastic.list", dest: "/etc/apt/sources.list.d/elastic.list" }
+
+__package_signing_key: >
+  apt-key list 2>/dev/null | grep elasticsearch > /dev/null
+  || wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+__package_file: elasticsearch-{{ elasticsearch_version }}-amd64.deb
+__package_file_url: https://artifacts.elastic.co/downloads/elasticsearch/{{ __package_file }}
+
+
+__elasticsearch_home: "/usr/share/elasticsearch"
+__elasticsearch_default_file: "/etc/default/elasticsearch"

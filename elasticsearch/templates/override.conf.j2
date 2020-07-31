@@ -1,0 +1,8 @@
+[Service]
+TimeoutStartSec=180
+{% if elasticsearch_conf['bootstrap.memory_lock'] is defined and elasticsearch_conf['bootstrap.memory_lock'] | bool %}
+LimitMEMLOCK = infinity
+{% endif %}
+{% if elasticsearch_max_open_files is defined %}
+LimitNOFILE = {{ elasticsearch_max_open_files }}
+{% endif %}

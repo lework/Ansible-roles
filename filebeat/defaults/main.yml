@@ -4,19 +4,39 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-filebeat_version: "5.4.1"
+filebeat_version: "7.8.1"
 
-filebeat_file: "filebeat-{{ filebeat_version }}-linux-x86_64.tar.gz"
-filebeat_file_path: "{{ software_files_path }}/{{ filebeat_file }}"
-filebeat_file_url: "https://artifacts.elastic.co/downloads/beats/filebeat/{{ filebeat_file }}"
+filebeat_service_status: started
+filebeat_service_enabled: yes
 
-filebeat_pid_dir: "/var/run/filebeat"
-filebeat_home_dir: "/usr/local/filebeat"
-filebeat_log_dir: "/var/log/filebeat"
-filebeat_conf_dir: "{{ filebeat_home_dir }}/conf"
-filebeat_data_dir: "{{ filebeat_home_dir }}/data"
+filebeat_repo_install: true
 
-filebeat_service_name: "filebeat"
-filebeat_service_start: false
-filebeat_conf_file: "{{ filebeat_service_name }}.yml"
-filebeat_config : ""
+filebeat_conf_path: /etc/filebeat/
+
+filebeat_conf:
+  filebeat.config.modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+  setup.template.settings:
+    index.number_of_shards: 0
+    index.codec: best_compression
+  fields:
+    env: staging
+  output.elasticsearch:
+    hosts:  ["localhost:9200"]
+  http.enabled: false
+  http.host: 0.0.0.0
+  http.port: 5066
+  
+filebeat_conf_file: ""
+
+filebeat_module_conf:
+  - name: system
+    conf:
+      - module: system
+        syslog:
+          enabled: true
+        auth:
+          enabled: true
+
+filebeat_setup: false

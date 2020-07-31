@@ -1,0 +1,18 @@
+---
+# author: lework
+
+__package:
+  - apt-transport-https
+  - fonts-liberation
+  - libfontconfig1
+  
+__package_repo: 
+  - { src: "elastic.list", dest: "/etc/apt/sources.list.d/elastic.list" }
+
+__package_signing_key: >
+  apt-key list 2>/dev/null | grep elasticsearch > /dev/null
+  || wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+__package_file: kibana-{{ kibana_version }}-amd64.deb
+__package_file_url: https://artifacts.elastic.co/downloads/kibana/{{ __package_file }}
+

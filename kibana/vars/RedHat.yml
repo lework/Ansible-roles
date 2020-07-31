@@ -1,0 +1,23 @@
+---
+# author: lework
+
+__package:
+ - ipa-gothic-fonts
+ - xorg-x11-fonts-100dpi
+ - xorg-x11-fonts-75dpi
+ - xorg-x11-utils
+ - xorg-x11-fonts-cyrillic
+ - xorg-x11-fonts-Type1
+ - xorg-x11-fonts-misc
+ - fontconfig
+ - freetype
+  
+__package_repo: 
+  - { src: "elastic.repo", dest: "/etc/yum.repos.d/elastic.repo" }
+
+__package_signing_key: >
+  rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n' | grep elasticsearch > /dev/null
+  || rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+__package_file: kibana-{{ kibana_version }}-x86_64.rpm
+__package_file_url: https://artifacts.elastic.co/downloads/kibana/{{ __package_file }}

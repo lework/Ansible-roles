@@ -19,16 +19,13 @@
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
 
-{% if es_heap_ms %}
--Xms{{ es_heap_ms }}
+{% if elasticsearch_heap_size is defined %}
+-Xms{{ elasticsearch_heap_size }}
+-Xmx{{ elasticsearch_heap_size }}
 {% else %}
--Xms2g
-{% endif%}
-{% if es_heap_mx %}
--Xmx{{ es_heap_mx }}
-{% else %}
--Xmx2g
-{% endif%}
+-Xms1g
+-Xmx1g
+{% endif %}
 
 ################################################################
 ## Expert settings
@@ -41,53 +38,22 @@
 ################################################################
 
 ## GC configuration
+8-13:-XX:+UseConcMarkSweepGC
+8-13:-XX:CMSInitiatingOccupancyFraction=75
+8-13:-XX:+UseCMSInitiatingOccupancyOnly
 
-{% if es_g1gc %}
--XX:+UseG1GC
--XX:MaxGCPauseMillis=200
-{% else %}
--XX:+UseConcMarkSweepGC
--XX:CMSInitiatingOccupancyFraction=75
--XX:+UseCMSInitiatingOccupancyOnly
-{% endif %}
+## G1GC Configuration
+# NOTE: G1 GC is only supported on JDK version 10 or later
+# to use G1GC, uncomment the next two lines and update the version on the
+# following three lines to your version of the JDK
+# 10-13:-XX:-UseConcMarkSweepGC
+# 10-13:-XX:-UseCMSInitiatingOccupancyOnly
+14-:-XX:+UseG1GC
+14-:-XX:G1ReservePercent=25
+14-:-XX:InitiatingHeapOccupancyPercent=30
 
-## optimizations
-
-# disable calls to System#gc
--XX:+DisableExplicitGC
-
-# pre-touch memory pages used by the JVM during initialization
--XX:+AlwaysPreTouch
-
-## basic
-
-# force the server VM (remove on 32-bit client JVMs)
--server
-
-# explicitly set the stack size (reduce to 320k on 32-bit client JVMs)
--Xss1m
-
-# set to headless, just in case
--Djava.awt.headless=true
-
-# ensure UTF-8 encoding by default (e.g. filenames)
--Dfile.encoding=UTF-8
-
-# use our provided JNA always versus the system one
--Djna.nosys=true
-
-# use old-style file permissions on JDK9
--Djdk.io.permissionsUseCanonicalPath=true
-
-# flags to configure Netty
--Dio.netty.noUnsafe=true
--Dio.netty.noKeySetOptimization=true
--Dio.netty.recycler.maxCapacityPerThread=0
-
-# log4j 2
--Dlog4j.shutdownHookEnabled=false
--Dlog4j2.disable.jmx=true
--Dlog4j.skipJansi=true
+## JVM temporary directory
+-Djava.io.tmpdir=${ES_TMPDIR}
 
 ## heap dumps
 
@@ -95,40 +61,22 @@
 # heap dumps are created in the working directory of the JVM
 -XX:+HeapDumpOnOutOfMemoryError
 
-# specify an alternative path for heap dumps
-# ensure the directory exists and has sufficient space
-#-XX:HeapDumpPath=${heap.dump.path}
+# specify an alternative path for heap dumps; ensure the directory exists and
+# has sufficient space
+-XX:HeapDumpPath={{ elasticsearch_heap_dump_path }}
 
-## GC logging
+# specify an alternative path for JVM fatal error logs
+-XX:ErrorFile={{ elasticsearch_log_path }}/hs_err_pid%p.log
 
-#-XX:+PrintGCDetails
-#-XX:+PrintGCTimeStamps
-#-XX:+PrintGCDateStamps
-#-XX:+PrintClassHistogram
-#-XX:+PrintTenuringDistribution
-#-XX:+PrintGCApplicationStoppedTime
+## JDK 8 GC logging
+8:-XX:+PrintGCDetails
+8:-XX:+PrintGCDateStamps
+8:-XX:+PrintTenuringDistribution
+8:-XX:+PrintGCApplicationStoppedTime
+8:-Xloggc:{{ elasticsearch_log_path }}/gc.log
+8:-XX:+UseGCLogFileRotation
+8:-XX:NumberOfGCLogFiles=32
+8:-XX:GCLogFileSize=64m
 
-# log GC status to a file with time stamps
-# ensure the directory exists
-#-Xloggc:${loggc}
-
-# By default, the GC log file will not rotate.
-# By uncommenting the lines below, the GC log file
-# will be rotated every 128MB at most 32 times.
-#-XX:+UseGCLogFileRotation
-#-XX:NumberOfGCLogFiles=32
-#-XX:GCLogFileSize=128M
-
-# Elasticsearch 5.0.0 will throw an exception on unquoted field names in JSON.
-# If documents were already indexed with unquoted fields in a previous version
-# of Elasticsearch, some operations may throw errors.
-#
-# WARNING: This option will be removed in Elasticsearch 6.0.0 and is provided
-# only for migration purposes.
-#-Delasticsearch.json.allow_unquoted_field_names=true
-
-
-
-{% if es_jvm_options %}
-{{ es_jvm_options }}
-{% endif %}
+# JDK 9+ GC logging
+9-:-Xlog:gc*,gc+age=trace,safepoint:file={{ elasticsearch_log_path }}/gc.log:utctime,pid,tags:filecount=32,filesize=64m

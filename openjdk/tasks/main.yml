@@ -9,7 +9,7 @@
 
 
 - name: Get java version.
-  shell: ". /etc/profile; javac -version"
+  shell: ". /etc/profile; java -version 2>&1 | grep OpenJDK"
   register: result
   changed_when: false
   ignore_errors: True

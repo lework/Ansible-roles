@@ -1,0 +1,45 @@
+---
+# author: lework
+
+- name: configure | Setup metricbeat configuration file.
+  template:
+    src: metricbeat.yml.j2
+    dest: "{{ metricbeat_conf_path }}/metricbeat.yml"
+    mode: 0644
+    backup: yes
+  notify: restart metricbeat
+  when:
+    - metricbeat_conf is defined
+    - metricbeat_conf != ""
+
+- name: configure | Copy metricbeat configuration file.
+  copy:
+    src: "{{ metricbeat_conf_file }}"
+    dest: "{{ metricbeat_conf_path }}/metricbeat.yml"
+    backup: yes
+  notify: restart metricbeat
+  when:
+    - metricbeat_conf_file is defined
+    - metricbeat_conf_file != ""
+    
+- name: configure | Configure metricbeat modules.
+  copy:
+    content: |
+      {{ item.conf | to_nice_yaml(indent=2) }}
+    dest: "{{ metricbeat_conf_path }}/modules.d/{{ item.name }}.yml"
+    backup: yes
+  notify: restart metricbeat
+  loop: "{{ metricbeat_module_conf }}"
+  when:
+    - metricbeat_module_conf is defined
+    - metricbeat_module_conf != ""
+
+- name: configure | Setup Elasticsearch index template and pipelines.
+  shell: metricbeat setup
+  when: metricbeat_setup | bool
+
+- name: configure | Manage metricbeat services.
+  service:
+    name: metricbeat
+    state: "{{ metricbeat_service_status }}"
+    enabled: "{{ metricbeat_service_enabled }}"
