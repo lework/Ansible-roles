@@ -1,0 +1,30 @@
+---
+# author: lework
+
+- block:
+  - name: configure | Create persistence file dir.
+    file:
+      path: "{{ pushgateway_persistence_path }}"
+      state: directory
+      owner: "{{ pushgateway_user }}"
+      group: "{{ pushgateway_group }}"
+      mode: 0755
+
+  - name: configure | Create persistence file.
+    file:
+      path: "{{ pushgateway_persistence_path }}/persistence"
+      state: touch
+      owner: "{{ pushgateway_user }}"
+      group: "{{ pushgateway_group }}"
+      mode: 0640
+    register: touch_log
+    changed_when: touch_log.diff.before.state != "file"
+  when: pushgateway_persistence
+
+
+- name: configure | Manage pushgateway services.
+  systemd:
+    daemon_reload: true
+    name: pushgateway
+    state: "{{ pushgateway_service_status }}"
+    enabled: "{{ pushgateway_service_enabled }}"

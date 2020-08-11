@@ -1,0 +1,18 @@
+---
+# author: lework
+
+exporter_version: "1.0.1"
+exporter_binary_file: node_exporter-{{ exporter_version }}.linux-amd64.tar.gz
+exporter_binary_file_url: https://github.com/prometheus/node_exporter/releases/download/v{{ exporter_version }}/{{ exporter_binary_file }}
+
+exporter_port: "9100"
+exporter_log_level: "info"
+exporter_web_listen_address: "0.0.0.0:{{ exporter_port }}"
+
+exporter_config_flags_extra:
+  log.level: "info"
+
+exporter_conf: []
+
+node_exporter_disabled_collectors: []
+node_exporter_enabled_collectors: []

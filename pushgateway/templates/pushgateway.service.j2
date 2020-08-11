@@ -1,0 +1,29 @@
+[Unit]
+Description=Prometheus pushgateway
+After=network-online.target
+StartLimitInterval=0
+
+[Service]
+Type=simple
+User={{ pushgateway_user }}
+Group={{ pushgateway_group }}
+ExecStart={{ software_install_path }}/pushgateway/pushgateway \
+{% if pushgateway_persistence %}
+  --persistence.file="{{ pushgateway_persistence_path }}/persistence" \
+{% endif %}
+{% if pushgateway_web_external_url %}
+  --web.external-url="{{ pushgateway_web_external_url }}" \
+{% endif %}
+  --web.listen-address={{ pushgateway_web_listen_address }}{% for flag, flag_value in pushgateway_config_flags_extra.items() %}\
+  --{{ flag }}{% if flag_value %}={{ flag_value }}{% endif %} {% endfor %}
+
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+NoNewPrivileges=true
+SyslogIdentifier=pushgateway
+Restart=always
+RestartSec=0
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,61 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if prometheus local file is already configured.
+    stat: path={{ software_files_path }}/{{ prometheus_binary_file }}
+    register: reg_prometheus_file_result
+  
+  - name: install | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_prometheus_file_result.stat.exists
+  
+  - name: install | Download prometheus file.
+    get_url: url={{ prometheus_binary_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_prometheus_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install | Create prometheus system group.
+  group:
+    name: "{{ prometheus_group }}"
+    system: true
+    state: present
+
+- name: install | Create prometheus system user.
+  user:
+    name: "{{ prometheus_user }}"
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: "{{ prometheus_group }}"
+    createhome: false
+    home: "{{ prometheus_tsdb_path }}"
+    
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy prometheus file to agent.
+  unarchive:
+    src: "{{ software_files_path }}/{{ prometheus_binary_file }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/{{ prometheus_binary_file | regex_replace('\\.tar\\.gz$', '') }}/prometheus"
+    owner: "root"
+    group: "{{ prometheus_group }}"
+    
+- name: install | Create prometheus binary path soft link.
+  file:
+    src: "{{ software_install_path }}/{{ prometheus_binary_file | regex_replace('\\.tar\\.gz$', '') }}"
+    dest: "{{ software_install_path }}/prometheus"
+    state: link
+    owner: "root"
+    group: "{{ prometheus_group }}"
+
+- name: install | Create systemd service unit.
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart prometheus

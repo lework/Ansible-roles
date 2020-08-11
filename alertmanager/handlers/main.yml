@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: restart alertmanager
+  service:
+    name: alertmanager
+    state: restarted

@@ -1,0 +1,60 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if pushgateway local file is already configured.
+    stat: path={{ software_files_path }}/{{ pushgateway_binary_file }}
+    register: reg_pushgateway_file_result
+  
+  - name: install | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_pushgateway_file_result.stat.exists
+  
+  - name: install | Download pushgateway file.
+    get_url: url={{ pushgateway_binary_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_pushgateway_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install | Create pushgateway system group.
+  group:
+    name: "{{ pushgateway_group }}"
+    system: true
+    state: present
+
+- name: install | Create pushgateway system user.
+  user:
+    name: "{{ pushgateway_user }}"
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: "{{ pushgateway_group }}"
+    createhome: false
+    
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy pushgateway file to agent.
+  unarchive:
+    src: "{{ software_files_path }}/{{ pushgateway_binary_file }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/{{ pushgateway_binary_file | regex_replace('\\.tar\\.gz$', '') }}/pushgateway"
+    owner: "root"
+    group: "{{ pushgateway_group }}"
+    
+- name: install | Create pushgateway binary path soft link.
+  file:
+    src: "{{ software_install_path }}/{{ pushgateway_binary_file | regex_replace('\\.tar\\.gz$', '') }}"
+    dest: "{{ software_install_path }}/pushgateway"
+    state: link
+    owner: "root"
+    group: "{{ pushgateway_group }}"
+
+- name: install | Create systemd service unit.
+  template:
+    src: pushgateway.service.j2
+    dest: /etc/systemd/system/pushgateway.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart pushgateway

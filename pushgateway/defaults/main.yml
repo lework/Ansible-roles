@@ -1,0 +1,25 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+pushgateway_version: "1.2.0"
+pushgateway_binary_file: pushgateway-{{ pushgateway_version }}.linux-amd64.tar.gz
+pushgateway_binary_file_url: https://github.com/prometheus/pushgateway/releases/download/v{{ pushgateway_version }}/{{ pushgateway_binary_file }}
+
+pushgateway_user: pushgateway
+pushgateway_group: pushgateway
+
+pushgateway_service_status: started
+pushgateway_service_enabled: yes
+
+pushgateway_persistence: true
+pushgateway_persistence_path: /var/lib/pushgateway
+
+pushgateway_port: "9091"
+pushgateway_web_listen_address: "0.0.0.0:{{ pushgateway_port }}"
+pushgateway_web_external_url: ''
+
+pushgateway_config_flags_extra:
+  log.level: info

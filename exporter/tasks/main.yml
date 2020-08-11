@@ -1,0 +1,7 @@
+---
+# author: lework
+- name: Include exporter variables.
+  include_vars: "{{ exporter_name }}.yml"
+  
+- import_tasks: install.yml
+- import_tasks: configure.yml

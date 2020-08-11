@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: restart exporter
+  service:
+    name: "{{ exporter_name }}"
+    state: restarted

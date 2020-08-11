@@ -1,0 +1,60 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if exporter local file is already configured.
+    stat: path={{ software_files_path }}/{{ exporter_binary_file }}
+    register: reg_exporter_file_result
+  
+  - name: install | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_exporter_file_result.stat.exists
+  
+  - name: install | Download exporter file.
+    get_url: url={{ exporter_binary_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_exporter_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install | Create exporter system group.
+  group:
+    name: "{{ exporter_group }}"
+    system: true
+    state: present
+
+- name: install | Create exporter system user.
+  user:
+    name: "{{ exporter_user }}"
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: "{{ exporter_group }}"
+    createhome: false
+    
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy exporter file to agent.
+  unarchive:
+    src: "{{ software_files_path }}/{{ exporter_binary_file }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/{{ exporter_binary_file | regex_replace('\\.tar\\.gz$', '') }}/{{ exporter_name }}"
+    owner: "root"
+    group: "{{ exporter_group }}"
+    
+- name: install | Create exporter binary path soft link.
+  file:
+    src: "{{ software_install_path }}/{{ exporter_binary_file | regex_replace('\\.tar\\.gz$', '') }}"
+    dest: "{{ software_install_path }}/{{ exporter_name }}"
+    state: link
+    owner: "root"
+    group: "{{ exporter_group }}"
+
+- name: install | Create systemd service unit.
+  template:
+    src: "{{ exporter_name }}.service.j2"
+    dest: /etc/systemd/system/{{ exporter_name }}.service
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart exporter

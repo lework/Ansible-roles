@@ -1,0 +1,15 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+exporter_user: exporter
+exporter_group: exporter
+
+exporter_service_status: started
+exporter_service_enabled: yes
+
+exporter_name: "node_exporter"
+exporter_conf_path: /etc/{{ exporter_name}}
+exporter_conf_file: ""

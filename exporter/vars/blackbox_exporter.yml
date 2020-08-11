@@ -1,0 +1,47 @@
+---
+# author: lework
+
+exporter_version: "0.17.0"
+exporter_binary_file: blackbox_exporter-{{ exporter_version }}.linux-amd64.tar.gz
+exporter_binary_file_url: https://github.com/prometheus/blackbox_exporter/releases/download/v{{ exporter_version }}/{{ exporter_binary_file }}
+
+exporter_port: "9115"
+exporter_web_listen_address: "0.0.0.0:{{ exporter_port }}"
+
+exporter_config_flags_extra:
+  log.level: "info"
+
+exporter_conf:
+  modules:
+    http_2xx:
+      prober: http
+    http_post_2xx:
+      prober: http
+      http:
+        method: POST
+    tcp_connect:
+      prober: tcp
+    pop3s_banner:
+      prober: tcp
+      tcp:
+        query_response:
+        - expect: "^+OK"
+        tls: true
+        tls_config:
+          insecure_skip_verify: false
+    ssh_banner:
+      prober: tcp
+      tcp:
+        query_response:
+        - expect: "^SSH-2.0-"
+    irc_banner:
+      prober: tcp
+      tcp:
+        query_response:
+        - send: "NICK prober"
+        - send: "USER prober prober prober :prober"
+        - expect: "PING :([^ ]+)"
+          send: "PONG ${1}"
+        - expect: "^:[^ ]+ 001"
+    icmp:
+      prober: icmp

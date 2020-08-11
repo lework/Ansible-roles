@@ -1,0 +1,56 @@
+{%- if alertmanager_version is version_compare('0.13.0', '>=') %}
+{%- set pre = '-' %}
+{%- else %}
+{%- set pre = '' %}
+{%- endif %}
+{%- if alertmanager_version is version_compare('0.15.0', '<') %}
+{%- set cluster_flag = 'mesh' %}
+{%- else %}
+{%- set cluster_flag = 'cluster' %}
+{%- endif %}
+
+[Unit]
+Description=Prometheus Alertmanager
+After=network-online.target
+StartLimitInterval=0
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+PIDFile=/var/run/alertmanager.pid
+User=alertmanager
+Group=alertmanager
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart={{ software_install_path }}/alertmanager/alertmanager \
+{% for option, value in (alertmanager_cluster.items() | sort) %}
+{%   if option == "peers" %}
+{%     for peer in value %}
+  {{ pre }}-{{ cluster_flag }}.peer={{ peer }} \
+{%     endfor %}
+{%   else %}
+  {{ pre }}-{{ cluster_flag }}.{{ option }}={{ value }} \
+{%   endif %}
+{% endfor %}
+  {{ pre }}-config.file={{ alertmanager_conf_path }}/alertmanager.yml \
+  {{ pre }}-storage.path={{ alertmanager_db_path  }} \
+  {{ pre }}-log.level={{ alertmanager_log_level  }} \
+  {{ pre }}-web.listen-address={{ alertmanager_web_listen_address }} \
+  {{ pre }}-web.external-url={{ alertmanager_web_external_url }}{% for flag, flag_value in alertmanager_config_flags_extra.items() %} \
+  {{ pre }}-{{ flag }}={{ flag_value }}{% endfor %}
+
+SyslogIdentifier=alertmanager
+Restart=always
+RestartSec=5
+
+CapabilityBoundingSet=CAP_SET_UID
+LockPersonality=true
+NoNewPrivileges=true
+MemoryDenyWriteExecute=true
+PrivateTmp=true
+ProtectHome=true
+ReadWriteDirectories={{ alertmanager_db_path }}
+RemoveIPC=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,44 @@
+---
+# author: lework
+
+- name: configure | Confirm the existence of the config directory.
+  file:
+    path: "{{ exporter_conf_path }}"
+    state: directory
+    owner: "{{ exporter_user }}"
+    group: "{{ exporter_group }}"
+  when:
+    - exporter_conf_path is defined
+    - exporter_conf_path != ""
+
+- name: configure | Setup exporter configuration file.
+  template:
+    src: config.yml.j2
+    dest: "{{ exporter_conf_path }}/config.yml"
+    owner: root
+    group: "{{ exporter_group }}"
+    mode: 0644
+    backup: yes
+  notify: restart exporter
+  when:
+    - exporter_conf is defined
+    - exporter_conf | length > 0
+
+- name: configure | Copy exporter configuration file.
+  copy:
+    src: "{{ exporter_conf_file }}"
+    dest: "{{ exporter_conf_path }}/config.yml"
+    owner: root
+    group: "{{ exporter_group }}"
+    backup: yes
+  notify: restart exporter
+  when:
+    - exporter_conf_file is defined
+    - exporter_conf_file != ""
+
+- name: configure | Manage exporter services.
+  systemd:
+    daemon_reload: true
+    name: "{{ exporter_name }}"
+    state: "{{ exporter_service_status }}"
+    enabled: "{{ exporter_service_enabled }}"

@@ -1,0 +1,52 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+prometheus_version: "2.20.1"
+prometheus_binary_file: prometheus-{{ prometheus_version }}.linux-amd64.tar.gz
+prometheus_binary_file_url: https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/{{ prometheus_binary_file }}
+
+prometheus_user: prometheus
+prometheus_group: prometheus
+
+prometheus_service_status: started
+prometheus_service_enabled: yes
+
+prometheus_conf_path: /etc/prometheus
+prometheus_tsdb_path: /var/lib/prometheus
+prometheus_rules_path: "{{ prometheus_conf_path }}/rules"
+prometheus_targets_path: "{{ prometheus_conf_path }}/targets"
+
+prometheus_port: "9090"
+prometheus_web_listen_address: "0.0.0.0:{{ prometheus_port }}"
+prometheus_web_external_url: ''
+
+prometheus_storage_retention: "30d"
+# Available since Prometheus 2.7.0
+# [EXPERIMENTAL] Maximum number of bytes that can be stored for blocks. Units
+# supported: KB, MB, GB, TB, PB.
+prometheus_storage_retention_size: "0"
+prometheus_config_flags_extra:
+  log.level: info
+
+prometheus_conf:
+  global:
+    scrape_interval:     15s
+    evaluation_interval: 15s
+  alerting:
+    alertmanagers:
+    - static_configs:
+      - targets: []
+  rule_files:
+    - "{{ prometheus_rules_path }}/*.yaml"
+  scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+      - targets: ['localhost:{{ prometheus_port }}']
+    
+  
+prometheus_conf_file: ""
+prometheus_rule_files: []
+prometheus_target_files: []

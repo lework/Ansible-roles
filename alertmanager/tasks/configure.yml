@@ -1,0 +1,56 @@
+---
+# author: lework
+
+- name: configure | Confirm the existence of the config directory.
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ alertmanager_user }}"
+    group: "{{ alertmanager_group }}"
+  loop:
+    - "{{ alertmanager_conf_path }}"
+    - "{{ alertmanager_db_path }}"
+    - "{{ alertmanager_templates_path }}"
+
+- name: configure | Setup alertmanager configuration file.
+  template:
+    src: alertmanager.yml.j2
+    dest: "{{ alertmanager_conf_path }}/alertmanager.yml"
+    owner: root
+    group: "{{ alertmanager_group }}"
+    mode: 0644
+    backup: yes
+  notify: restart alertmanager
+  when:
+    - alertmanager_conf is defined
+    - alertmanager_conf != ""
+
+- name: configure | Copy alertmanager configuration file.
+  copy:
+    src: "{{ alertmanager_conf_file }}"
+    dest: "{{ alertmanager_conf_path }}/alertmanager.yml"
+    owner: root
+    group: "{{ alertmanager_group }}"
+    backup: yes
+  notify: restart alertmanager
+  when:
+    - alertmanager_conf_file is defined
+    - alertmanager_conf_file != ""
+
+- name: configure | Copy alertmanager template files.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ alertmanager_templates_path }}/"
+    owner: root
+    group: "{{ alertmanager_group }}"
+    mode: 0640
+  with_fileglob: "{{ alertmanager_template_files }}"
+  notify:
+    - reload alertmanager
+
+- name: configure | Manage alertmanager services.
+  systemd:
+    daemon_reload: true
+    name: alertmanager
+    state: "{{ alertmanager_service_status }}"
+    enabled: "{{ alertmanager_service_enabled }}"

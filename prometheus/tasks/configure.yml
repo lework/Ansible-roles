@@ -1,0 +1,68 @@
+---
+# author: lework
+
+- name: configure | Confirm the existence of the config directory.
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+  loop:
+    - "{{ prometheus_conf_path }}"
+    - "{{ prometheus_tsdb_path }}"
+    - "{{ prometheus_rules_path }}"
+    - "{{ prometheus_targets_path }}"
+
+- name: configure | Setup prometheus configuration file.
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_conf_path }}/prometheus.yml"
+    owner: root
+    group: "{{ prometheus_group }}"
+    mode: 0644
+    backup: yes
+  notify: restart prometheus
+  when:
+    - prometheus_conf is defined
+    - prometheus_conf != ""
+
+- name: configure | Copy prometheus configuration file.
+  copy:
+    src: "{{ prometheus_conf_file }}"
+    dest: "{{ prometheus_conf_path }}/prometheus.yml"
+    owner: root
+    group: "{{ prometheus_group }}"
+    backup: yes
+  notify: restart prometheus
+  when:
+    - prometheus_conf_file is defined
+    - prometheus_conf_file != ""
+
+- name: configure | Copy custom alerting rule files.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prometheus_rules_path }}/"
+    owner: root
+    group: "{{ prometheus_group }}"
+    mode: 0640
+    validate: "{{ software_install_path }}/promtool check rules %s"
+  with_fileglob: "{{ prometheus_rule_files }}"
+  notify:
+    - reload prometheus
+ 
+- name: configure | Copy prometheus custom static targets.
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prometheus_targets_path }}/"
+    force: true
+    owner: root
+    group: "{{ prometheus_group }}"
+    mode: 0640
+  with_fileglob: "{{ prometheus_target_files }}"
+
+- name: configure | Manage prometheus services.
+  systemd:
+    daemon_reload: true
+    name: prometheus
+    state: "{{ prometheus_service_status }}"
+    enabled: "{{ prometheus_service_enabled }}"
