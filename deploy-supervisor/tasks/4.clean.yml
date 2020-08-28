@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: clean | 清理多余的发布文件。
+  shell: "ls -t | tail -n '+{{ deploy_file_keep_number + 1 | int}}' | sed 's#^#{{ deploy_file_path }}/#' | xargs /bin/rm -rfv"
+  args:
+    chdir: "{{ deploy_file_path }}" 

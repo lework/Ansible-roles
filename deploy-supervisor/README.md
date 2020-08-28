@@ -1,6 +1,6 @@
 # Ansible Role: deploy-supervisor
 
-部署spring boot 应用, spring boot由supervisor管理
+以软链接的形式更新应用, 应用由supervisor管理。
 
 ## 要求
 
@@ -8,85 +8,116 @@
 
 ## 测试环境
 
-ansible `2.5.1`
-os `Centos 7.2.1511 X64`
+ansible `2.9.10`
+os `Centos 7.7 X64`
 python `2.7.5`
 supervisor `3.3.4`
 
 ## 角色变量
-	# 发布的代码文件，包含绝对路径，如:/tmp/test.jar
-    deploy_file: ""
 
-    # supervisor应用的端口
-    deploy_service_port: ""
+```yaml
+# 发布的代码文件，包含绝对路径，如:/tmp/test.jar
+deploy_file: ""
 
-    # 等待多少秒检测端口
-    deploy_service_port_delay: 1
+# 发布的代码文件类型，archive 压缩包 or single 单文件
+deploy_file_type: "single"
 
-    # 检测端口超时时间
-    deploy_service_port_timeout: 90
+# supervisor应用的端口
+deploy_service_port: "8080"
 
-    # supervisor应用的名称
-    deploy_service_name: ""
+# 等待多少秒检测端口
+deploy_service_port_delay: 1
 
-    # 服务文件
-    deploy_service_file: ""
+# 检测端口超时时间
+deploy_service_port_timeout: 90
 
-    # 发布服务用户
-    deploy_service_user: "spring"
+# supervisor应用的名称
+deploy_service_name: ""
 
-    # 发布服务的家目录
-    deploy_service_workpath: "/Microservices"
+# 服务文件
+deploy_service_file: ""
 
-    # supervisorctl 管理程序
-    deploy_service_start_script: "/usr/bin/supervisorctl"
+# 发布服务用户
+deploy_service_user: "root"
 
-    # 验证uri
-    deploy_verify_uri: ""
-    deploy_verify_url: "http://127.0.0.1:{{ deploy_service_port }}{{ deploy_verify_uri }}"
+# 发布服务的家目录
+deploy_service_workpath: "/data/web/{{ deploy_service_name }}"
 
-    # 临时目录
-    deploy_file_path: "/packages"
+# supervisorctl 管理程序
+deploy_service_start_script: "/usr/bin/supervisorctl"
 
-    # 上线代码的存储目录
-    deploy_code_online_path: "{{ deploy_file_path }}/online"
+# 验证uri
+deploy_verify_uri: ""
+deploy_verify_url: "http://127.0.0.1:{{ deploy_service_port }}{{ deploy_verify_uri }}"
+deploy_verify_url_status_code: 200
+deploy_verify_url_headers:
+  Cookie: "ansible deploy check"
 
-    # 当前代码(也就是上一版本的代码)的存储目录
-    deploy_code_previous_path: "{{ deploy_file_path }}/previous"
+# 文件存放的根目录
+deploy_file_path: "/data/releases"
 
-    # 历史代码存储目录
-    deploy_code_history_path: "{{ deploy_file_path }}/history"
+# 指定文件前缀,用于存储多个发布文件
+deploy_file_prefix: "{{ '%Y%m%d_%H%M' | strftime }}"
 
-    # 是否回滚
-    deploy_rollback: false
+# 上线代码的存储目录
+deploy_code_online_path: "{{ deploy_file_path }}/{{deploy_file_prefix}}_{{ deploy_file | basename | regex_replace('\\.tgz','') }}"
 
+# 文件保留数量
+deploy_file_keep_number: 7
+
+# 是否回滚
+deploy_rollback: false
+```
 
 ## 依赖
+
 - supervisor
-- {{ deploy_service_name }}的值 应为supervisor应用名称
 
 ## github地址
+
 https://github.com/lework/Ansible-roles/tree/master/deploy-supervisor
 
 ## Example Playbook
 
-    # 发布代码
-        - hosts: node1
-          vars:
-            - deploy_file: /opt/test.jar
-            - deploy_service_name: test_spingboot
-            - deploy_service_port: 8084
-            - deploy_verify_uri: "/"
-          roles:
-            - deploy-supervisor
-      
-    # 回滚代码，只能回滚上一次线上代码，应用于当前发布程序有问题回滚正常版本场景。
-        - hosts: node1
-          vars:
-            - deploy_rollback: true
-            - deploy_service_file: test.jar
-            - deploy_service_name: test_spingboot
-            - deploy_service_port: 8084
-            - deploy_verify_uri: "/"
-          roles:
-            - deploy-supervisor
+### 发布代码
+
+```yaml
+# 发布单文件
+- hosts: node1
+  vars:
+    - deploy_file: /opt/test.jar
+    - deploy_service_name: test_spingboot
+    - deploy_service_port: 8084
+    - deploy_verify_uri: "/"
+  roles:
+    - deploy-supervisor
+    
+    
+# 发布压缩包
+- hosts: node1
+  vars:
+    - deploy_file: /opt/test.tgz
+    - deploy_file_type: "archive"
+    - deploy_service_name: test
+    - deploy_service_port: 8084
+    - deploy_verify_uri: "/"
+  roles:
+    - deploy-supervisor
+```
+
+# 回滚代码。
+
+> 需指定文件前缀 `deploy_file_prefix`
+
+```yaml
+- hosts: node1
+  vars:
+    - deploy_rollback: true
+    - deploy_file: test.jar
+    - deploy_service_name: test_spingboot
+    - deploy_service_port: 8084
+    - deploy_file_prefix: "20200828_0250"
+    - deploy_verify_uri: "/"
+  roles:
+    - deploy-supervisor
+```

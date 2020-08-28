@@ -1,0 +1,41 @@
+---
+# author: lework
+
+- name: "rollback | 检查 {{ deploy_code_online_path }} 是否存在代码。"
+  shell: "ls {{ deploy_code_online_path }}/ | wc -l"
+  register: __rollback_code_result
+  failed_when: __rollback_code_result.stdout | int < 2
+
+- name: rollback | 关闭服务。
+  supervisorctl:
+    name: "{{ deploy_service_name }}"
+    state: stopped
+    supervisorctl_path: "{{ deploy_service_start_script }}"
+
+- name: rollback | 等待端口关闭。
+  wait_for:
+    port: "{{ deploy_service_port }}"
+    delay: "{{ deploy_service_port_delay }}"
+    timeout: "{{ deploy_service_port_timeout }}"
+    state: "stopped"
+
+- name: "rollback | 软链接到 {{ deploy_code_online_path }}。"
+  file:
+    src: "{{ deploy_code_online_path }}"
+    dest: "{{ deploy_service_workpath }}"
+    force: yes
+    state: link
+
+- name: rollback | 启动服务。
+  supervisorctl:
+    name: "{{ deploy_service_name }}"
+    state: started
+    supervisorctl_path: "{{ deploy_service_start_script }}"
+
+- name: rollback | 等待端口开启。
+  wait_for:
+    port: "{{ deploy_service_port }}"
+    delay: "{{ deploy_service_port_delay }}"
+    timeout: "{{ deploy_service_port_timeout }}"
+
+- import_tasks: 3.verify.yml

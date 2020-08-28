@@ -2,17 +2,21 @@
 # author: lework
 
 # 1. 进行发布前检查，发布所需要的内容不存在时停止执行并抛出错误信息
-- import_tasks: check.yml
+- include_tasks: 1.check.yml
   when: not deploy_rollback
+
 # 2. 发布代码到目标服务器
-- import_tasks: deploy.yml
+- include_tasks: "2.deploy-{{ deploy_file_type | d('archive')}}.yml"
   when: not deploy_rollback
+
 # 3. 确认代码发布后，是否正常运行
-- import_tasks: verify.yml
+- include_tasks: 3.verify.yml
   when: not deploy_rollback
-# 4. 备份文件。
-- import_tasks: backup.yml
+
+# 4. 清理文件。
+- include_tasks: 4.clean.yml
   when: not deploy_rollback
+
 # 是否回滚
-- import_tasks: rollback.yml
+- include_tasks: 5.rollback.yml
   when: deploy_rollback

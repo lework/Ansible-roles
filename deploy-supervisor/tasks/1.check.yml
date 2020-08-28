@@ -1,0 +1,25 @@
+---
+# author: lework
+
+- name: check | 发布文件是否存在。
+  stat: path={{ deploy_file }}
+  connection: local
+  become: no
+  register: __deploy_file_stats
+  changed_when: false
+  failed_when: not __deploy_file_stats.stat.exists or deploy_file == ""
+
+- name: check | 检查supervisor 服务是否启动。
+  shell: "{{ deploy_service_start_script }} status"
+  register: __supervisor_status
+  changed_when: false
+  failed_when: __supervisor_status.rc != 0
+ 
+- name: check | 服务家目录如果不存在则创建。
+  file:
+    path: "{{ item }}"
+    owner: "{{ deploy_service_user }}"
+    state: "directory"
+  with_items:
+    - "{{ deploy_service_workpath }}"
+    - "{{ deploy_code_online_path }}"

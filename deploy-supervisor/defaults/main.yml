@@ -4,8 +4,11 @@
 # 发布的代码文件，包含绝对路径，如:/tmp/test.jar
 deploy_file: ""
 
+# 发布的代码文件类型，archive 压缩包 or single 单文件
+deploy_file_type: "archive"
+
 # supervisor应用的端口
-deploy_service_port: ""
+deploy_service_port: "8080"
 
 # 等待多少秒检测端口
 deploy_service_port_delay: 1
@@ -20,10 +23,10 @@ deploy_service_name: ""
 deploy_service_file: ""
 
 # 发布服务用户
-deploy_service_user: "spring"
+deploy_service_user: "root"
 
 # 发布服务的家目录
-deploy_service_workpath: "/Microservices"
+deploy_service_workpath: "/data/web/{{ deploy_service_name }}"
 
 # supervisorctl 管理程序
 deploy_service_start_script: "/usr/bin/supervisorctl"
@@ -31,18 +34,21 @@ deploy_service_start_script: "/usr/bin/supervisorctl"
 # 验证uri
 deploy_verify_uri: ""
 deploy_verify_url: "http://127.0.0.1:{{ deploy_service_port }}{{ deploy_verify_uri }}"
+deploy_verify_url_status_code: 200
+deploy_verify_url_headers:
+  Cookie: "ansible deploy check"
 
-# 临时目录
-deploy_file_path: "/packages"
+# 文件存放的根目录
+deploy_file_path: "/data/releases"
+
+# 指定文件前缀,用于存储多个发布文件
+deploy_file_prefix: "{{ '%Y%m%d_%H%M' | strftime }}"
 
 # 上线代码的存储目录
-deploy_code_online_path: "{{ deploy_file_path }}/online"
+deploy_code_online_path: "{{ deploy_file_path }}/{{deploy_file_prefix}}_{{ deploy_file | basename | regex_replace('\\.tgz','') }}"
 
-# 当前代码(也就是上一版本的代码)的存储目录
-deploy_code_previous_path: "{{ deploy_file_path }}/previous"
-
-# 历史代码存储目录
-deploy_code_history_path: "{{ deploy_file_path }}/history"
+# 文件保留数量
+deploy_file_keep_number: 7
 
 # 是否回滚
 deploy_rollback: false

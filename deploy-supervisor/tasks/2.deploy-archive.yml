@@ -1,0 +1,41 @@
+---
+# author: lework
+
+- name: deloy | 拷贝代码至目标服务器。
+  unarchive:
+    src: "{{ __deploy_file_stats.stat.path }}"
+    dest: "{{ deploy_code_online_path }}"
+    owner: "{{ deploy_service_user }}"
+    group: "{{ deploy_service_user }}"
+
+- name: deloy | 关闭服务。
+  supervisorctl:
+    name: "{{ deploy_service_name }}"
+    state: stopped
+    supervisorctl_path: "{{ deploy_service_start_script }}"
+
+- name: deloy | 等待服务端口关闭。
+  wait_for:
+    port: "{{ deploy_service_port }}"
+    delay: "{{ deploy_service_port_delay }}"
+    timeout: "{{ deploy_service_port_timeout }}"
+    state: "stopped"
+
+- name: deloy | 软链接到最新代码。
+  file:
+    src: "{{ deploy_code_online_path }}"
+    dest: "{{ deploy_service_workpath }}"
+    force: yes
+    state: link
+
+- name: deloy | 启动服务。
+  supervisorctl:
+    name: "{{ deploy_service_name }}"
+    state: started
+    supervisorctl_path: "{{ deploy_service_start_script }}"
+
+- name: deloy | 等待服务端口开启。
+  wait_for:
+    port: "{{ deploy_service_port }}"
+    delay: "{{ deploy_service_port_delay }}"
+    timeout: "{{ deploy_service_port_timeout }}"
