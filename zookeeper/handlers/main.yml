@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: restart zookeeper
+  service:
+    name: "{{ zookeeper_service_name }}"
+    state: restarted

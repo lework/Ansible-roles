@@ -1,0 +1,41 @@
+[Unit]
+Description=Zookeeper Daemon
+Documentation=http://zookeeper.apache.org
+Requires=network.target
+After=network.target
+
+[Service]    
+Type=forking
+WorkingDirectory={{ software_install_path }}/zookeeper
+User=zookeeper
+Group=zookeeper
+
+Environment=ZOO_LOG_DIR={{zookeeper_log_path }}
+Environment=ZK_SERVER_HEAP={{ zookeeper_server_heap }}
+Environment=ZK_CLIENT_HEAP={{ zookeeper_client_heap }}
+{% if zookeeper_jmx_enabled %}
+Environment="JMXDISABLE=false"
+Environment="JMXPORT={{ zookeeper_jmx_port }}"
+Environment="JMXLOCALONLY={{ zookeeper_jmx_local_only }}
+Environment="JMXAUTH={{ zookeeper_jmx_auth }}"
+Environment="JMXSSL={{ zookeeper_jmx_ssl }}"
+Environment="JMXLOG4J={{ zookeeper_jmx_log_disable }}"
+{% endif %}
+{% if zookeeper_jvm_opts != "" %}
+Environment="JVMFLAGS={{ zookeeper_jvm_opts }}"
+{% endif %}
+
+ExecStart={{ software_install_path }}/zookeeper/bin/zkServer.sh start {{ zookeeper_conf_path }}/zoo.cfg
+ExecStop={{ software_install_path }}/zookeeper/bin/zkServer.sh stop {{ zookeeper_conf_path }}/zoo.cfg
+ExecReload={{ software_install_path }}/zookeeper/bin/zkServer.sh restart {{ zookeeper_conf_path }}/zoo.cfg
+
+TimeoutSec=180
+Restart=on-failure
+SuccessExitStatus=143
+
+LimitCORE=infinity
+LimitNOFILE=655360
+LimitNPROC=655360
+
+[Install]
+WantedBy=default.target

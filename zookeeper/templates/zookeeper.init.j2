@@ -30,13 +30,26 @@ else
   exit 0
 fi
 
-export ZOO_LOG_DIR="{{ zookeeper_datalogdir }}"
+export ZOO_LOG_DIR={{ zookeeper_log_path }}
+export ZK_SERVER_HEAP={{ zookeeper_server_heap }}
+export ZK_CLIENT_HEAP={{ zookeeper_client_heap }}
+{% if zookeeper_jmx_enabled %}
+export JMXDISABLE=false
+export JMXPORT={{ zookeeper_jmx_port }}
+export JMXLOCALONLY={{ zookeeper_jmx_local_only }}
+export JMXAUTH={{ zookeeper_jmx_auth }}
+export JMXSSL={{ zookeeper_jmx_ssl }}
+export JMXLOG4J={{ zookeeper_jmx_log_disable }}
+{% endif %}
+{% if zookeeper_jvm_opts != "" %}
+export JVMFLAGS={{ zookeeper_jvm_opts }}
+{% endif %}
 
 RETVAL=0
 USER="{{ zookeeper_user }}"
-CONF="{{ zookeeper_dir }}/zoo.cfg"
-PIDFILE="{{ zookeeper_datadir }}/zookeeper_server.pid"
-LOCKFILE="/var/lock/subsys/{{ zookeeper_name }}"
+CONF="{{ zookeeper_conf_path }}/zoo.cfg"
+PIDFILE="{{ zookeeper_data_path }}/zookeeper_server.pid"
+LOCKFILE="/var/lock/subsys/{{ zookeeper_service_name }}"
 DAEMON="{{ software_install_path }}/zookeeper/bin/zkServer.sh"
 desc="ZooKeeper daemon"
 

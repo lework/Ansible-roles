@@ -4,18 +4,56 @@
 software_files_path: "/opt/software"
 software_install_path: "/usr/local"
 
-zookeeper_version: "3.4.9"
+zookeeper_version: "3.6.1"
 
-zookeeper_file: "zookeeper-{{ zookeeper_version }}.tar.gz"
+zookeeper_file: "apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz"
 zookeeper_file_path: "{{ software_files_path }}/{{ zookeeper_file }}"
-zookeeper_file_url: "http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-{{ zookeeper_version }}/zookeeper-{{ zookeeper_version }}.tar.gz"
+zookeeper_file_url: "https://mirrors.tuna.tsinghua.edu.cn/apache/zookeeper/zookeeper-{{ zookeeper_version }}/{{ zookeeper_file }}"
 
-zookeeper_user: "zookeeper"
-zookeeper_port: 2181
-zookeeper_name: "zookeeper{{ zookeeper_port if zookeeper_port != 2181 else '' }}" 
-zookeeper_home: "/zookeeper_data"
-zookeeper_dir: "{{ zookeeper_home }}/{{ zookeeper_port }}"
-zookeeper_datadir: "{{ zookeeper_home }}/{{ zookeeper_port }}/data"
-zookeeper_datalogdir: "{{ zookeeper_home }}/{{ zookeeper_port }}/logs"
-zookeeper_hosts:
-  - {'host': 127.0.0.1, 'port': 2181 ,'id': 1, 'leader_port': '2888:3888'}
+# Owner
+zookeeper_user: zookeeper
+zookeeper_group: zookeeper
+
+# Port
+zookeeper_client_port: 2181
+zookeeper_connect_port: 2888
+zookeeper_elect_port: 3888
+
+# Service
+zookeeper_service_name: "zookeeper{{ '-' ~ zookeeper_client_port if zookeeper_client_port != 2181 else '' }}" 
+zookeeper_service_status: started
+zookeeper_service_enabled: yes
+
+# Path
+zookeeper_home: "/data"
+zookeeper_conf_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}"
+zookeeper_data_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}/data"
+zookeeper_log_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}/logs"
+zookeeper_data_log_path: "{{ zookeeper_log_path }}"
+
+# Config
+zookeeper_init_limit: 10
+zookeeper_sync_limit: 5
+zookeeper_tick_time: 2000
+zookeeper_max_client_connections: 0
+zookeeper_autopurge_purge_interval: 1
+zookeeper_autopurge_snap_retain_count: 10
+zookeeper_admin_enable: false
+zookeeper_config_extra: ""
+
+# Java options
+zookeeper_server_heap: 1000
+zookeeper_client_heap: 256
+
+zookeeper_jmx_enabled: false
+zookeeper_jmx_port: 1099
+zookeeper_jmx_local_only: 'false'
+zookeeper_jmx_auth: 'false'
+zookeeper_jmx_ssl: 'false'
+zookeeper_jmx_log_disable: 'true'
+
+zookeeper_jvm_opts: "-Djava.net.preferIPv4Stack=true"
+
+# Cluster
+zookeeper_hosts: []
+#  - {'host': 127.0.0.1, 'port': 2181 ,'id': 1, 'leader_port': '2888:3888'}

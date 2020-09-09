@@ -1,35 +1,23 @@
-# The number of milliseconds of each tick
-tickTime=2000
-# The number of ticks that the initial 
-# synchronization phase can take
-initLimit=10
-# The number of ticks that can pass between 
-# sending a request and getting an acknowledgement
-syncLimit=5
-# the directory where the snapshot is stored.
-# do not use /tmp for storage, /tmp here is just 
-#example sakes.
-dataDir={{ zookeeper_datadir }}
-logDir={{ zookeeper_datalogdir }}
-# the port at which the clients will connect
-clientPort={{ zookeeper_port }}
-# the maximum number of client connections.
-# increase this if you need to handle more clients
-maxClientCnxns=60
-#
-# Be sure to read the maintenance section of the 
-# administrator guide before turning on autopurge.
+
+dataDir={{ zookeeper_data_path }}
+dataLogDir={{ zookeeper_log_path }}
+
+tickTime={{ zookeeper_tick_time }}
+initLimit={{ zookeeper_init_limit }}
+syncLimit={{ zookeeper_sync_limit }}
+
+clientPort={{ zookeeper_client_port }}
+maxClientCnxns={{ zookeeper_max_client_connections }}
+
+admin.enableServer={{ zookeeper_admin_enable | lower }}
+
+{% if zookeeper_autopurge_purge_interval > 0 %}
+autopurge.purgeInterval={{ zookeeper_autopurge_purge_interval }}
+autopurge.snapRetainCount={{ zookeeper_autopurge_snap_retain_count }}
+{% endif %}
 
 {% for i in zookeeper_hosts %}
-server.{{ i.id|d(loop.index) }}={{i.host|d(i)}}:{{i.leader_port|default('2888:3888')}}
+server.{{ i.id | d(loop.index) }}={{i.host|d(i)}}:{{i.leader_port | default( zookeeper_connect_port ~ ':' ~ zookeeper_elect_port )}}
 {% endfor %}
 
-# http://zookeeper.apache.org/doc/current/zookeeperAdmin.html#sc_maintenance
-#
-# The number of snapshots to retain in dataDir
-#autopurge.snapRetainCount=3
-# Purge task interval in hours
-# Set to "0" to disable auto purge feature
-#autopurge.purgeInterval=1
-#
-
+{{ zookeeper_config_extra | d() }}

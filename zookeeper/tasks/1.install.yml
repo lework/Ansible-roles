@@ -1,0 +1,87 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if zookeeper local file is already configured.
+    stat: path={{ software_files_path }}/{{ zookeeper_file }}
+    register: reg_zookeeper_file_result
+  
+  - name: install | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_zookeeper_file_result.stat.exists
+  
+  - name: install | Download zookeeper file.
+    get_url: url={{ zookeeper_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_zookeeper_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install | Create zookeeper system group.
+  group:
+    name: "{{ zookeeper_group }}"
+    system: true
+    state: present
+
+- name: install | Create zookeeper system user.
+  user:
+    name: "{{ zookeeper_user }}"
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: "{{ zookeeper_group }}"
+    createhome: false
+    
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy zookeeper file to agent.
+  unarchive:
+    src: "{{ software_files_path }}/{{ zookeeper_file }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/{{ zookeeper_file | regex_replace('\\.tar\\.gz$', '') }}/zookeeper"
+    owner: "root"
+    group: "{{ zookeeper_group }}"
+    
+- name: install | Create zookeeper binary path soft link.
+  file:
+    src: "{{ software_install_path }}/{{ zookeeper_file | regex_replace('\\.tar\\.gz$', '') }}"
+    dest: "{{ software_install_path }}/zookeeper"
+    state: link
+    owner: "root"
+    group: "{{ zookeeper_group }}"
+
+- name: install | Add zookeeper's bin dir to the PATH.
+  copy:
+    content: "export PATH=$PATH:{{ software_install_path }}/zookeeper/bin/"
+    dest: "/etc/profile.d/zookeeper.sh"
+    mode: 0755
+
+- block:
+  - name: install | Create zookeeper init script.
+    template:
+      dest: "/etc/init.d/{{ zookeeper_service_name }}"
+      mode: 0755
+      src: zookeeper.init.j2
+    notify:
+      - restart zookeeper
+
+#  - name: configure | Add zookeeper services.
+#    shell: "chkconfig --add {{ zookeeper_service_name }} && chkconfig {{ zookeeper_service_name }} on"
+  when:
+   - ansible_service_mgr != 'systemd'
+
+- block:
+  - name: install | Create systemd service unit.
+    template:
+      src: zookeeper.service.j2
+      dest: "/etc/systemd/system/{{ zookeeper_service_name }}.service"
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - restart zookeeper
+
+  - name: install | Reload systemctl daemon.
+    systemd:
+      daemon_reload: true
+  when:
+   - ansible_service_mgr == 'systemd'

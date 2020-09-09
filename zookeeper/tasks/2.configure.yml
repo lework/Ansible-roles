@@ -1,0 +1,44 @@
+---
+# author: lework
+
+- name: configure | Confirm the existence of the config directory.
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+  loop:
+    - "{{ zookeeper_conf_path }}"
+    - "{{ zookeeper_data_path }}"
+    - "{{ zookeeper_log_path }}"
+    - "{{ zookeeper_data_log_path }}"
+
+- name: configure | Set myid.
+  template:
+    src: myid.j2
+    dest: "{{ zookeeper_data_path }}/myid"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+  when: zookeeper_hosts | length > 0
+
+- name: configure | Set zoo.cfg file.
+  template:
+    src: zoo.cfg.j2
+    dest: "{{ zookeeper_conf_path }}/zoo.cfg"
+    mode: 0644
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+  notify:
+    - restart zookeeper
+
+- name: configure | Ensure zookeeper is started and enabled on boot.
+  service: 
+    name: "{{ zookeeper_service_name }}"
+    state: "{{ zookeeper_service_status }}"
+    enabled: "{{ zookeeper_service_enabled }}"
+
+- name: configure | Wait for Zookeeper port is OPEN.
+  wait_for:
+    delay: 3
+    port: "{{ zookeeper_client_port }}"
+    state: started
