@@ -18,7 +18,9 @@
 - name: setup_package | Define openjdk_packages.
   set_fact:
     openjdk_packages: "{{ __openjdk_packages | list }}"
-  when: openjdk_packages is not defined
+  when:
+    - openjdk_packages is not defined
+    - openjdk_packages != ""
 
 - name: setup_package | Update apt cache.
   apt: update_cache=true cache_valid_time=600

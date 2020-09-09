@@ -20,12 +20,17 @@ software_install_path: "/usr/local"
 
 openjdk_setup_binary: false
 
+# package
+openjdk_packages: ""
+
+# binary
 openjdk_binary_version: "11.0.8_10"
 openjdk_binary_file: "OpenJDK{{ openjdk_binary_version.split('.') | first }}U-jdk_x64_linux_{{ openjdk_binary_version }}.tar.gz"
 openjdk_binary_file_path: "{{ software_files_path }}/{{ openjdk_binary_file }}"
 openjdk_binary_file_url: "https://gh.lework.workers.dev/https://github.com/AdoptOpenJDK/openjdk{{ openjdk_binary_version.split('.') | first }}-upstream-binaries/releases/download/jdk-{{ openjdk_binary_version | regex_replace('_', '+')}}/{{ openjdk_binary_file }}"
 openjdk_install_path: "{{ software_install_path }}/"
 
+# config
 java_home: "{{ openjdk_install_path }}/openjdk-{{ openjdk_binary_version }}"
 ```
 
@@ -51,6 +56,19 @@ https://github.com/lework/Ansible-roles/tree/master/openjdk
   roles:
     - openjdk
 ```
+
+### 指定包名安装
+
+```yaml
+---
+
+- hosts: node
+  vars:
+    - openjdk_packages: java-1.8.0-openjdk
+  roles:
+    - openjdk
+```
+
 
 ### 使用二进制安装
 
