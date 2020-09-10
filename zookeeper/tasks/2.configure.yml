@@ -40,5 +40,6 @@
 - name: configure | Wait for Zookeeper port is OPEN.
   wait_for:
     delay: 3
+    timeout: 60
     port: "{{ zookeeper_client_port }}"
     state: started

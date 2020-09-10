@@ -134,7 +134,7 @@ https://github.com/lework/Ansible-roles/tree/master/zookeeper
 
 - hosts: 192.168.77.129 192.168.77.130 192.168.77.131
   vars:
-    - zookeeper_hosts: "{{ play_hosts }}"
+    - zookeeper_hosts: "{{ ansible_play_hosts_all }}"
   roles:
    - openjdk
    - zookeeper

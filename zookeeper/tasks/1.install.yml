@@ -44,14 +44,14 @@
 - name: install | Create zookeeper binary path soft link.
   file:
     src: "{{ software_install_path }}/{{ zookeeper_file | regex_replace('\\.tar\\.gz$', '') }}"
-    dest: "{{ software_install_path }}/zookeeper"
+    dest: "{{ zookeeper_home }}"
     state: link
     owner: "root"
     group: "{{ zookeeper_group }}"
 
 - name: install | Add zookeeper's bin dir to the PATH.
   copy:
-    content: "export PATH=$PATH:{{ software_install_path }}/zookeeper/bin/"
+    content: "export PATH=$PATH:{{ zookeeper_home }}/bin/"
     dest: "/etc/profile.d/zookeeper.sh"
     mode: 0755
 
@@ -63,9 +63,6 @@
       src: zookeeper.init.j2
     notify:
       - restart zookeeper
-
-#  - name: configure | Add zookeeper services.
-#    shell: "chkconfig --add {{ zookeeper_service_name }} && chkconfig {{ zookeeper_service_name }} on"
   when:
    - ansible_service_mgr != 'systemd'
 

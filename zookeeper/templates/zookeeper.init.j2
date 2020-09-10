@@ -50,7 +50,7 @@ USER="{{ zookeeper_user }}"
 CONF="{{ zookeeper_conf_path }}/zoo.cfg"
 PIDFILE="{{ zookeeper_data_path }}/zookeeper_server.pid"
 LOCKFILE="/var/lock/subsys/{{ zookeeper_service_name }}"
-DAEMON="{{ software_install_path }}/zookeeper/bin/zkServer.sh"
+DAEMON="{{ zookeeper_home }}/bin/zkServer.sh"
 desc="ZooKeeper daemon"
 
 start() {
@@ -81,7 +81,7 @@ sstatus(){
 }
 
 checkstatus(){
-  status -p $PIDFILE $desc
+  status -p $PIDFILE "$desc"
   RETVAL=$?
 }
 

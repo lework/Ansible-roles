@@ -25,8 +25,9 @@ zookeeper_service_status: started
 zookeeper_service_enabled: yes
 
 # Path
-zookeeper_home: "/data"
-zookeeper_conf_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}"
+zookeeper_home: "{{ software_install_path }}/zookeeper"
+zookeeper_data_home: "/data"
+zookeeper_conf_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}/config"
 zookeeper_data_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}/data"
 zookeeper_log_path: "{{ zookeeper_home }}/{{ zookeeper_service_name }}/logs"
 zookeeper_data_log_path: "{{ zookeeper_log_path }}"

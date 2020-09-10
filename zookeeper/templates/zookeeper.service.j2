@@ -6,9 +6,9 @@ After=network.target
 
 [Service]    
 Type=forking
-WorkingDirectory={{ software_install_path }}/zookeeper
-User=zookeeper
-Group=zookeeper
+WorkingDirectory={{ zookeeper_home }}
+User={{ zookeeper_user }}
+Group={{ zookeeper_group }}
 
 Environment=ZOO_LOG_DIR={{zookeeper_log_path }}
 Environment=ZK_SERVER_HEAP={{ zookeeper_server_heap }}
@@ -25,9 +25,9 @@ Environment="JMXLOG4J={{ zookeeper_jmx_log_disable }}"
 Environment="JVMFLAGS={{ zookeeper_jvm_opts }}"
 {% endif %}
 
-ExecStart={{ software_install_path }}/zookeeper/bin/zkServer.sh start {{ zookeeper_conf_path }}/zoo.cfg
-ExecStop={{ software_install_path }}/zookeeper/bin/zkServer.sh stop {{ zookeeper_conf_path }}/zoo.cfg
-ExecReload={{ software_install_path }}/zookeeper/bin/zkServer.sh restart {{ zookeeper_conf_path }}/zoo.cfg
+ExecStart={{ zookeeper_home }}/bin/zkServer.sh start {{ zookeeper_conf_path }}/zoo.cfg
+ExecStop={{ zookeeper_home }}/bin/zkServer.sh stop {{ zookeeper_conf_path }}/zoo.cfg
+ExecReload={{ zookeeper_home }}/bin/zkServer.sh restart {{ zookeeper_conf_path }}/zoo.cfg
 
 TimeoutSec=180
 Restart=on-failure
