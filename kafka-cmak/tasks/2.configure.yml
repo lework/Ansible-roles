@@ -1,0 +1,15 @@
+---
+# author: lework
+
+- name: configure | Ensure kafka cmak is started and enabled on boot.
+  service: 
+    name: "{{ kafka_cmak_service_name }}"
+    state: "{{ kafka_cmak_service_status }}"
+    enabled: "{{ kafka_cmak_service_enabled }}"
+
+- name: configure | Wait for kafka cmak port is OPEN.
+  wait_for:
+    delay: 3
+    timeout: 60
+    port: "{{ kafka_cmak_port }}"
+    state: started

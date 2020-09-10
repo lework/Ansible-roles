@@ -1,5 +1,0 @@
----
-# author: lework
-
-- include: install.yml
-- include: configure.yml

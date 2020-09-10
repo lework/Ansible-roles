@@ -1,0 +1,22 @@
+[Unit]
+Description=CMAK is a tool for managing Apache Kafka clusters
+Documentation=https://github.com/yahoo/CMAK
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+User={{ kafka_cmak_user }}
+Group={{ kafka_cmak_group }}
+
+Environment=ZK_HOSTS={{ kafka_cmak_zk_hosts }}
+Environment=KAFKA_MANAGER_AUTH_ENABLED={{ kafka_cmak_auth_enable | lower }}
+Environment=KAFKA_MANAGER_USERNAME={{ kafka_cmak_auth_user }}
+Environment=KAFKA_MANAGER_PASSWORD={{ kafka_cmak_auth_pass }}
+
+ExecStart={{ kafka_cmak_home }}/bin/cmak {% if kafka_cmak_javahome != ""%}-java-home={{ kafka_cmak_javahome }}"{% endif %} -Dconfig.file={{ kafka_cmak_home }}/conf/application.conf -Dhttp.port={{ kafka_cmak_port }} -Dapplication.home={{ kafka_cmak_home }}
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+---
+# author: lework
+
+- import_tasks: 1.install.yml
+- import_tasks: 2.configure.yml

@@ -1,0 +1,35 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+kafka_cmak_version: "3.0.0.5"
+
+kafka_cmak_file: "cmak-{{ kafka_cmak_version }}.zip"
+kafka_cmak_file_path: "{{ software_files_path }}/{{ kafka_cmak_file }}"
+kafka_cmak_file_url: "https://github.com/yahoo/CMAK/releases/download/{{ kafka_cmak_version }}/{{ kafka_cmak_file }}"
+
+# User
+kafka_cmak_user: "kafka"
+kafka_cmak_group: "kafka"
+
+# Port
+kafka_cmak_port: 9000
+
+# Path
+kafka_cmak_home: "{{ software_install_path }}/cmak"
+
+# Service
+kafka_cmak_service_name: "kafka-cmak" 
+kafka_cmak_service_status: started
+kafka_cmak_service_enabled: yes
+
+
+# Config
+kafka_cmak_zk_hosts: 'localhost:2181'
+kafka_cmak_auth_enable: true
+kafka_cmak_auth_user: "admin"
+kafka_cmak_auth_pass: "admin"
+
+kafka_cmak_javahome: ""

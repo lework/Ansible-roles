@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# Init file for Kafka cmak
+#
+# chkconfig: 35 85 15
+# description: A tool for managing Apache Kafka.
+# processname: kafka-cmak
+
+. /etc/rc.d/init.d/functions
+
+
+export ZK_HOSTS={{ kafka_cmak_zk_hosts }}
+export KAFKA_MANAGER_AUTH_ENABLED={{ kafka_cmak_auth_enable | lower }}
+export KAFKA_MANAGER_USERNAME={{ kafka_cmak_auth_user }}
+export KAFKA_MANAGER_PASSWORD={{ kafka_cmak_auth_pass }}
+
+USER="{{ kafka_cmak_user }}"
+PORT="{{ kafka_cmak_port }}"
+BASEDIR="{{ kafka_cmak_home }}"
+CONF="$BASEDIR/conf/application.conf"
+LOGFILE="/var/log/kafka-cmak.log"
+PIDFILE="/var/run/kafka-cmak.pid"
+LOCKFILE="/var/lock/subsys/kafka-cmak"
+
+java_home=""
+{% if kafka_cmak_javahome != "" %}
+java_home="-java-home {{ kafka_cmak_javahome }}"
+{% endif %}
+
+CMD="$BASEDIR/bin/cmak -Dconfig.file=$CONF -Dhttp.port=$PORT -Dapplication.home={{ kafka_cmak_home }} $java_home >> $LOGFILE 2>&1 & echo \$! > $PIDFILE"
+
+start()
+{
+  echo -n $"Starting kafka: "
+  [ ! -f "$LOGFILE" ] && touch $LOGFILE && chown $USER $LOGFILE
+  touch $PIDFILE && chown $USER $PIDFILE
+  daemon --user $USER "$CMD"
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && touch $LOCKFILE && success || failure
+  echo
+  return $RETVAL
+}
+
+stop()
+{
+  echo -n $"Stopping kafka: "
+  killproc -p $PIDFILE $USER
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+  return $RETVAL
+}
+
+restart () {
+  stop
+  start
+}
+
+RETVAL=0
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f $LOCKFILE ] && restart || :
+    ;;
+  status)
+    status -p $PIDFILE $USER
+    RETVAL=$?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    RETVAL=1
+esac
+
+exit $RETVAL

@@ -1,0 +1,76 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if kafka_cmak local file is already configured.
+    stat: path={{ software_files_path }}/{{ kafka_cmak_file }}
+    register: reg_kafka_cmak_file_result
+  
+  - name: install | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_kafka_cmak_file_result.stat.exists
+  
+  - name: install | Download kafka_cmak file.
+    get_url: url={{ kafka_cmak_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_kafka_cmak_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install | Create kafka_cmak system group.
+  group:
+    name: "{{ kafka_cmak_group }}"
+    system: true
+    state: present
+
+- name: install | Create kafka_cmak system user.
+  user:
+    name: "{{ kafka_cmak_user }}"
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: "{{ kafka_cmak_group }}"
+    createhome: false
+    
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy kafka_cmak file to agent.
+  unarchive:
+    src: "{{ software_files_path }}/{{ kafka_cmak_file }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/{{ kafka_cmak_file | regex_replace('\\.zip', '') }}/cmak"
+    owner: "{{ kafka_cmak_user }}"
+    
+- name: install | Create kafka cmak binary path soft link.
+  file:
+    src: "{{ software_install_path }}/{{ kafka_cmak_file | regex_replace('\\.zip$', '') }}"
+    dest: "{{ kafka_cmak_home }}"
+    state: link
+    owner: "{{ kafka_cmak_user }}"
+
+- block:
+  - name: install | Create kafka cmak init script.
+    template:
+      dest: "/etc/init.d/{{ kafka_cmak_service_name }}"
+      mode: 0755
+      src: cmak.init.j2
+    notify:
+      - restart kafka cmak
+  when:
+   - ansible_service_mgr != 'systemd'
+
+- block:
+  - name: install | Create systemd service unit.
+    template:
+      src: cmak.service.j2
+      dest: "/etc/systemd/system/{{ kafka_cmak_service_name }}.service"
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - restart kafka cmak
+
+  - name: install | Reload systemctl daemon.
+    systemd:
+      daemon_reload: true
+  when:
+   - ansible_service_mgr == 'systemd'
