@@ -1,0 +1,31 @@
+[Unit]
+Description=Apache Kafka server (broker)
+Documentation=http://kafka.apache.org/documentation.html
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target 
+
+[Service]    
+Type=simple
+WorkingDirectory={{ kafka_home }}
+User=kafka
+Group=kafka
+
+Environment="KAFKA_HEAP_OPTS={{ kafka_heap_opts }}"
+Environment=LOG_DIR={{ kafka_log_path }}
+{% if kafka_jmx_enabled %}
+Environment="JMX_PORT={{ kafka_jmx_port }}"
+{% endif %}
+
+ExecStart={{ kafka_home }}/bin/kafka-server-start.sh {{ kafka_conf_path }}/server.properties
+ExecStop={{ kafka_home }}/bin/kafka-server-stop.sh
+
+TimeoutSec=300
+Restart=on-failure
+SuccessExitStatus=143
+
+LimitCORE=infinity
+LimitNOFILE=655360
+LimitNPROC=655360
+
+[Install]
+WantedBy=default.target

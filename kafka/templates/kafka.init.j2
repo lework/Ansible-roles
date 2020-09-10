@@ -5,32 +5,42 @@
 # chkconfig: 35 85 15
 # description: Apache Kafka is a distributed publish-subscribe messaging system
 # processname: kafka
-# config: {{ kafka_conf }}
+# config: {{ kafka_conf_path }}/server.properties
 # pidfile: /var/run/kafka.pid
 
-. /etc/rc.d/init.d/functions
+if [ -f /etc/init.d/functions ]; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 0
+fi
 
-export LOG_DIR="{{ kafka_server_logsdir }}"
+export LOG_DIR="{{ kafka_log_path }}"
 export KAFKA_LOG4J_OPTS="-Dlog4j.configuration=file:{{ kafka_home }}/config/log4j.properties"
 export KAFKA_HEAP_OPTS="{{ kafka_heap_opts }}"
-{% if kafka_jmx_port != '' %} export JMX_PORT={{ kafka_jmx_port }}{% endif %}
+{% if kafka_jmx_enabled | bool %}
+export JMX_PORT={{ kafka_jmx_port }}
+{% endif %}
+
+RETVAL=0
 KAFKA_USER="{{ kafka_user }}"
-SYSCONFIG="/etc/sysconfig/{{ kafka_name }}"
+SYSCONFIG="/etc/sysconfig/{{ kafka_service_name }}"
 KAFKA_BASEDIR="{{ kafka_home }}"
-KAFKA_CONF="{{ kafka_conf }}"
-PIDFILE="/var/run/{{ kafka_name}}.pid"
-LOCKFILE="/var/lock/subsys/{{ kafka_name }}"
+KAFKA_CONF="{{ kafka_conf_path }}/server.properties"
+PIDFILE="/var/run/{{ kafka_service_name }}.pid"
+LOCKFILE="/var/lock/subsys/{{ kafka_service_name }}"
+CONSOLE_OUTPUT_FILE="{{ kafka_log_path }}/kafkaServer.out"
 
 [ -f "$SYSCONFIG" ] && . "$SYSCONFIG"
 
-CMD="$KAFKA_BASEDIR/bin/kafka-run-class.sh -daemon -name kafkaServer -loggc kafka.Kafka $KAFKA_CONF & echo \$! > $PIDFILE"
+CMD="$KAFKA_BASEDIR/bin/kafka-run-class.sh -name kafkaServer -loggc kafka.Kafka $KAFKA_CONF > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null & echo \$! > $PIDFILE"
 
 start()
 {
   echo -n $"Starting kafka: "
   touch $PIDFILE && chown $KAFKA_USER $PIDFILE
-  export KAFKA_OPTS
-  daemon --user $KAFKA_USER --pidfile $PIDFILE "$CMD"
+  daemon --user $KAFKA_USER "$CMD"
   RETVAL=$?
   [ $RETVAL -eq 0 ] && touch $LOCKFILE && success || failure
   echo
@@ -51,8 +61,6 @@ restart () {
   stop
   start
 }
-
-RETVAL=0
 
 case "$1" in
   start)

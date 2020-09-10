@@ -1,0 +1,12 @@
+---
+# author: lework
+
+- name: restart kafka zookeeper
+  service:
+    name: kafka-zookeeper
+    state: restarted
+    
+- name: restart kafka
+  service:
+    name: "{{ kafka_service_name }}"
+    state: restarted

@@ -1,0 +1,28 @@
+[Unit]
+Description=Apache Zookeeper server (Kafka)
+Documentation=http://zookeeper.apache.org
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]    
+Type=forking
+WorkingDirectory={{ kafka_home }}
+User={{ kafka_user }}
+Group={{ kafka_group }}
+
+Environment="KAFKA_HEAP_OPTS=-Xmx256M -Xms256M"
+Environment=LOG_DIR={{ kafka_log_path }}/zookeeper
+
+ExecStart={{ kafka_home }}/bin/zookeeper-server-start.sh -daemon {{ kafka_home }}/config/zookeeper.properties
+ExecStop={{ kafka_home }}/bin/zookeeper-server-stop.sh
+
+TimeoutSec=180
+Restart=on-failure
+SuccessExitStatus=143
+
+LimitCORE=infinity
+LimitNOFILE=655360
+LimitNPROC=655360
+
+[Install]
+WantedBy=default.target

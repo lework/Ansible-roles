@@ -1,0 +1,110 @@
+---
+# author: lework
+
+- block:
+  - name: install | Check if kafka local file is already configured.
+    stat: path={{ software_files_path }}/{{ kafka_file }}
+    register: reg_kafka_file_result
+  
+  - name: install | Make sure the software directory exists.
+    file: path={{ software_files_path }} state=directory
+    when: not reg_kafka_file_result.stat.exists
+  
+  - name: install | Download kafka file.
+    get_url: url={{ kafka_file_url }} dest={{ software_files_path }} validate_certs=no
+    when: not reg_kafka_file_result.stat.exists
+  connection: local
+  run_once: yes
+
+- name: install | Create kafka system group.
+  group:
+    name: "{{ kafka_group }}"
+    system: true
+    state: present
+
+- name: install | Create kafka system user.
+  user:
+    name: "{{ kafka_user }}"
+    system: true
+    shell: "/usr/sbin/nologin"
+    group: "{{ kafka_group }}"
+    createhome: false
+    
+- name: install | Confirm the existence of the installation directory.
+  file: path={{ software_install_path }} state=directory
+
+- name: install | Copy kafka file to agent.
+  unarchive:
+    src: "{{ software_files_path }}/{{ kafka_file }}"
+    dest: "{{ software_install_path }}"
+    creates: "{{ software_install_path }}/{{ kafka_file | regex_replace('\\.tgz$', '') }}/kafka"
+    owner: "root"
+    group: "{{ kafka_group }}"
+    
+- name: install | Create kafka binary path soft link.
+  file:
+    src: "{{ software_install_path }}/{{ kafka_file | regex_replace('\\.tgz$', '') }}"
+    dest: "{{ software_install_path }}/kafka"
+    state: link
+    owner: "root"
+    group: "{{ kafka_group }}"
+
+- name: install | Add kafka's bin dir to the PATH.
+  copy:
+    content: |
+      export KAFKA_HOME={{ kafka_home }}
+      export PATH=$PATH:{{ software_install_path }}/kafka/bin
+    dest: "/etc/profile.d/kafka.sh"
+    mode: 0755
+
+- block:
+  - name: install | Create kafka zookeeper init script.
+    template:
+      dest: "/etc/init.d/kafka-zookeeper"
+      mode: 0755
+      src: zookeeper.init.j2
+    notify:
+      - restart kafka zookeeper
+    when:
+     - ansible_service_mgr != 'systemd'
+   
+  - name: install | Create kafka zookeeper systemd service unit.
+    template:
+      src: zookeeper.service.j2
+      dest: "/etc/systemd/system/kafka-zookeeper.service"
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - restart kafka zookeeper
+    when:
+     - ansible_service_mgr == 'systemd'
+  when: kafka_standalone | bool
+  
+- block:
+  - name: install | Create kafka init script.
+    template:
+      dest: "/etc/init.d/{{ kafka_service_name }}"
+      mode: 0755
+      src: kafka.init.j2
+    notify:
+      - restart kafka
+  when:
+   - ansible_service_mgr != 'systemd'
+
+- block:
+  - name: install | Create systemd service unit.
+    template:
+      src: kafka.service.j2
+      dest: "/etc/systemd/system/{{ kafka_service_name }}.service"
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - restart kafka
+
+  - name: install | Reload systemctl daemon.
+    systemd:
+      daemon_reload: true
+  when:
+   - ansible_service_mgr == 'systemd'

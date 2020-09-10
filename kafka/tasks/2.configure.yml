@@ -1,0 +1,51 @@
+---
+# author: lework
+
+- name: configure | Confirm the existence of the config directory.
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+  loop:
+    - "{{ kafka_conf_path }}"
+    - "{{ kafka_data_path }}"
+    - "{{ kafka_log_path }}"
+
+- name: configure | Set server.properties file.
+  template:
+    src: server.properties.j2
+    dest: "{{ kafka_conf_path }}/server.properties"
+    mode: 0644
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+  notify:
+    - restart kafka
+    
+- block:
+  - name: configure | Ensure kafka zookeeper is started and enabled on boot.
+    service: 
+      name: kafka-zookeeper
+      state: "{{ kafka_service_status }}"
+      enabled: "{{ kafka_service_enabled }}"
+  
+  - name: configure | Wait for zookeeper port is OPEN.
+    wait_for:
+      delay: 3
+      timeout: 60
+      port: 2181
+      state: started
+  when: kafka_standalone | bool
+    
+- name: configure | Ensure kafka is started and enabled on boot.
+  service: 
+    name: "{{ kafka_service_name }}"
+    state: "{{ kafka_service_status }}"
+    enabled: "{{ kafka_service_enabled }}"
+
+- name: configure | Wait for kafka port is OPEN.
+  wait_for:
+    delay: 3
+    timeout: 60
+    port: "{{ kafka_port }}"
+    state: started

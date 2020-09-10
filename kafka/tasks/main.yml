@@ -1,7 +1,5 @@
 ---
 # author: lework
 
-- include: install.yml
-- include: configure.yml
-- include: standalone.yml
-  when: kafka_standalone
+- import_tasks: 1.install.yml
+- import_tasks: 2.configure.yml

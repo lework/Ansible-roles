@@ -1,50 +1,43 @@
-############################# Server Basics #############################
 
-broker.id={{ kafka_brokerid }}
-
-#delete.topic.enable=true
-
-############################# Socket Server Settings #############################
-
-listeners=PLAINTEXT://:{{ kafka_port }}{%- if kafka_ssl_port -%},SSL://:{{ kafka_ssl_port }}{% endif  %}
-
-#advertised.listeners=PLAINTEXT://your.host.name:9092
-
-#listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
-
-num.network.threads=3
-
-num.io.threads=8
-
-socket.send.buffer.bytes=102400
-
-socket.receive.buffer.bytes=102400
-
-socket.request.max.bytes=104857600
+broker.id={{ kafka_broker_id | d("0")}}
+broker.rack={{ kafka_broker_rack }}
 
 
-############################# Log Basics #############################
+listeners={{ kafka_listeners }}
+advertised.listeners={{ kafka_advertised_listeners }}
 
-log.dirs={{ kafka_logdirs }}
+compression.type=producer
+
+auto.create.topics.enable=false
+unclean.leader.election.enable=false
+controlled.shutdown.enable=true
+delete.topic.enable=true
+
+group.initial.rebalance.delay.ms=3000
+group.max.session.timeout.ms=900000
+
+default.replication.factor=1
+offsets.topic.replication.factor=3
 
 num.partitions=1
+num.io.threads=8
+num.network.threads=6
+num.recovery.threads.per.data.dir=4
 
-num.recovery.threads.per.data.dir=1
+replica.fetch.max.bytes=104857600
+message.max.bytes=104857600
 
-############################# Log Flush Policy #############################
+socket.receive.buffer.bytes=102400
+socket.request.max.bytes=104857600
+socket.send.buffer.bytes=102400
 
-#log.flush.interval.messages=10000
+log.segment.bytes=67108864
+log.segment.delete.delay.ms=1000
+log.retention.hours=72
+log.retention.check.interval.ms=60000
+log.dirs={{ kafka_data_path }}
 
-#log.flush.interval.ms=1000
-
-############################# Log Retention Policy #############################
-
-log.retention.hours=168
-#log.retention.bytes=1073741824
-log.segment.bytes=1073741824
-log.retention.check.interval.ms=300000
-
-############################# Zookeeper #############################
-
-zookeeper.connect={{ kafka_zk_quorum }}
+zookeeper.connect={{ kafka_zookeeper_hosts }}
 zookeeper.connection.timeout.ms=6000
+
+{{ kafka_config_extra | d() }}
