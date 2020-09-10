@@ -69,7 +69,7 @@ kafka_cmak_javahome: ""
 
 ## github地址
 
-https://github.com/lework/Ansible-roles/tree/master/cmak
+https://github.com/lework/Ansible-roles/tree/master/kafka-cmak
 
 ## Example Playbook
 
