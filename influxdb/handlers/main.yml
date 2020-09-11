@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: restart influxdb
+  service:
+    name: influxdb
+    state: restarted

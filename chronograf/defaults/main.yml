@@ -1,0 +1,15 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+chronograf_version: "1.8.6"
+
+
+# Service
+chronograf_service_status: started
+chronograf_service_enabled: yes
+
+# Port
+chronograf_port: 8888

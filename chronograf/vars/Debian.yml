@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__package_file: chronograf_{{ chronograf_version }}_amd64.deb
+__package_file_url: https://dl.influxdata.com/chronograf/releases/{{ __package_file }}

@@ -1,0 +1,63 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+telegraf_version: "1.15.2"
+
+
+# Service
+telegraf_service_status: started
+telegraf_service_enabled: yes
+
+# Config
+telegraf_conf_path: /etc/telegraf/
+telegraf_influxdb_url: ["http://localhost:8086"] 
+
+telegraf_conf: |
+  [global_tags]
+  
+  [agent]
+    interval = "10s"
+    round_interval = true
+    metric_batch_size = 1000
+    metric_buffer_limit = 10000
+    collection_jitter = "0s"
+    flush_interval = "10s"
+    flush_jitter = "0s"
+    precision = ""
+    hostname = ""
+    omit_hostname = false
+  
+  [[inputs.cpu]]
+    percpu = true
+    totalcpu = true
+    collect_cpu_time = false
+    report_active = false
+  [[inputs.disk]]
+    ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+  [[inputs.diskio]]
+  [[inputs.kernel]]
+  [[inputs.mem]]
+  [[inputs.processes]]
+  [[inputs.swap]]
+  [[inputs.system]]
+  [[inputs.net]]
+  [[inputs.netstat]]
+  [[inputs.nstat]]
+    proc_net_netstat = "/proc/net/netstat"
+    proc_net_snmp = "/proc/net/snmp"
+    proc_net_snmp6 = "/proc/net/snmp6"
+    dump_zeros       = true
+  [[inputs.conntrack]]
+     files = ["ip_conntrack_count","ip_conntrack_max",
+              "nf_conntrack_count","nf_conntrack_max"]
+     dirs = ["/proc/sys/net/ipv4/netfilter","/proc/sys/net/netfilter"]
+     
+  [[outputs.influxdb]]
+    urls = {{ telegraf_influxdb_url | to_json }}
+    database = "telegraf"
+    timeout = "5s"
+  
+telegraf_conf_file: ""

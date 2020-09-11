@@ -1,0 +1,36 @@
+---
+# author: lework
+
+- name: configure | Setup kapacitor configuration file.
+  template:
+    src: kapacitor.conf.j2
+    dest: "{{ kapacitor_conf_path }}/kapacitor.conf"
+    mode: 0644
+    backup: yes
+  notify: restart kapacitor
+  when:
+    - kapacitor_conf is defined
+    - kapacitor_conf != ""
+
+- name: configure | Copy kapacitor configuration file.
+  copy:
+    src: "{{ kapacitor_conf_file }}"
+    dest: "{{ kapacitor_conf_path }}/kapacitor.conf"
+    backup: yes
+  notify: restart kapacitor
+  when:
+    - kapacitor_conf_file is defined
+    - kapacitor_conf_file != ""
+
+- name: configure | Manage kapacitor services.
+  service:
+    name: kapacitor
+    state: "{{ kapacitor_service_status }}"
+    enabled: "{{ kapacitor_service_enabled }}"
+
+- name: configure | Wait for kapacitor http port is OPEN.
+  wait_for:
+    delay: 3
+    timeout: 60
+    port: "{{ kapacitor_http_port }}"
+    state: started

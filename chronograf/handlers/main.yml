@@ -1,0 +1,7 @@
+---
+# author: lework
+
+- name: restart chronograf
+  service:
+    name: chronograf
+    state: restarted

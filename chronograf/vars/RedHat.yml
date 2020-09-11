@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__package_file: chronograf-{{ chronograf_version }}.x86_64.rpm
+__package_file_url: https://dl.influxdata.com/chronograf/releases/{{ __package_file }}

@@ -1,0 +1,29 @@
+---
+# author: lework
+
+- name: configure | Setup telegraf configuration file.
+  template:
+    src: telegraf.conf.j2
+    dest: "{{ telegraf_conf_path }}/telegraf.conf"
+    mode: 0644
+    backup: yes
+  notify: restart telegraf
+  when:
+    - telegraf_conf is defined
+    - telegraf_conf != ""
+
+- name: configure | Copy telegraf configuration file.
+  copy:
+    src: "{{ telegraf_conf_file }}"
+    dest: "{{ telegraf_conf_path }}/telegraf.conf"
+    backup: yes
+  notify: restart telegraf
+  when:
+    - telegraf_conf_file is defined
+    - telegraf_conf_file != ""
+
+- name: configure | Manage telegraf services.
+  service:
+    name: telegraf
+    state: "{{ telegraf_service_status }}"
+    enabled: "{{ telegraf_service_enabled }}"

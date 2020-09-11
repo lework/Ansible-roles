@@ -1,0 +1,36 @@
+---
+# author: lework
+
+- name: configure | Setup influxdb configuration file.
+  template:
+    src: influxdb.conf.j2
+    dest: "{{ influxdb_conf_path }}/influxdb.conf"
+    mode: 0644
+    backup: yes
+  notify: restart influxdb
+  when:
+    - influxdb_conf is defined
+    - influxdb_conf != ""
+
+- name: configure | Copy influxdb configuration file.
+  copy:
+    src: "{{ influxdb_conf_file }}"
+    dest: "{{ influxdb_conf_path }}/influxdb.conf"
+    backup: yes
+  notify: restart influxdb
+  when:
+    - influxdb_conf_file is defined
+    - influxdb_conf_file != ""
+
+- name: configure | Manage influxdb services.
+  service:
+    name: influxdb
+    state: "{{ influxdb_service_status }}"
+    enabled: "{{ influxdb_service_enabled }}"
+
+- name: configure | Wait for influxdb http port is OPEN.
+  wait_for:
+    delay: 3
+    timeout: 60
+    port: "{{ influxdb_http_port }}"
+    state: started

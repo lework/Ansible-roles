@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__package_file: telegraf_{{ telegraf_version }}-1_amd64.deb
+__package_file_url: https://dl.influxdata.com/telegraf/releases/{{ __package_file }}

@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__package_file: telegraf-{{ telegraf_version }}-1.x86_64.rpm
+__package_file_url: https://dl.influxdata.com/telegraf/releases/{{ __package_file }}

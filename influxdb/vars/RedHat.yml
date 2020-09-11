@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__package_file: influxdb-{{ influxdb_version }}.x86_64.rpm
+__package_file_url: https://dl.influxdata.com/influxdb/releases/{{ __package_file }}

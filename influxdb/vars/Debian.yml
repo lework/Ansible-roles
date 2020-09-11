@@ -1,0 +1,5 @@
+---
+# author: lework
+
+__package_file: influxdb_{{ influxdb_version }}_amd64.deb
+__package_file_url: https://dl.influxdata.com/influxdb/releases/{{ __package_file }}

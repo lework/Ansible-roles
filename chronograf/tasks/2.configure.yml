@@ -1,0 +1,23 @@
+---
+# author: lework
+
+- name: configure | Setup chronograf Environment file.
+  copy:
+    content: |
+      PORT={{ chronograf_port }}
+    dest: "/etc/default/chronograf"
+    mode: 0644
+  notify: restart chronograf
+
+- name: configure | Manage chronograf services.
+  service:
+    name: chronograf
+    state: "{{ chronograf_service_status }}"
+    enabled: "{{ chronograf_service_enabled }}"
+
+- name: configure | Wait for chronograf port is OPEN.
+  wait_for:
+    delay: 3
+    timeout: 60
+    port: "{{ chronograf_port }}"
+    state: started

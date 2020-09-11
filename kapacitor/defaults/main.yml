@@ -1,0 +1,87 @@
+---
+# author: lework
+
+software_files_path: "/opt/software"
+software_install_path: "/usr/local"
+
+kapacitor_version: "1.5.6"
+
+
+# Service
+kapacitor_service_status: started
+kapacitor_service_enabled: yes
+
+# Port
+kapacitor_http_port: 9092
+
+# Config
+kapacitor_conf_path: /etc/kapacitor/
+kapacitor_influxdb_url: ["http://localhost:8086"]
+
+kapacitor_conf: |
+  hostname = "{{ ansible_nodename |d ('localhost') }}"
+  data_dir = "/var/lib/kapacitor"
+  skip-config-overrides = false
+  default-retention-policy = ""
+  [http]
+    bind-address = ":{{ kapacitor_http_port }}"
+    log-enabled = true
+    write-tracing = false
+    pprof-enabled = false
+    https-enabled = false
+    https-certificate = "/etc/ssl/kapacitor.pem"
+  [tls]
+  [config-override]
+    enabled = true
+  [logging]
+      file = "/var/log/kapacitor/kapacitor.log"
+      level = "INFO"
+  [load]
+    enabled = true
+    dir = "/etc/kapacitor/load"
+  [replay]
+    dir = "/var/lib/kapacitor/replay"
+  [task]
+    dir = "/var/lib/kapacitor/tasks"
+    snapshot-interval = "60s"
+  [storage]
+    boltdb = "/var/lib/kapacitor/kapacitor.db"
+  [[influxdb]]
+    enabled = true
+    default = true
+    name = "default"
+    urls = {{ kapacitor_influxdb_url | to_json }}
+    username = ""
+    password = ""
+    timeout = 0
+    insecure-skip-verify = false
+    startup-timeout = "5m"
+    disable-subscriptions = false
+    subscription-mode = "cluster"
+    subscription-protocol = "http"
+    subscriptions-sync-interval = "1m0s"
+    kapacitor-hostname = ""
+    http-port = 0
+    udp-bind = ""
+    udp-buffer = 1000
+    udp-read-buffer = 0
+    [influxdb.subscriptions]
+    [influxdb.excluded-subscriptions]
+  [smtp]
+    enabled = false
+    host = "localhost"
+    port = 25
+    username = ""
+    password = ""
+    from = ""
+    no-verify = false
+    idle-timeout = "30s"
+    global = false
+    state-changes-only = false
+  [stats]
+    enabled = true
+    stats-interval = "10s"
+    database = "_kapacitor"
+    retention-policy= "autogen"
+  
+kapacitor_conf_file: ""
