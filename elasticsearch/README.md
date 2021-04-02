@@ -202,16 +202,17 @@ https://github.com/lework/Ansible-roles/tree/master/elasticsearch
 
 ```yaml
 ---
-
+# 主机名设置
 - hosts: 192.168.77.132,192.168.77.133,192.168.77.134
   vars:
     - ipnames:
-        '192.168.77.132': 'es-node1'
-        '192.168.77.133': 'es-node2'
-        '192.168.77.134': 'es-node3'
+        '192.168.77.132': 'es-master'
+        '192.168.77.133': 'es-data1'
+        '192.168.77.134': 'es-data2'
   roles:
     - hostnames
 
+# master节点
 - hosts: 192.168.77.132
   vars:
     - elasticsearch_repo_install: false
@@ -223,10 +224,11 @@ https://github.com/lework/Ansible-roles/tree/master/elasticsearch
           - '192.168.77.133'
           - '192.168.77.134'
         cluster.initial_master_nodes:
-          - 'es-node1'
+          - 'es-master'
   roles:
   - elasticsearch
 
+# data节点
 - hosts: 192.168.77.133,192.168.77.134
   vars:
     - elasticsearch_repo_install: false

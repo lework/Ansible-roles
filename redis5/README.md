@@ -145,7 +145,7 @@ https://github.com/lework/Ansible-roles/tree/master/redis5
   roles:
    - redis5
    
-# 复制组
+# 复制组, 单机多实例
 - hosts: 192.168.77.140
   vars:
     - redis_master_host: '127.0.0.1'
@@ -157,7 +157,7 @@ https://github.com/lework/Ansible-roles/tree/master/redis5
    - { role: redis5,redis_port: 6381, redis_slave: true }
    - { role: redis5,redis_port: 6382, redis_slave: true }
    
-# 哨兵模式
+# 哨兵模式, 单机多实例
 - hosts: 192.168.77.140
   vars:
     - redis_master_host: '192.168.77.140'
@@ -178,7 +178,7 @@ https://github.com/lework/Ansible-roles/tree/master/redis5
    - { role: redis5, redis_port: 16381, redis_sentinel: true }
    - { role: redis5, redis_port: 16382, redis_sentinel: true }
   
-# 集群模式
+# 集群模式, 单机多实例
 - hosts: 192.168.77.140
   vars:
     - redis_cluster: true 
@@ -191,6 +191,24 @@ https://github.com/lework/Ansible-roles/tree/master/redis5
    - { role: redis5, redis_port: 7010 }
    - { role: redis5, redis_port: 7011 }
    - { role: redis5, redis_port: 7012, redis_cluster_replicas: '192.168.77.140:7000 192.168.77.140:7001 192.168.77.140:7002 192.168.77.140:7010 192.168.77.140:7011 192.168.77.140:7012 --cluster-replicas 1 -a 123456 --cluster-yes' }
+
+# 集群模式
+- hosts: 192.168.77.140 192.168.77.141 192.168.77.142 192.168.77.143 192.168.77.144 
+  vars:
+    - redis_cluster: true 
+    - redis_requirepass: '123456'
+    - redis_masterauth: '123456'
+  roles:
+   - redis5
+
+- hosts: 192.168.77.145
+  vars:
+    - redis_cluster: true 
+    - redis_requirepass: '123456'
+    - redis_masterauth: '123456'
+  roles:
+   - { role: redis5, redis_cluster_replicas: '192.168.77.140:6379 192.168.77.141:6379 192.168.77.142:6379 192.168.77.143:6379 192.168.77.144:6379 192.168.77.145:6379 --cluster-replicas 1 -a 123456 --cluster-yes' }
+
 ```
 
 ## 使用
