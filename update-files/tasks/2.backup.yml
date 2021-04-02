@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- name: backup | 将目标源文件备份。
+  copy:
+    src: "{{ dest_path }}/"
+    dest: "{{ dest_path }}_{{ lookup('pipe', 'date +%s') }}_backup"
+    remote_src: true

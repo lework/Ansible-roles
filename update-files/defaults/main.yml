@@ -1,0 +1,16 @@
+---
+# author: lework
+
+# 源目录
+src_path: ""
+
+# 目标目录
+dest_path: ""
+
+# 文件权限
+file_user: root
+file_group: root
+file_mode: '0644'
+
+# 应用重载
+reload_app: nginx

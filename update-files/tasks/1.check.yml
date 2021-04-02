@@ -1,0 +1,24 @@
+---
+# author: lework
+
+- name: check | 获取需要更新的文件信息。
+  find: paths={{ src_path }} patterns='*' recurse=yes
+  connection: local
+  register: _update_file_info
+  when: src_path != ""
+
+- name: check | 检查同步文件。
+  fail:
+    msg: "本地 {{ src_path }} 目录中不存在文件"
+  when: src_path == "" or _update_file_info.files | length < 1
+  
+- name: check | 获取同步节点目录信息。
+  stat:
+    path: "{{ dest_path }}"
+  register: _dest_path_info
+  when: dest_path != ""
+
+- name: check | 检查同步目录。
+  fail:
+    msg: "目标节点不存在 {{ dest_path }} 目录"
+  when: dest_path == "" or not _dest_path_info.stat.exists

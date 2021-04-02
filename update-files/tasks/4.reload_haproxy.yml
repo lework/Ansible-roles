@@ -1,0 +1,10 @@
+---
+# author: lework
+
+- name: "reload | 检查 {{ reload_app }} 配置。"
+  shell: haproxy -c -f /etc/haproxy/haproxy.cfg 
+
+- name: "reload | 重新加载 {{ reload_app }}。"
+  systemd:
+    name: haproxy
+    state: reloaded

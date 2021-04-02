@@ -1,0 +1,8 @@
+---
+# author: lework
+
+- name: clean | 清理临时文件。
+  file:
+    path: "/tmp/{{ item.path | basename }}"
+    state: absent
+  loop: "{{ _update_file_info.files }}"

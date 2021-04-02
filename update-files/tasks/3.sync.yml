@@ -1,0 +1,18 @@
+---
+# author: lework
+
+- name: sync | 同步文件到目标节点临时目录。
+  copy:
+    src: "{{ item.path }}"
+    dest: "/tmp/"
+  loop: "{{ _update_file_info.files }}"
+
+- name: sync | 将同步文件从临时目录移动到目标目录。
+  copy:
+    src: "/tmp/{{ item.path | basename }}"
+    dest: "{{ dest_path }}/"
+    owner: "{{ file_user }}"
+    group: "{{ file_group }}"
+    mode: "{{ file_mode }}"
+    remote_src: true
+  loop: "{{ _update_file_info.files }}"

@@ -1,0 +1,17 @@
+---
+# author: lework
+
+# 预检查
+- import_tasks: 1.check.yml
+
+# 备份源目录
+- import_tasks: 2.backup.yml
+
+# 同步文件
+- import_tasks: 3.sync.yml
+
+# 应用重新加载
+- import_tasks: 4.reload_{{ reload_app }}.yml
+
+# 清理
+- import_tasks: 5.clean.yml
