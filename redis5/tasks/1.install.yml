@@ -49,7 +49,7 @@
   register: redis_bin_result
 
 - name: install | Build an install redis.
-  shell: "make && make PREFIX={{ software_install_path }}/redis-{{ redis_version }} install" 
+  shell: "make -j {{ansible_processor_vcpus }} && make USE_SYSTEMD=yes PREFIX={{ software_install_path }}/redis-{{ redis_version }} install" 
   args:
     chdir: "/tmp/redis-{{ redis_version }}/"
     creates: "/usr/local/redis-{{ redis_version }}"
