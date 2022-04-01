@@ -60,7 +60,7 @@ def get_check_data(data):
     item['summary']['bad'] = len(item['bad_item'])
     item['summary']['critical'] = len(item['critical_item'])
     item['summary']['error'] = len(item['error_item'])
-    item['summary']['total'] = len(data)
+    item['summary']['total'] =  item['summary']['ok'] + item['summary']['bad'] + item['summary']['critical'] + item['summary']['error']
 
     # sorted
     item['ok_item'] = sorted(iteritems(item['ok_item']))
