@@ -37,6 +37,8 @@ function check_used() {
 
   item=$1
   value=${2:-0}
+  
+  [[ !"$value" =~ ^|0-9|+$ ]] && return
 
   if [[ ${value%.*} -ge ${critical_threshold%.*} ]]; then
     critical=${critical}'"'${item}'",'
