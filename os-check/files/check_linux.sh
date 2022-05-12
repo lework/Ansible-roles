@@ -38,7 +38,8 @@ function check_used() {
   item=$1
   value=${2:-0}
   
-  [[ !"$value" =~ ^|0-9|+$ ]] && return
+  # 忽略小数位，不能数字对比时，直接返回。
+  [[ ${value%.*} -ge 0 ]] 2>/dev/null || return
 
   if [[ ${value%.*} -ge ${critical_threshold%.*} ]]; then
     critical=${critical}'"'${item}'",'
